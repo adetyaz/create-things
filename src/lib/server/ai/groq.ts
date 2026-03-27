@@ -9,11 +9,13 @@ import {
 	ROADMAP_SYSTEM,
 	roadmapPrompt,
 	CAPTION_SYSTEM,
-	captionPrompt
+	captionPrompt,
+	TEXT_ANALYSIS_SYSTEM,
+	textAnalysisPrompt
 } from './prompts.js';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'llama3-70b-8192';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
 interface GroqMessage {
 	role: 'system' | 'user' | 'assistant';
@@ -51,6 +53,37 @@ async function groqChat<T>(messages: GroqMessage[]): Promise<T> {
 	}
 
 	return JSON.parse(rawText) as T;
+}
+
+// --- Text-only visual analysis fallback (used when Gemini quota is exhausted) ---
+
+export interface VisualAnalysisResult {
+	colors: string;
+	typography: string;
+	layout: string;
+	mood: string[];
+	style: string;
+	components: string;
+	attribution: string;
+	forDevelopers: string;
+	forCreators: string;
+	roadmapSuggestions: string;
+}
+
+/** Analyze using only color palette + URL — fallback when all Gemini models are quota-limited. */
+export async function analyzeFromText(opts: {
+	colorPalette: string;
+	sourceUrl?: string;
+	userNote?: string;
+}): Promise<VisualAnalysisResult> {
+	const result = await groqChat<VisualAnalysisResult>([
+		{ role: 'system', content: TEXT_ANALYSIS_SYSTEM },
+		{ role: 'user', content: textAnalysisPrompt(opts) }
+	]);
+	if (!Array.isArray(result.mood)) {
+		result.mood = typeof result.mood === 'string' ? [result.mood] : [];
+	}
+	return result;
 }
 
 // --- Note analysis ---

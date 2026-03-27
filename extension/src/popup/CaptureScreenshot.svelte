@@ -1,11 +1,18 @@
 <script lang="ts">
-	import { sendCapture, type CapturePayload } from '../background/capture';
+	import { sendCapture, getApiBase, type CapturePayload } from '../background/capture';
+	import SuccessState from './SuccessState.svelte';
 
 	let preview = $state('');
 	let note = $state('');
 	let saving = $state(false);
 	let saved = $state(false);
+	let savedPageId = $state('');
+	let apiBase = $state('http://localhost:5173');
 	let error = $state('');
+
+	$effect(() => {
+		getApiBase().then((b) => (apiBase = b));
+	});
 	let capturing = $state(false);
 
 	async function captureFullPage() {
@@ -31,7 +38,6 @@
 		error = '';
 
 		try {
-			// Send message to content script to start area selection
 			const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 			if (!tab?.id) {
 				error = 'No active tab';
@@ -39,8 +45,18 @@
 				return;
 			}
 
+			// Ensure the content script is present (may not be on pre-existing tabs)
+			try {
+				await chrome.scripting.executeScript({
+					target: { tabId: tab.id },
+					files: ['screenshot.js']
+				});
+			} catch {
+				// Already injected — ignore the error
+			}
+
 			chrome.tabs.sendMessage(tab.id, { type: 'START_AREA_SELECT' });
-			// Close popup — content script will handle the rest and send to background
+			// Close popup — content script handles the rest
 			window.close();
 		} catch (err) {
 			error = String(err);
@@ -64,6 +80,7 @@
 		saving = false;
 
 		if (result.success) {
+			savedPageId = result.pageId || '';
 			saved = true;
 		} else {
 			error = result.error || 'Failed to save';
@@ -74,18 +91,13 @@
 		preview = '';
 		note = '';
 		saved = false;
+		savedPageId = '';
 		error = '';
 	}
 </script>
 
 {#if saved}
-	<div class="flex flex-col items-center gap-3 p-4 text-center">
-		<div class="text-2xl">&#10003;</div>
-		<p class="text-sm font-medium text-teal-600">Saved to Notion</p>
-		<button onclick={reset} class="text-xs text-gray-400 underline hover:text-gray-600">
-			Capture another
-		</button>
-	</div>
+	<SuccessState pageId={savedPageId} {apiBase} onReset={reset} />
 {:else if preview}
 	<div class="flex flex-col gap-3">
 		<img

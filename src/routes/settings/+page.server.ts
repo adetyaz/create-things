@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import { WEBHOOK_SECRET } from '$env/static/private';
 import { createNotionClient } from '$lib/server/notion/client.js';
 import type { PageServerLoad, Actions } from './$types.js';
 
@@ -19,8 +20,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 			const client = createNotionClient(token);
 			try {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const response = await (client.databases as any).query({
-					database_id: dbIds.userProfile,
+				const response = await (client.dataSources as any).query({
+					data_source_id: dbIds.userProfile,
 					page_size: 1
 				});
 				if (response.results.length) {
@@ -35,7 +36,28 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		}
 	}
 
-	return { connected, figmaConnected, figmaFileKey, staleThreshold, platforms };
+	// Build webhook config for Notion Automation setup (item 22)
+	const dbIds = connected ? JSON.parse(cookies.get('notion_db_ids') || '{}') : {};
+	const notionToken = token || '';
+	const webhookBody = JSON.stringify(
+		{
+			page_id: '{{trigger.page.id}}',
+			notion_token: notionToken,
+			db_ids: dbIds
+		},
+		null,
+		2
+	);
+
+	return {
+		connected,
+		figmaConnected,
+		figmaFileKey,
+		staleThreshold,
+		platforms,
+		webhookSecret: WEBHOOK_SECRET,
+		webhookBody
+	};
 };
 
 export const actions: Actions = {
@@ -68,8 +90,8 @@ export const actions: Actions = {
 
 		if (dbIds.userProfile) {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const response = await (client.databases as any).query({
-				database_id: dbIds.userProfile,
+			const response = await (client.dataSources as any).query({
+				data_source_id: dbIds.userProfile,
 				page_size: 1
 			});
 			if (response.results.length) {

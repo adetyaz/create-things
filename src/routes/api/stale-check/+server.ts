@@ -28,8 +28,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (dbIds.userProfile) {
 		try {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const profileResponse = await (client.databases as any).query({
-				database_id: dbIds.userProfile,
+			const profileResponse = await (client.dataSources as any).query({
+				data_source_id: dbIds.userProfile,
 				page_size: 1
 			});
 			if (profileResponse.results.length) {
@@ -47,8 +47,8 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	// Find items that are Ready or Active and older than the threshold
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const response = await (client.databases as any).query({
-		database_id: dbIds.inspirationVault,
+	const response = await (client.dataSources as any).query({
+		data_source_id: dbIds.inspirationVault,
 		filter: {
 			and: [
 				{

@@ -2,6 +2,14 @@
 	import type { PageData } from './$types.js';
 
 	let { data }: { data: PageData } = $props();
+	let expandedProject = $state<string | null>(null);
+
+	function youtubeEmbed(url: string): string | null {
+		const m =
+			url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/) ||
+			null;
+		return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+	}
 </script>
 
 <svelte:head>
@@ -36,10 +44,15 @@
 				<h2 class="mb-6 text-2xl font-semibold text-zinc-100">Work</h2>
 				<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{#each data.projects as project (project.id)}
-						<div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
-							{#if project.finalOutput}
+						<button
+							type="button"
+							class="rounded-xl border border-zinc-800 bg-zinc-900 p-5 text-left transition-colors hover:border-zinc-700"
+							onclick={() =>
+								(expandedProject = expandedProject === project.id ? null : project.id)}
+						>
+							{#if project.coverImage}
 								<img
-									src={project.finalOutput}
+									src={project.coverImage}
 									alt={project.title}
 									class="mb-4 aspect-video w-full rounded-lg object-cover"
 								/>
@@ -52,15 +65,62 @@
 									{project.remixTag}
 								</span>
 							{/if}
-							{#if project.journal}
-								<p class="mt-2 line-clamp-3 text-sm text-zinc-400">{project.journal}</p>
-							{/if}
 							{#if project.dateCompleted}
 								<p class="mt-3 text-xs text-zinc-500">{project.dateCompleted}</p>
 							{/if}
-						</div>
+						</button>
 					{/each}
 				</div>
+
+				<!-- Expanded project detail -->
+				{#each data.projects as project (project.id)}
+					{#if expandedProject === project.id && project.blocks?.length}
+						<div class="mt-6 rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+							<h3 class="mb-4 text-xl font-semibold text-zinc-100">{project.title}</h3>
+							<div class="space-y-3">
+								{#each project.blocks as block, bi (bi)}
+									{#if block.type === 'heading_2'}
+										<h2 class="text-lg font-semibold text-zinc-100">{block.content}</h2>
+									{:else if block.type === 'heading_3'}
+										<h3 class="text-base font-medium text-zinc-200">{block.content}</h3>
+									{:else if block.type === 'bulleted_list_item'}
+										<p class="pl-4 text-sm text-zinc-400">
+											&bull;&nbsp;{block.content}
+										</p>
+									{:else if block.type === 'image' && block.content}
+										<img
+											src={block.content}
+											alt=""
+											class="max-h-96 w-full rounded-lg object-contain"
+										/>
+									{:else if block.type === 'video' && block.content}
+										{#if youtubeEmbed(block.content)}
+											<iframe
+												src={youtubeEmbed(block.content)}
+												title="Video"
+												class="aspect-video w-full rounded-lg"
+												frameborder="0"
+												allowfullscreen
+											></iframe>
+										{:else}
+											<!-- eslint-disable-next-line svelte/valid-each-key -- external URL, not a route -->
+											<a
+												href={block.content}
+												target="_blank"
+												rel="external noopener noreferrer"
+												class="text-sm text-violet-400 underline">{block.content}</a
+											>
+										{/if}
+									{:else if block.type === 'divider'}
+										<hr class="border-zinc-800" />
+									{:else if block.content}
+										<p class="text-sm leading-relaxed text-zinc-400">{block.content}</p>
+									{/if}
+								{/each}
+							</div>
+						</div>
+					{/if}
+				{/each}
 			</section>
 		{/if}
 
@@ -72,15 +132,6 @@
 					{#each data.completedMilestones as milestone (milestone.id)}
 						<div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
 							<h3 class="mb-2 text-lg font-medium text-zinc-100">{milestone.title}</h3>
-							{#if milestone.completedSkills.length > 0}
-								<div class="flex flex-wrap gap-2">
-									{#each milestone.completedSkills as skill (skill)}
-										<span class="rounded bg-sky-500/10 px-2 py-0.5 text-xs text-sky-300">
-											{skill}
-										</span>
-									{/each}
-								</div>
-							{/if}
 						</div>
 					{/each}
 				</div>

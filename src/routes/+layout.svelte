@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
+	import Toast from '$lib/components/Toast.svelte';
 
 	let { children } = $props();
 
@@ -38,9 +39,16 @@
 							{item.label}
 						</a>
 					{/each}
+					<a
+						href={resolve('/api/notion/logout')}
+						class="text-sm text-gray-400 transition-colors hover:text-red-500"
+					>
+						Logout
+					</a>
 				</div>
 			</div>
 		</nav>
 	{/if}
 	{@render children()}
 </div>
+<Toast />

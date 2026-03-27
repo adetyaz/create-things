@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { createNotionClient } from '$lib/server/notion/client.js';
+import { publishToBuffer } from '$lib/server/publish/buffer.js';
 import type { PageServerLoad, Actions } from './$types.js';
 
 export const load: PageServerLoad = async ({ cookies }) => {
@@ -15,8 +16,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 	// Query the Publish Queue — show all entries ordered by status
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const response = await (client.databases as any).query({
-		database_id: dbIds.publishQueue,
+	const response = await (client.dataSources as any).query({
+		data_source_id: dbIds.publishQueue,
 		sorts: [{ property: 'Status', direction: 'ascending' }]
 	});
 
@@ -53,13 +54,39 @@ export const actions: Actions = {
 
 		const client = createNotionClient(token);
 
+		// Fetch the full page to get captions + platforms
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const page = (await client.pages.retrieve({ page_id: entryId })) as any;
+		const props = page.properties;
+		const platforms: string[] =
+			props.Platforms?.multi_select?.map((p: { name: string }) => p.name) || [];
+
+		const captionMap: Record<string, string> = {
+			twitter: props['Caption Twitter']?.rich_text?.[0]?.text?.content || '',
+			linkedin: props['Caption LinkedIn']?.rich_text?.[0]?.text?.content || '',
+			instagram: props['Caption Instagram']?.rich_text?.[0]?.text?.content || '',
+			reddit: props['Caption Reddit']?.rich_text?.[0]?.text?.content || ''
+		};
+
+		// Publish to each selected platform
+		const results = await Promise.allSettled(
+			platforms.map((platform) =>
+				publishToBuffer({
+					platform,
+					text: captionMap[platform.toLowerCase()] || captionMap.twitter
+				})
+			)
+		);
+
+		// Mark as Published in Notion
 		await client.pages.update({
 			page_id: entryId,
 			properties: {
-				Status: { select: { name: 'Approved' } }
+				Status: { select: { name: 'Published' } },
+				'Published At': { date: { start: new Date().toISOString() } }
 			}
 		});
 
-		return { success: true };
+		return { success: true, results };
 	}
 };

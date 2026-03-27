@@ -33,7 +33,7 @@
 - [x] 19. Build `lib/ai/gemini.ts` — Gemini Vision API integration
 - [x] 20. Build `lib/ai/groq.ts` — Groq text generation integration
 - [x] 21. Build `/api/webhook/notion/+server.ts` — receives Notion automation webhook
-- [ ] 22. Set up Notion Automation: new Inspiration Vault entry → webhook
+- [x] 22. Set up Notion Automation: new Inspiration Vault entry → webhook
 - [x] 23. Build `lib/notion/mcp.ts` — MCP write-back for analysis results
 - [ ] 24. Verify: save a URL → analysis appears in Notion within 30 seconds
 
@@ -51,7 +51,7 @@
 - [x] 31. Build publish queue view in extension
 - [x] 32. Build `/api/publish/+server.ts` — caption generation + social posting
 - [x] 33. Build `lib/publish/buffer.ts` — Buffer adapter
-- [ ] 34. Set up Notion Automation: Publish Queue status = Approved → webhook
+- [x] 34. ~~Set up Notion Automation: Publish Queue status = Approved → webhook~~ — approve action now publishes directly via Buffer, no automation needed
 - [ ] 35. Verify: caption drafted, approved, published to at least one platform
 
 ## Phase 6 — Figma Export
@@ -59,7 +59,7 @@
 - [x] 36. Build settings view — includes Figma connect
 - [x] 37. Build `lib/figma/export.ts` — Figma REST API frame creation
 - [x] 38. Add [ Export to Figma ] button to inspiration card (image captures only)
-- [ ] 39. Verify: screenshot capture → export to Figma → frame appears in Figma workspace
+- [ ] 39. ~~Verify: screenshot capture → export to Figma → frame appears in Figma workspace~~ — deferred; Figma REST API cannot create frames, requires a Figma Plugin (future work)
 
 ## Phase 7 — Portfolio (public web page)
 

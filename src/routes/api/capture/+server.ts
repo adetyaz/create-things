@@ -70,7 +70,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const page = await (client.pages.create as (args: any) => Promise<any>)({
-		parent: { database_id: dbIds.inspirationVault },
+		parent: { data_source_id: dbIds.inspirationVault },
 		properties,
 		...(children.length > 0 ? { children } : {})
 	});

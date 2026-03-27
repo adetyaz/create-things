@@ -8,7 +8,8 @@ export interface NotionStatus {
 /** Check if Notion is connected by hitting the SvelteKit status endpoint. */
 export async function checkNotionConnection(): Promise<NotionStatus> {
 	try {
-		const response = await fetch(`${API_BASE}/api/notion/status`, {
+		const apiBase = await getApiBase();
+		const response = await fetch(`${apiBase}/api/notion/status`, {
 			credentials: 'include'
 		});
 		if (!response.ok) return { connected: false, databases: null };

@@ -2,12 +2,41 @@ import { error } from '@sveltejs/kit';
 import { createNotionClient } from '$lib/server/notion/client.js';
 import type { PageServerLoad } from './$types.js';
 
-/**
- * Portfolio page — public, no auth required for viewing.
- * We need a Notion token to query data. In production, this would use
- * a service integration token. For now, we attempt to find the user's
- * data via a lookup approach.
- */
+interface PortfolioBlock {
+	type: string;
+	content: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function blockToPortfolio(block: any): PortfolioBlock | null {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const text = (rt: any[]) => rt?.map((t: any) => t.plain_text).join('') || '';
+	switch (block.type) {
+		case 'paragraph':
+			return { type: 'paragraph', content: text(block.paragraph?.rich_text) };
+		case 'heading_1':
+		case 'heading_2':
+			return { type: 'heading_2', content: text(block[block.type]?.rich_text) };
+		case 'heading_3':
+			return { type: 'heading_3', content: text(block.heading_3?.rich_text) };
+		case 'bulleted_list_item':
+			return { type: 'bulleted_list_item', content: text(block.bulleted_list_item?.rich_text) };
+		case 'image':
+			return {
+				type: 'image',
+				content: block.image?.external?.url || block.image?.file?.url || ''
+			};
+		case 'video':
+			return {
+				type: 'video',
+				content: block.video?.external?.url || block.video?.file?.url || ''
+			};
+		case 'divider':
+			return { type: 'divider', content: '' };
+		default:
+			return null;
+	}
+}
 export const load: PageServerLoad = async ({ params, cookies }) => {
 	const username = params.username;
 
@@ -38,8 +67,8 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 	if (dbIds.userProfile) {
 		try {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const userResponse = await (client.databases as any).query({
-				database_id: dbIds.userProfile,
+			const userResponse = await (client.dataSources as any).query({
+				data_source_id: dbIds.userProfile,
 				filter: {
 					property: 'Username',
 					title: { equals: username }
@@ -68,11 +97,11 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 
 	// Fetch published projects (Done + Public)
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let projects: any[] = [];
+	const projects: any[] = [];
 	if (dbIds.projects) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const projectsResponse = await (client.databases as any).query({
-			database_id: dbIds.projects,
+		const projectsResponse = await (client.dataSources as any).query({
+			data_source_id: dbIds.projects,
 			filter: {
 				and: [
 					{ property: 'Status', select: { equals: 'Done' } },
@@ -83,20 +112,32 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 		});
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		projects = projectsResponse.results.map((page: any) => {
+		const projectPages = projectsResponse.results.map((page: any) => {
 			const p = page.properties;
 			return {
 				id: page.id,
 				title: p.Title?.title?.[0]?.text?.content || 'Untitled',
 				remixTag: p['Remix Tag']?.select?.name || '',
-				journal: p.Journal?.rich_text?.[0]?.text?.content || '',
-				dateCompleted: p['Date Completed']?.date?.start || '',
-				finalOutput:
-					p['Final Output']?.files?.[0]?.file?.url ||
-					p['Final Output']?.files?.[0]?.external?.url ||
-					''
+				dateCompleted: p['Date Completed']?.date?.start || ''
 			};
 		});
+
+		// Fetch page blocks for each project (cover image + rich content)
+		for (const proj of projectPages) {
+			const blocksResponse = await client.blocks.children.list({ block_id: proj.id });
+			const blocks: PortfolioBlock[] = [];
+			let coverImage = '';
+			for (const b of blocksResponse.results) {
+				const pb = blockToPortfolio(b);
+				if (pb) {
+					if (!coverImage && pb.type === 'image' && pb.content) {
+						coverImage = pb.content;
+					}
+					blocks.push(pb);
+				}
+			}
+			projects.push({ ...proj, coverImage, blocks });
+		}
 	}
 
 	// Fetch completed milestones
@@ -104,8 +145,8 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 	let completedMilestones: any[] = [];
 	if (dbIds.roadmaps) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const roadmapsResponse = await (client.databases as any).query({
-			database_id: dbIds.roadmaps,
+		const roadmapsResponse = await (client.dataSources as any).query({
+			data_source_id: dbIds.roadmaps,
 			filter: { property: 'Progress', select: { equals: 'Complete' } }
 		});
 
@@ -114,9 +155,7 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 			const p = page.properties;
 			return {
 				id: page.id,
-				title: p.Title?.title?.[0]?.text?.content || 'Untitled',
-				completedSkills:
-					p['Completed Skills']?.multi_select?.map((s: { name: string }) => s.name) || []
+				title: p.Title?.title?.[0]?.text?.content || 'Untitled'
 			};
 		});
 	}
@@ -126,8 +165,8 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 	let inspirations: any[] = [];
 	if (dbIds.inspirationVault) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const inspResponse = await (client.databases as any).query({
-			database_id: dbIds.inspirationVault,
+		const inspResponse = await (client.dataSources as any).query({
+			data_source_id: dbIds.inspirationVault,
 			filter: { property: 'Status', select: { equals: 'Ready' } },
 			sorts: [{ property: 'Date Saved', direction: 'descending' }],
 			page_size: 12

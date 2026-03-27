@@ -10,7 +10,11 @@ export const ANALYSIS_SYSTEM = `You are a senior design analyst working for a cr
 Be specific and actionable. Name real fonts, real patterns, real technologies. Reference concrete details visible in the image.`;
 
 /** User prompt for image/URL analysis — sent with the image to Gemini. */
-export function analysisPrompt(opts: { colorPalette: string; sourceUrl?: string; userNote?: string }): string {
+export function analysisPrompt(opts: {
+	colorPalette: string;
+	sourceUrl?: string;
+	userNote?: string;
+}): string {
 	let prompt = `Analyze this captured visual inspiration. Here is the extracted color palette: ${opts.colorPalette}
 
 Return a JSON object with exactly these keys:
@@ -63,6 +67,45 @@ Analyze it and return a JSON object with exactly these keys:
 
 The "mood" field must be an array of 2-5 short tags.
 All other fields must be strings. Return ONLY valid JSON, no markdown fences.`;
+}
+
+/** System prompt for text-only visual analysis fallback via Groq (used when Gemini quota is exhausted). */
+export const TEXT_ANALYSIS_SYSTEM = `You are a senior design analyst working for "createthings". When no image is available, analyze the provided color palette, source URL, and any user notes to infer design characteristics and return structured design intelligence. Be specific and actionable.`;
+
+/** User prompt for text-only analysis — sent to Groq when Gemini is unavailable. */
+export function textAnalysisPrompt(opts: {
+	colorPalette: string;
+	sourceUrl?: string;
+	userNote?: string;
+}): string {
+	let prompt = `Analyze this creative inspiration based on available context (no image, text-only analysis).
+
+Color palette:
+${opts.colorPalette}`;
+
+	if (opts.sourceUrl) prompt += `\n\nSource URL: ${opts.sourceUrl}`;
+	if (opts.userNote) prompt += `\n\nUser's note: "${opts.userNote}"`;
+
+	prompt += `
+
+Return a JSON object with exactly these keys:
+
+{
+  "colors": "Describe the color usage — dominant colors, accents, contrast, and how the palette creates hierarchy.",
+  "typography": "Based on context, suggest likely typography — common fonts for this type of design.",
+  "layout": "Based on the URL/context, describe the likely layout approach.",
+  "mood": ["tag1", "tag2", "tag3"],
+  "style": "Infer the overall design style from the available context.",
+  "components": "List likely UI or design components based on the source type.",
+  "attribution": "If the source URL reveals the creator or platform, note it. Otherwise 'Unknown'.",
+  "forDevelopers": "Suggest likely technical approaches based on the source context.",
+  "forCreators": "What makes this type of content effective?",
+  "roadmapSuggestions": "What skills would someone need to create something like this? List 3-5 specific skills."
+}
+
+The "mood" field must be an array of 2-5 short tags. All other fields must be strings. Return ONLY valid JSON, no markdown fences.`;
+
+	return prompt;
 }
 
 /** System prompt for roadmap generation via Groq. */

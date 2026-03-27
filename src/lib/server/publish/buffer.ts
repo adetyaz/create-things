@@ -8,7 +8,7 @@
  */
 import { BUFFER_ACCESS_TOKEN } from '$env/static/private';
 
-const BUFFER_API = 'https://api.bufferapp.com/1';
+const BUFFER_API = 'https://api.buffer.com/1';
 
 interface BufferProfile {
 	id: string;
@@ -22,7 +22,9 @@ let profileCache: BufferProfile[] | null = null;
 async function getProfiles(): Promise<BufferProfile[]> {
 	if (profileCache) return profileCache;
 
-	const response = await fetch(`${BUFFER_API}/profiles.json?access_token=${BUFFER_ACCESS_TOKEN}`);
+	const response = await fetch(`${BUFFER_API}/profiles.json`, {
+		headers: { Authorization: `Bearer ${BUFFER_ACCESS_TOKEN}` }
+	});
 
 	if (!response.ok) {
 		const text = await response.text();
@@ -69,12 +71,14 @@ export async function publishToBuffer(opts: {
 
 	const response = await fetch(`${BUFFER_API}/updates/create.json`, {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			Authorization: `Bearer ${BUFFER_ACCESS_TOKEN}`
+		},
 		body: new URLSearchParams({
-			access_token: BUFFER_ACCESS_TOKEN,
 			profile_ids: profile.id,
 			text: opts.text,
-			now: 'true' // Publish immediately
+			now: 'true'
 		})
 	});
 

@@ -154,6 +154,8 @@ function showConfirmButton() {
 	});
 
 	confirmBtn.addEventListener('click', captureSelection);
+	confirmBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+	confirmBtn.addEventListener('mouseup', (e) => e.stopPropagation());
 	overlay.appendChild(confirmBtn);
 }
 
@@ -176,11 +178,103 @@ async function captureSelection() {
 
 	const croppedDataUrl = await cropImage(response.dataUrl, rect);
 
-	// Send to background for saving
-	await chrome.runtime.sendMessage({
+	// Send to background for saving — wait for the result
+	const saveResponse = await chrome.runtime.sendMessage({
 		type: 'SAVE_AREA_SCREENSHOT',
 		dataUrl: croppedDataUrl
 	});
+
+	if (saveResponse?.success) {
+		showSavedToast(saveResponse.pageId || '', saveResponse.apiBase || 'http://localhost:5173');
+	}
+}
+
+function showSavedToast(pageId: string, apiBase: string) {
+	const toast = document.createElement('div');
+	toast.id = 'ct-saved-toast';
+	Object.assign(toast.style, {
+		position: 'fixed',
+		bottom: '24px',
+		right: '24px',
+		zIndex: '2147483647',
+		background: '#ffffff',
+		border: '1px solid #e5e7eb',
+		borderRadius: '12px',
+		boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+		padding: '14px 18px',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '12px',
+		fontFamily: 'system-ui, -apple-system, sans-serif',
+		fontSize: '13px',
+		color: '#111827',
+		transition: 'opacity 0.3s ease'
+	});
+
+	const icon = document.createElement('span');
+	icon.textContent = '✓';
+	Object.assign(icon.style, {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		width: '22px',
+		height: '22px',
+		background: '#D1FAE5',
+		color: '#065F46',
+		borderRadius: '50%',
+		fontSize: '12px',
+		fontWeight: '700',
+		flexShrink: '0'
+	});
+
+	const text = document.createElement('span');
+	text.textContent = 'Saved to Notion';
+
+	const viewBtn = document.createElement('button');
+	viewBtn.textContent = 'View';
+	Object.assign(viewBtn.style, {
+		marginLeft: '4px',
+		padding: '5px 14px',
+		background: '#1D9E75',
+		color: '#ffffff',
+		border: 'none',
+		borderRadius: '6px',
+		fontSize: '12px',
+		fontWeight: '600',
+		cursor: 'pointer',
+		flexShrink: '0'
+	});
+	viewBtn.addEventListener('click', () => {
+		window.open(pageId ? `${apiBase}/inspiration/${pageId}` : `${apiBase}/`, '_blank');
+		toast.remove();
+	});
+
+	const closeBtn = document.createElement('button');
+	closeBtn.textContent = '×';
+	Object.assign(closeBtn.style, {
+		marginLeft: '2px',
+		background: 'none',
+		border: 'none',
+		color: '#9ca3af',
+		fontSize: '16px',
+		cursor: 'pointer',
+		padding: '0 2px',
+		lineHeight: '1',
+		flexShrink: '0'
+	});
+	closeBtn.addEventListener('click', () => toast.remove());
+
+	toast.appendChild(icon);
+	toast.appendChild(text);
+	toast.appendChild(viewBtn);
+	toast.appendChild(closeBtn);
+	document.body.appendChild(toast);
+
+	// Auto-dismiss after 8 seconds
+	setTimeout(() => {
+		toast.style.opacity = '0';
+		setTimeout(() => toast.remove(), 300);
+	}, 8000);
 }
 
 function cropImage(

@@ -17,9 +17,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	let staleThreshold = 14;
 	if (dbIds.userProfile) {
 		try {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const profileResponse = await (client.databases as any).query({
-				database_id: dbIds.userProfile,
+			const profileResponse = await client.dataSources.query({
+				data_source_id: dbIds.userProfile,
 				page_size: 1
 			});
 			if (profileResponse.results.length) {
@@ -33,9 +32,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	}
 
 	// Query the Inspiration Vault, newest first
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const response = await (client.databases as any).query({
-		database_id: dbIds.inspirationVault,
+	const response = await client.dataSources.query({
+		data_source_id: dbIds.inspirationVault,
 		sorts: [{ property: 'Date Saved', direction: 'descending' }],
 		page_size: 50
 	});

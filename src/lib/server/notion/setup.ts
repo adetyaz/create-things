@@ -17,18 +17,19 @@ export async function setupNotionDatabases(
 	// TS type, but the REST API fully supports it. Use type assertion here.
 	const results = await Promise.all(
 		schemas.map((schema) =>
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			(client.databases.create as (args: any) => Promise<any>)({
+			client.databases.create({
 				parent: { type: 'page_id', page_id: parentPageId },
 				title: [{ type: 'text', text: { content: schema.name } }],
-				properties: schema.properties
+				initial_data_source: { properties: schema.properties as any }
 			})
 		)
 	);
 
 	const ids = {} as DatabaseIds;
 	schemas.forEach((schema, i) => {
-		ids[schema.key] = results[i].id;
+		// Store the data_source ID — all queries/updates use dataSources.*
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		ids[schema.key] = (results[i] as any).data_sources[0].id;
 	});
 
 	// Add cross-database relation properties

@@ -30,8 +30,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	let recentInspirations: any[] = [];
 	if (dbIds.inspirationVault) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const inspResponse = await (client.databases as any).query({
-			database_id: dbIds.inspirationVault,
+		const inspResponse = await (client.dataSources as any).query({
+			data_source_id: dbIds.inspirationVault,
 			filter: { property: 'Date Saved', date: { on_or_after: oneWeekAgo } },
 			sorts: [{ property: 'Date Saved', direction: 'descending' }]
 		});
@@ -47,8 +47,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	let completedProjects = 0;
 	if (dbIds.projects) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const projResponse = await (client.databases as any).query({
-			database_id: dbIds.projects,
+		const projResponse = await (client.dataSources as any).query({
+			data_source_id: dbIds.projects,
 			filter: {
 				and: [
 					{ property: 'Status', select: { equals: 'Done' } },
@@ -63,8 +63,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	let publishedCount = 0;
 	if (dbIds.publishQueue) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const pubResponse = await (client.databases as any).query({
-			database_id: dbIds.publishQueue,
+		const pubResponse = await (client.dataSources as any).query({
+			data_source_id: dbIds.publishQueue,
 			filter: {
 				and: [
 					{ property: 'Status', select: { equals: 'Published' } },
@@ -79,8 +79,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	let milestonesCompleted = 0;
 	if (dbIds.roadmaps) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const roadResponse = await (client.databases as any).query({
-			database_id: dbIds.roadmaps,
+		const roadResponse = await (client.dataSources as any).query({
+			data_source_id: dbIds.roadmaps,
 			filter: { property: 'Progress', select: { equals: 'Complete' } }
 		});
 		milestonesCompleted = roadResponse.results.length;
@@ -90,8 +90,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	let staleCount = 0;
 	if (dbIds.inspirationVault) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const staleResponse = await (client.databases as any).query({
-			database_id: dbIds.inspirationVault,
+		const staleResponse = await (client.dataSources as any).query({
+			data_source_id: dbIds.inspirationVault,
 			filter: { property: 'Status', select: { equals: 'Stale' } }
 		});
 		staleCount = staleResponse.results.length;

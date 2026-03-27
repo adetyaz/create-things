@@ -5,6 +5,21 @@
 	let { data, form } = $props();
 	let figmaKey = $derived(data.figmaFileKey);
 	let threshold = $derived(data.staleThreshold);
+	let copiedHeader = $state(false);
+	let copiedBody = $state(false);
+
+	const webhookUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/webhook/notion`;
+
+	function copyText(text: string, which: 'header' | 'body') {
+		navigator.clipboard.writeText(text);
+		if (which === 'header') {
+			copiedHeader = true;
+			setTimeout(() => (copiedHeader = false), 1500);
+		} else {
+			copiedBody = true;
+			setTimeout(() => (copiedBody = false), 1500);
+		}
+	}
 </script>
 
 <div class="mx-auto max-w-2xl px-6 py-8">
@@ -138,6 +153,61 @@
 					No platforms connected yet. Connect Buffer to start publishing.
 				</p>
 			{/if}
+		</div>
+	</section>
+
+	<!-- Notion Automation (Phase 3 — item 22) -->
+	<section class="mb-8">
+		<h2 class="mb-3 text-xs font-medium tracking-wide text-gray-400 uppercase">
+			Notion Automation — AI Analysis
+		</h2>
+		<div class="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-700">
+			<p class="mb-4 text-xs text-gray-500">
+				Create an automation in Notion on the <strong>Inspiration Vault</strong> database:
+				<br /><strong>Trigger:</strong> When a page is added &rarr;
+				<strong>Action:</strong> Send HTTP request (POST)
+			</p>
+
+			<!-- Webhook URL -->
+			<div class="mb-4">
+				<p class="mb-1 text-xs font-medium text-gray-500">Webhook URL</p>
+				<div class="flex items-center gap-2 rounded-md bg-gray-50 px-3 py-2 font-mono text-xs">
+					<span class="flex-1 break-all select-all">{webhookUrl}</span>
+				</div>
+			</div>
+
+			<!-- Authorization header -->
+			<div class="mb-4">
+				<p class="mb-1 text-xs font-medium text-gray-500">Authorization header</p>
+				<div class="flex items-center gap-2 rounded-md bg-gray-50 px-3 py-2 font-mono text-xs">
+					<span class="flex-1 select-all">Bearer {data.webhookSecret}</span>
+					<button
+						onclick={() => copyText(`Bearer ${data.webhookSecret}`, 'header')}
+						class="shrink-0 rounded px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700"
+					>
+						{copiedHeader ? 'Copied!' : 'Copy'}
+					</button>
+				</div>
+			</div>
+
+			<!-- Request body -->
+			<div>
+				<p class="mb-1 text-xs font-medium text-gray-500">Request body (JSON)</p>
+				<div class="relative rounded-md bg-gray-50">
+					<pre
+						class="overflow-x-auto p-3 font-mono text-xs leading-relaxed text-gray-700">{data.webhookBody}</pre>
+					<button
+						onclick={() => copyText(data.webhookBody, 'body')}
+						class="absolute top-2 right-2 rounded px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700"
+					>
+						{copiedBody ? 'Copied!' : 'Copy'}
+					</button>
+				</div>
+				<p class="mt-2 text-xs text-gray-400">
+					Note: <code>trigger.page.id</code> is a Notion automation variable — paste it literally in the
+					Notion automation editor.
+				</p>
+			</div>
 		</div>
 	</section>
 </div>

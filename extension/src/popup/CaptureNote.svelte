@@ -1,10 +1,17 @@
 <script lang="ts">
-	import { sendCapture, type CapturePayload } from '../background/capture';
+	import { sendCapture, getApiBase, type CapturePayload } from '../background/capture';
+	import SuccessState from './SuccessState.svelte';
 
 	let note = $state('');
 	let saving = $state(false);
 	let saved = $state(false);
+	let savedPageId = $state('');
+	let apiBase = $state('http://localhost:5173');
 	let error = $state('');
+
+	$effect(() => {
+		getApiBase().then((b) => (apiBase = b));
+	});
 
 	async function saveNote() {
 		if (!note.trim()) return;
@@ -20,6 +27,7 @@
 		saving = false;
 
 		if (result.success) {
+			savedPageId = result.pageId || '';
 			saved = true;
 		} else {
 			error = result.error || 'Failed to save';
@@ -28,19 +36,14 @@
 </script>
 
 {#if saved}
-	<div class="flex flex-col items-center gap-3 p-4 text-center">
-		<div class="text-2xl">&#10003;</div>
-		<p class="text-sm font-medium text-teal-600">Saved to Notion</p>
-		<button
-			onclick={() => {
-				saved = false;
-				note = '';
-			}}
-			class="text-xs text-gray-400 underline hover:text-gray-600"
-		>
-			Save another
-		</button>
-	</div>
+	<SuccessState
+		pageId={savedPageId}
+		{apiBase}
+		onReset={() => {
+			saved = false;
+			note = '';
+		}}
+	/>
 {:else}
 	<div class="flex flex-col gap-3">
 		<label for="capture-note" class="text-xs font-medium tracking-wide text-gray-500 uppercase"

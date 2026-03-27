@@ -39,7 +39,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		const analysisPage = (await client.pages.retrieve({ page_id: analysisRelation[0].id })) as any;
 		const ap = analysisPage.properties;
 		analysisStyle = ap.Style?.rich_text?.[0]?.text?.content || '';
-		roadmapSuggestions = ap['Roadmap Suggestions']?.rich_text?.[0]?.text?.content || '';
+		roadmapSuggestions = ap['Suggestions']?.rich_text?.[0]?.text?.content || '';
 	}
 
 	if (!roadmapSuggestions) {

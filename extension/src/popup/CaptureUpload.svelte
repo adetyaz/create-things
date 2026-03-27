@@ -1,12 +1,19 @@
 <script lang="ts">
-	import { sendCapture, type CapturePayload } from '../background/capture';
+	import { sendCapture, getApiBase, type CapturePayload } from '../background/capture';
+	import SuccessState from './SuccessState.svelte';
 
 	let file: File | null = $state(null);
 	let preview = $state('');
 	let note = $state('');
 	let saving = $state(false);
 	let saved = $state(false);
+	let savedPageId = $state('');
+	let apiBase = $state('http://localhost:5173');
 	let error = $state('');
+
+	$effect(() => {
+		getApiBase().then((b) => (apiBase = b));
+	});
 
 	function handleFileChange(e: Event) {
 		const input = e.target as HTMLInputElement;
@@ -37,6 +44,7 @@
 		saving = false;
 
 		if (result.success) {
+			savedPageId = result.pageId || '';
 			saved = true;
 		} else {
 			error = result.error || 'Failed to save';
@@ -48,18 +56,13 @@
 		preview = '';
 		note = '';
 		saved = false;
+		savedPageId = '';
 		error = '';
 	}
 </script>
 
 {#if saved}
-	<div class="flex flex-col items-center gap-3 p-4 text-center">
-		<div class="text-2xl">&#10003;</div>
-		<p class="text-sm font-medium text-teal-600">Saved to Notion</p>
-		<button onclick={reset} class="text-xs text-gray-400 underline hover:text-gray-600">
-			Save another
-		</button>
-	</div>
+	<SuccessState pageId={savedPageId} {apiBase} onReset={reset} />
 {:else}
 	<div class="flex flex-col gap-3">
 		<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">Upload image</p>

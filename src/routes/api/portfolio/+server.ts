@@ -37,8 +37,8 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	// Step 1: Find user by username
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const userResponse = await (client.databases as any).query({
-		database_id: dbIds.userProfile,
+	const userResponse = await (client.dataSources as any).query({
+		data_source_id: dbIds.userProfile,
 		filter: {
 			property: 'Username',
 			title: { equals: username }
@@ -66,8 +66,8 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	// Step 2: Fetch published projects (status = Done, public = true)
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const projectsResponse = await (client.databases as any).query({
-		database_id: dbIds.projects,
+	const projectsResponse = await (client.dataSources as any).query({
+		data_source_id: dbIds.projects,
 		filter: {
 			and: [
 				{ property: 'Status', select: { equals: 'Done' } },
@@ -96,8 +96,8 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	// Step 3: Fetch completed roadmap milestones
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const roadmapsResponse = await (client.databases as any).query({
-		database_id: dbIds.roadmaps,
+	const roadmapsResponse = await (client.dataSources as any).query({
+		data_source_id: dbIds.roadmaps,
 		filter: {
 			property: 'Progress',
 			select: { equals: 'Complete' }
@@ -109,16 +109,14 @@ export const GET: RequestHandler = async ({ url }) => {
 		const p = page.properties;
 		return {
 			id: page.id,
-			title: p.Title?.title?.[0]?.text?.content || 'Untitled',
-			completedSkills:
-				p['Completed Skills']?.multi_select?.map((s: { name: string }) => s.name) || []
+			title: p.Title?.title?.[0]?.text?.content || 'Untitled'
 		};
 	});
 
 	// Step 4: Fetch ready inspirations for the "Inspiration" section
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const inspirationsResponse = await (client.databases as any).query({
-		database_id: dbIds.inspirationVault,
+	const inspirationsResponse = await (client.dataSources as any).query({
+		data_source_id: dbIds.inspirationVault,
 		filter: {
 			property: 'Status',
 			select: { equals: 'Ready' }

@@ -33,10 +33,8 @@
 			>
 				{data.roadmap.progress}
 			</span>
-			{#if data.roadmap.completedSkills.length}
-				<span class="text-xs text-gray-400">
-					{data.roadmap.completedSkills.length} skills completed
-				</span>
+			{#if data.roadmap.progress === 'Complete'}
+				<span class="text-xs text-gray-400">Complete</span>
 			{/if}
 		</div>
 	</div>
@@ -52,12 +50,7 @@
 					.split(',')
 					.map((s: string) => s.trim())
 					.filter(Boolean) as skill (skill)}
-					<span
-						class="rounded-full px-3 py-1.5 text-sm font-medium
-						{data.roadmap.completedSkills.includes(skill)
-							? 'bg-teal-100 text-teal-800 line-through'
-							: 'bg-gray-100 text-gray-700'}"
-					>
+					<span class="rounded-full bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700">
 						{skill}
 					</span>
 				{/each}

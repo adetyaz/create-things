@@ -19,9 +19,7 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 		skills: props.Skills?.rich_text?.[0]?.text?.content || '',
 		milestones: props.Milestones?.rich_text?.[0]?.text?.content || '',
 		resources: props.Resources?.rich_text?.[0]?.text?.content || '',
-		progress: props.Progress?.select?.name || 'Not started',
-		completedSkills:
-			props['Completed Skills']?.multi_select?.map((s: { name: string }) => s.name) || []
+		progress: props.Progress?.select?.name || 'Not started'
 	};
 
 	// Get linked inspiration

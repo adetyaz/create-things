@@ -1,11 +1,51 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { invalidateAll } from '$app/navigation';
+	import { addToast } from '$lib/toast.svelte.js';
 
 	let { data } = $props();
 	let buildingRoadmap = $state(false);
 	let roadmapError = $state('');
 	let exportingFigma = $state(false);
 	let figmaResult = $state('');
+	let analyzing = $state(false);
+	let analyzeError = $state('');
+	let startingProject = $state(false);
+	let projectError = $state('');
+
+	// Auto-poll while analysis is pending (e.g. triggered externally)
+	$effect(() => {
+		if (data.inspiration.status === 'Pending' && !data.analysis) {
+			const id = setInterval(() => invalidateAll(), 5000);
+			return () => clearInterval(id);
+		}
+	});
+
+	async function analyzeNow() {
+		if (analyzing) return;
+		analyzing = true;
+		analyzeError = '';
+		try {
+			const res = await fetch('/api/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ inspirationId: data.inspiration.id })
+			});
+			if (!res.ok) {
+				const body = await res.json();
+				analyzeError = body.error || 'Analysis failed';
+				addToast(analyzeError, 'error');
+				return;
+			}
+			addToast('Analysis complete!', 'success');
+			await invalidateAll();
+		} catch (err) {
+			analyzeError = String(err);
+			addToast(analyzeError, 'error');
+		} finally {
+			analyzing = false;
+		}
+	}
 
 	async function buildRoadmap() {
 		buildingRoadmap = true;
@@ -31,6 +71,29 @@
 			roadmapError = String(err);
 		} finally {
 			buildingRoadmap = false;
+		}
+	}
+
+	async function startProject() {
+		startingProject = true;
+		projectError = '';
+		try {
+			const res = await fetch('/api/projects', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ inspirationId: data.inspiration.id })
+			});
+			if (!res.ok) {
+				const body = await res.json();
+				projectError = body.error || 'Failed to create project';
+				return;
+			}
+			const result = await res.json();
+			window.location.href = `/projects/${result.projectId}`;
+		} catch (err) {
+			projectError = String(err);
+		} finally {
+			startingProject = false;
 		}
 	}
 
@@ -209,26 +272,38 @@
 				</div>
 			{/if}
 
-			{#if data.analysis.roadmapSuggestions}
+			{#if data.analysis.suggestions}
 				<div class="rounded-lg border border-gray-200 bg-white p-4">
 					<h3 class="mb-2 text-xs font-medium tracking-wide text-gray-400 uppercase">
 						Skills Needed
 					</h3>
-					<p class="text-sm text-gray-700">{data.analysis.roadmapSuggestions}</p>
+					<p class="text-sm text-gray-700">{data.analysis.suggestions}</p>
 				</div>
 			{/if}
 		</div>
 	{:else if data.inspiration.status === 'Pending'}
 		<div
-			class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-gray-300 py-12 text-center"
+			class="flex flex-col items-center gap-4 rounded-lg border border-dashed border-gray-300 py-12 text-center"
 		>
-			<div
-				class="h-5 w-5 animate-spin rounded-full border-2 border-teal-500 border-t-transparent"
-			></div>
-			<p class="text-sm text-gray-400">Analysis in progress...</p>
-			<p class="text-xs text-gray-300">
-				AI is analyzing your inspiration — refresh in a few seconds
-			</p>
+			{#if analyzing}
+				<div
+					class="h-5 w-5 animate-spin rounded-full border-2 border-teal-500 border-t-transparent"
+				></div>
+				<p class="text-sm text-gray-400">Analyzing with AI...</p>
+			{:else}
+				<p class="text-sm text-gray-500">This item hasn't been analyzed yet.</p>
+				<button
+					onclick={analyzeNow}
+					class="rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-700"
+				>
+					Analyze now
+				</button>
+				{#if analyzeError}
+					<p class="text-xs text-red-500">{analyzeError}</p>
+				{:else}
+					<p class="text-xs text-gray-300">AI will extract colors, style, mood, and suggestions</p>
+				{/if}
+			{/if}
 		</div>
 	{/if}
 
@@ -258,6 +333,14 @@
 			>
 				View Project
 			</a>
+		{:else}
+			<button
+				onclick={startProject}
+				disabled={startingProject}
+				class="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
+			>
+				{startingProject ? 'Creating...' : 'Start a project'}
+			</button>
 		{/if}
 
 		{#if (data.inspiration.captureType === 'screenshot' || data.inspiration.captureType === 'upload') && data.inspiration.imageUrl}
@@ -279,5 +362,9 @@
 
 	{#if roadmapError}
 		<p class="mt-3 text-xs text-red-500">{roadmapError}</p>
+	{/if}
+
+	{#if projectError}
+		<p class="mt-3 text-xs text-red-500">{projectError}</p>
 	{/if}
 </div>

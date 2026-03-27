@@ -16,6 +16,10 @@
 		>
 			Connect Notion workspace
 		</a>
+		<p class="max-w-xs text-xs text-gray-400">
+			On the next screen, just click <strong class="font-medium text-gray-500">Allow access</strong>
+			— you don't need to select any pages. We'll create everything automatically.
+		</p>
 	</div>
 {:else}
 	<div class="mx-auto max-w-6xl px-6 py-8">

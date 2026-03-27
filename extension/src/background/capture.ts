@@ -1,3 +1,5 @@
+import { getApiBase } from './notion-check';
+
 export type CaptureType = 'screenshot' | 'url' | 'upload' | 'note';
 
 export interface CapturePayload {
@@ -8,14 +10,15 @@ export interface CapturePayload {
 	note?: string;
 }
 
-const API_BASE = 'http://localhost:5173';
+export { getApiBase };
 
 /** Send a capture payload to the SvelteKit server, which writes to Notion. */
 export async function sendCapture(
 	payload: CapturePayload
 ): Promise<{ success: boolean; pageId?: string; error?: string }> {
 	try {
-		const response = await fetch(`${API_BASE}/api/capture`, {
+		const apiBase = await getApiBase();
+		const response = await fetch(`${apiBase}/api/capture`, {
 			method: 'POST',
 			credentials: 'include',
 			headers: { 'Content-Type': 'application/json' },

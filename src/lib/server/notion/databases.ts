@@ -10,8 +10,9 @@ export interface DatabaseIds {
 	userProfile: string;
 }
 
-function selectOptions(names: string[]) {
-	return { options: names.map((name: string) => ({ name })) };
+function selectOptions(entries: Array<{ name: string; color?: string }>) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	return { options: entries.map(({ name, color }) => (color ? { name, color } : { name })) } as any;
 }
 
 /** Returns all 6 database creation configs. Parent is injected at call time. */
@@ -25,10 +26,31 @@ export function getDbSchemas() {
 				'Source URL': { url: {} },
 				Author: { rich_text: {} },
 				Platform: {
-					select: selectOptions(['Dribbble', 'Twitter', 'Website', 'Instagram', 'Other'])
+					select: selectOptions([
+						{ name: 'Dribbble', color: 'pink' },
+						{ name: 'Twitter', color: 'blue' },
+						{ name: 'Website', color: 'gray' },
+						{ name: 'Instagram', color: 'orange' },
+						{ name: 'Other', color: 'default' }
+					])
 				},
-				'Capture Type': { select: selectOptions(['screenshot', 'url', 'upload', 'note']) },
-				Status: { select: selectOptions(['Pending', 'Ready', 'Active', 'Stale', 'Archived']) },
+				'Capture Type': {
+					select: selectOptions([
+						{ name: 'screenshot', color: 'green' },
+						{ name: 'url', color: 'blue' },
+						{ name: 'upload', color: 'purple' },
+						{ name: 'note', color: 'yellow' }
+					])
+				},
+				Status: {
+					select: selectOptions([
+						{ name: 'Pending', color: 'yellow' },
+						{ name: 'Ready', color: 'green' },
+						{ name: 'Active', color: 'blue' },
+						{ name: 'Stale', color: 'orange' },
+						{ name: 'Archived', color: 'gray' }
+					])
+				},
 				'Date Saved': { date: {} },
 				'Last Active': { date: {} },
 				Notes: { rich_text: {} }
@@ -44,14 +66,12 @@ export function getDbSchemas() {
 				Layout: { rich_text: {} },
 				Mood: {
 					multi_select: selectOptions([
-						'minimal',
-						'bold',
-						'editorial',
-						'playful',
-						'dark',
-						'elegant',
-						'retro',
-						'futuristic'
+						{ name: 'minimal' },
+						{ name: 'bold' },
+						{ name: 'editorial' },
+						{ name: 'playful' },
+						{ name: 'dark' },
+						{ name: 'clean' }
 					])
 				},
 				Style: { rich_text: {} },
@@ -59,7 +79,7 @@ export function getDbSchemas() {
 				Attribution: { rich_text: {} },
 				'For Developers': { rich_text: {} },
 				'For Creators': { rich_text: {} },
-				'Roadmap Suggestions': { rich_text: {} }
+				Suggestions: { rich_text: {} }
 			}
 		},
 		{
@@ -70,8 +90,13 @@ export function getDbSchemas() {
 				Skills: { rich_text: {} },
 				Milestones: { rich_text: {} },
 				Resources: { rich_text: {} },
-				Progress: { select: selectOptions(['Not started', 'In progress', 'Complete']) },
-				'Completed Skills': { multi_select: selectOptions([]) }
+				Progress: {
+					select: selectOptions([
+						{ name: 'Not started', color: 'gray' },
+						{ name: 'In progress', color: 'blue' },
+						{ name: 'Complete', color: 'green' }
+					])
+				}
 			}
 		},
 		{
@@ -79,8 +104,20 @@ export function getDbSchemas() {
 			key: 'projects' as keyof DatabaseIds,
 			properties: {
 				Title: { title: {} },
-				Status: { select: selectOptions(['Ideating', 'In Progress', 'Done']) },
-				'Remix Tag': { select: selectOptions(['Inspired by', 'Remixed from', 'Recreated']) },
+				Status: {
+					select: selectOptions([
+						{ name: 'Ideating', color: 'yellow' },
+						{ name: 'In Progress', color: 'blue' },
+						{ name: 'Done', color: 'green' }
+					])
+				},
+				'Remix Tag': {
+					select: selectOptions([
+						{ name: 'Inspired by', color: 'green' },
+						{ name: 'Remixed from', color: 'yellow' },
+						{ name: 'Recreated', color: 'orange' }
+					])
+				},
 				Journal: { rich_text: {} },
 				'Date Started': { date: {} },
 				'Date Completed': { date: {} },
@@ -92,15 +129,27 @@ export function getDbSchemas() {
 			key: 'publishQueue' as keyof DatabaseIds,
 			properties: {
 				Title: { title: {} },
-				Status: { select: selectOptions(['Draft', 'Approved', 'Published']) },
+				Status: {
+					select: selectOptions([
+						{ name: 'Draft', color: 'gray' },
+						{ name: 'Approved', color: 'blue' },
+						{ name: 'Published', color: 'green' }
+					])
+				},
 				'Caption Twitter': { rich_text: {} },
 				'Caption LinkedIn': { rich_text: {} },
 				'Caption Instagram': { rich_text: {} },
 				'Caption Reddit': { rich_text: {} },
 				'Credit Line': { rich_text: {} },
 				Hashtags: { rich_text: {} },
-				Platforms: { multi_select: selectOptions(['Twitter', 'LinkedIn', 'Instagram', 'Reddit']) },
-				Scheduled: { date: {} },
+				Platforms: {
+					multi_select: selectOptions([
+						{ name: 'Twitter' },
+						{ name: 'LinkedIn' },
+						{ name: 'Instagram' },
+						{ name: 'Reddit' }
+					])
+				},
 				'Published At': { date: {} }
 			}
 		},
@@ -110,13 +159,18 @@ export function getDbSchemas() {
 			properties: {
 				Username: { title: {} },
 				'Stale Threshold': { number: { format: 'number' } },
-				Platforms: {
-					multi_select: selectOptions(['Twitter', 'LinkedIn', 'Instagram', 'Reddit', 'Buffer'])
-				},
-				'Figma Connected': { checkbox: {} },
 				'Portfolio Public': { checkbox: {} },
 				'Creative DNA': { rich_text: {} },
-				Bio: { rich_text: {} }
+				Bio: { rich_text: {} },
+				'Figma Connected': { checkbox: {} },
+				Platforms: {
+					multi_select: selectOptions([
+						{ name: 'Twitter' },
+						{ name: 'LinkedIn' },
+						{ name: 'Instagram' },
+						{ name: 'Reddit' }
+					])
+				}
 			}
 		}
 	];
@@ -130,43 +184,41 @@ export function getDbSchemas() {
  * but the REST API fully supports it. Type assertion used accordingly.
  */
 export async function linkDatabases(client: Client, ids: DatabaseIds): Promise<void> {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const update = client.databases.update.bind(client.databases) as (args: any) => Promise<any>;
-	await update({
-		database_id: ids.inspirationVault,
+	await client.dataSources.update({
+		data_source_id: ids.inspirationVault,
 		properties: {
-			Analysis: { relation: { database_id: ids.analysisResults, single_property: {} } },
-			Projects: { relation: { database_id: ids.projects, single_property: {} } },
-			Roadmap: { relation: { database_id: ids.roadmaps, single_property: {} } }
+			Analysis: { relation: { data_source_id: ids.analysisResults, dual_property: {} } },
+			Projects: { relation: { data_source_id: ids.projects, dual_property: {} } },
+			Roadmap: { relation: { data_source_id: ids.roadmaps, dual_property: {} } }
 		}
 	});
 
-	await update({
-		database_id: ids.analysisResults,
+	await client.dataSources.update({
+		data_source_id: ids.analysisResults,
 		properties: {
-			Inspiration: { relation: { database_id: ids.inspirationVault, single_property: {} } }
+			Inspiration: { relation: { data_source_id: ids.inspirationVault, dual_property: {} } }
 		}
 	});
 
-	await update({
-		database_id: ids.roadmaps,
+	await client.dataSources.update({
+		data_source_id: ids.roadmaps,
 		properties: {
-			Inspiration: { relation: { database_id: ids.inspirationVault, single_property: {} } }
+			Inspiration: { relation: { data_source_id: ids.inspirationVault, dual_property: {} } }
 		}
 	});
 
-	await update({
-		database_id: ids.projects,
+	await client.dataSources.update({
+		data_source_id: ids.projects,
 		properties: {
-			Inspiration: { relation: { database_id: ids.inspirationVault, single_property: {} } },
-			'Publish Queue': { relation: { database_id: ids.publishQueue, single_property: {} } }
+			Inspiration: { relation: { data_source_id: ids.inspirationVault, dual_property: {} } },
+			'Publish Queue': { relation: { data_source_id: ids.publishQueue, dual_property: {} } }
 		}
 	});
 
-	await update({
-		database_id: ids.publishQueue,
+	await client.dataSources.update({
+		data_source_id: ids.publishQueue,
 		properties: {
-			Project: { relation: { database_id: ids.projects, single_property: {} } }
+			Project: { relation: { data_source_id: ids.projects, dual_property: {} } }
 		}
 	});
 }

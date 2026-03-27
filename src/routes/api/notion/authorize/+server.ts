@@ -1,3 +1,4 @@
+import { dev } from '$app/environment';
 import { redirect } from '@sveltejs/kit';
 import { getNotionAuthUrl } from '$lib/server/notion/client.js';
 import type { RequestHandler } from './$types.js';
@@ -9,7 +10,7 @@ export const GET: RequestHandler = async ({ cookies }) => {
 		path: '/',
 		httpOnly: true,
 		sameSite: 'lax',
-		secure: true,
+		secure: !dev,
 		maxAge: 600 // 10 minutes
 	});
 

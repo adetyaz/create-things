@@ -47,7 +47,7 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 			attribution: ap.Attribution?.rich_text?.[0]?.text?.content || '',
 			forDevelopers: ap['For Developers']?.rich_text?.[0]?.text?.content || '',
 			forCreators: ap['For Creators']?.rich_text?.[0]?.text?.content || '',
-			roadmapSuggestions: ap['Roadmap Suggestions']?.rich_text?.[0]?.text?.content || ''
+			suggestions: ap.Suggestions?.rich_text?.[0]?.text?.content || ''
 		};
 	}
 

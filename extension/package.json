@@ -2,5 +2,18 @@
 	"name": "createthings-extension",
 	"private": true,
 	"version": "0.1.0",
-	"type": "module"
+	"type": "module",
+	"scripts": {
+		"dev": "vite build --watch",
+		"build": "vite build"
+	},
+	"devDependencies": {
+		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@tailwindcss/vite": "^4.1.4",
+		"@types/chrome": "^0.0.320",
+		"svelte": "^5.28.1",
+		"tailwindcss": "^4.1.4",
+		"typescript": "^5.8.3",
+		"vite": "^6.3.3"
+	}
 }

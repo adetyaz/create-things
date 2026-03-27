@@ -39,7 +39,7 @@ export async function writeAnalysisResults(
 	}
 ) {
 	const page = await client.pages.create({
-		parent: { database_id: dbIds.analysisResults },
+		parent: { data_source_id: dbIds.analysisResults },
 		properties: {
 			Title: { title: richText(data.title) },
 			Colors: { rich_text: richText(data.colors) },
@@ -51,7 +51,7 @@ export async function writeAnalysisResults(
 			Attribution: { rich_text: richText(data.attribution) },
 			'For Developers': { rich_text: richText(data.forDevelopers) },
 			'For Creators': { rich_text: richText(data.forCreators) },
-			'Roadmap Suggestions': { rich_text: richText(data.roadmapSuggestions) },
+			Suggestions: { rich_text: richText(data.roadmapSuggestions) },
 			Inspiration: { relation: [{ id: data.inspirationPageId }] }
 		}
 	});
@@ -95,7 +95,7 @@ export async function createRoadmap(
 	}
 ) {
 	const page = await client.pages.create({
-		parent: { database_id: dbIds.roadmaps },
+		parent: { data_source_id: dbIds.roadmaps },
 		properties: {
 			Title: { title: richText(data.title) },
 			Skills: { rich_text: richText(data.skills) },
@@ -134,7 +134,7 @@ export async function writePublishDrafts(
 	}
 ) {
 	return client.pages.create({
-		parent: { database_id: dbIds.publishQueue },
+		parent: { data_source_id: dbIds.publishQueue },
 		properties: {
 			Title: { title: richText(data.title) },
 			Status: { select: { name: 'Draft' } },

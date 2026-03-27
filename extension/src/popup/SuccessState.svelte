@@ -1,5 +1,15 @@
 <script lang="ts">
-	let { onReset }: { onReset: () => void } = $props();
+	let {
+		onReset,
+		pageId = '',
+		apiBase = 'http://localhost:5173'
+	}: { onReset: () => void; pageId?: string; apiBase?: string } = $props();
+
+	function viewInDashboard() {
+		const url = pageId ? `${apiBase}/inspiration/${pageId}` : `${apiBase}/`;
+		chrome.tabs.create({ url });
+		window.close();
+	}
 </script>
 
 <div class="flex flex-col items-center gap-3 p-4 text-center">
@@ -9,8 +19,14 @@
 	<p class="text-sm font-medium text-gray-800">Saved to Notion</p>
 	<p class="text-xs text-gray-400">Your inspiration is being analyzed by AI</p>
 	<button
+		onclick={viewInDashboard}
+		class="mt-2 w-full rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700"
+	>
+		View
+	</button>
+	<button
 		onclick={onReset}
-		class="mt-2 text-xs text-teal-600 underline transition-colors hover:text-teal-700"
+		class="text-xs text-gray-400 underline transition-colors hover:text-gray-600"
 	>
 		Capture something else
 	</button>
