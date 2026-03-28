@@ -11,10 +11,24 @@ export default defineConfig({
 		{
 			name: 'copy-extension-assets',
 			writeBundle() {
+				// Copy manifest
 				fs.copyFileSync(
 					resolve(__dirname, 'manifest.json'),
 					resolve(__dirname, 'build/manifest.json')
 				);
+				// Copy public/ folder (icons etc.) into build/
+				const publicDir = resolve(__dirname, 'public');
+				if (fs.existsSync(publicDir)) {
+					const copyDir = (src: string, dest: string) => {
+						fs.mkdirSync(dest, { recursive: true });
+						for (const entry of fs.readdirSync(src)) {
+							const s = resolve(src, entry);
+							const d = resolve(dest, entry);
+							fs.statSync(s).isDirectory() ? copyDir(s, d) : fs.copyFileSync(s, d);
+						}
+					};
+					copyDir(publicDir, resolve(__dirname, 'build'));
+				}
 				// Move popup HTML from src/popup/ to popup/ to match manifest path
 				const srcHtml = resolve(__dirname, 'build/src/popup/index.html');
 				const destDir = resolve(__dirname, 'build/popup');

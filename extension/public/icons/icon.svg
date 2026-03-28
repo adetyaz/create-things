@@ -1,0 +1,13 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="128" height="128">
+  <title>createthings</title>
+  <rect width="100" height="100" rx="18" fill="#0d0d0d"/>
+  <path d="M20 36 L20 20 L36 20" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="square"/>
+  <path d="M80 64 L80 80 L64 80" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="square"/>
+  <path d="M64 20 L80 20 L80 36" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="square" opacity="0.3"/>
+  <path d="M36 80 L20 80 L20 64" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="square" opacity="0.3"/>
+  <line x1="50" y1="26" x2="50" y2="74" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.15"/>
+  <line x1="26" y1="50" x2="74" y2="50" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.15"/>
+  <line x1="28" y1="28" x2="72" y2="72" stroke="#7c3aed" stroke-width="2" stroke-opacity="0.9"/>
+  <circle cx="50" cy="50" r="6" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <circle cx="50" cy="50" r="2.5" fill="#7c3aed"/>
+</svg>

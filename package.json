@@ -51,6 +51,7 @@
 	"dependencies": {
 		"@notionhq/client": "^5.14.0",
 		"@sveltejs/adapter-vercel": "^6.3.3",
+		"@upstash/redis": "^1.37.0",
 		"metascraper": "^5.50.0",
 		"metascraper-author": "^5.50.0",
 		"metascraper-description": "^5.50.0",

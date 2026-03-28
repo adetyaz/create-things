@@ -64,50 +64,55 @@
 {#if saved}
 	<SuccessState pageId={savedPageId} {apiBase} onReset={reset} />
 {:else}
-	<div class="flex flex-col gap-3">
-		<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">Upload image</p>
+	<div class="flex flex-col gap-0 p-4">
+		<p class="mb-4 font-display text-[9px] font-bold tracking-[0.3em] text-zine-yellow uppercase">
+			QUICK_CAPTURE_V1
+		</p>
 
 		{#if preview}
-			<img
-				src={preview}
-				alt="Preview"
-				class="max-h-40 w-full rounded-md border border-gray-200 object-contain"
-			/>
-			<button onclick={reset} class="self-end text-xs text-gray-400 underline hover:text-gray-600"
-				>Remove</button
-			>
+			<div class="relative mb-4 border-2 border-white/20">
+				<img src={preview} alt="Preview" class="max-h-36 w-full object-contain" />
+				<button
+					onclick={reset}
+					class="absolute top-1 right-1 border border-white/20 bg-zine-black/80 px-2 py-1 font-display text-[9px] font-bold tracking-widest text-white/50 uppercase transition-colors hover:text-white"
+					>REMOVE</button
+				>
+			</div>
 		{:else}
 			<label
-				class="flex cursor-pointer flex-col items-center gap-2 rounded-md border-2 border-dashed border-gray-200 p-6 transition-colors hover:border-teal-400"
+				class="mb-4 flex cursor-pointer flex-col items-center gap-3 border-2 border-dashed border-white/20 p-8 transition-colors hover:border-zine-yellow/50"
 			>
-				<span class="text-2xl text-gray-300">&#8593;</span>
-				<span class="text-xs text-gray-400">Click to choose an image</span>
+				<span class="font-display text-2xl font-bold text-white/20">↑</span>
+				<span class="font-display text-[9px] font-bold tracking-widest text-white/30 uppercase"
+					>DROP IMAGE / CLICK TO SELECT</span
+				>
 				<input type="file" accept="image/*" onchange={handleFileChange} class="hidden" />
 			</label>
 		{/if}
 
 		<label
 			for="capture-upload-note"
-			class="text-xs font-medium tracking-wide text-gray-500 uppercase">Quick note</label
+			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase"
+			>OBSERVATIONS</label
 		>
 		<textarea
 			id="capture-upload-note"
 			bind:value={note}
-			class="w-full resize-none rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
+			class="mb-6 w-full resize-none border-b-2 border-white/10 bg-transparent pb-2 font-body text-sm text-white/80 placeholder-white/20 transition-colors outline-none focus:border-zine-yellow/50"
 			rows="2"
 			placeholder="What caught your eye?"
 		></textarea>
 
 		{#if error}
-			<p class="text-xs text-red-500">{error}</p>
+			<p class="mb-3 font-display text-[9px] tracking-widest text-red-400 uppercase">{error}</p>
 		{/if}
 
 		<button
 			onclick={saveUpload}
 			disabled={saving || !preview}
-			class="w-full rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+			class="w-full border-2 border-zine-yellow bg-zine-yellow py-3.5 font-display text-xs font-bold tracking-widest text-zine-black uppercase shadow-[3px_3px_0px_rgba(255,230,0,0.3)] transition-all duration-75 hover:translate-x-px hover:translate-y-px hover:shadow-none disabled:cursor-not-allowed disabled:opacity-30"
 		>
-			{saving ? 'Saving...' : 'Save to Notion'}
+			{saving ? 'UPLOADING...' : '→ SEND TO VAULT'}
 		</button>
 	</div>
 {/if}

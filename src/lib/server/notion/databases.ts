@@ -159,6 +159,7 @@ export function getDbSchemas() {
 			properties: {
 				Username: { title: {} },
 				'Stale Threshold': { number: { format: 'number' } },
+				'Dormant Days': { number: { format: 'number' } },
 				'Portfolio Public': { checkbox: {} },
 				'Creative DNA': { rich_text: {} },
 				Bio: { rich_text: {} },

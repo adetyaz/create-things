@@ -1,1 +1,21 @@
 @import 'tailwindcss';
+
+@theme {
+	/* Zine palette */
+	--color-zine-yellow: #ffe600;
+	--color-zine-black: #0d0d0d;
+	--color-zine-off-white: #f7f7f4;
+	--color-zine-green: #00fc40;
+	--color-zine-purple: #9400ca;
+
+	/* Fonts */
+	--font-display: 'Space Grotesk', sans-serif;
+	--font-body: 'Inter', sans-serif;
+}
+
+@layer base {
+	body {
+		font-family: var(--font-body);
+		-webkit-font-smoothing: antialiased;
+	}
+}

@@ -4,9 +4,14 @@
 	"description": "Your creative OS — capture inspiration, analyze it with AI, learn from it, create your own work, and publish with proper attribution.",
 	"version": "0.1.0",
 
+	"icons": {
+		"128": "icons/icon.svg"
+	},
+
 	"action": {
 		"default_popup": "popup/index.html",
-		"default_title": "createthings"
+		"default_title": "createthings",
+		"default_icon": "icons/icon.svg"
 	},
 	"background": {
 		"service_worker": "service-worker.js",

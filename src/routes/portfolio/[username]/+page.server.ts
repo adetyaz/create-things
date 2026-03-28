@@ -1,6 +1,9 @@
-import { error } from '@sveltejs/kit';
+import { KV_REST_API_URL, KV_REST_API_TOKEN } from '$env/static/private';
+import { Redis } from '@upstash/redis';
 import { createNotionClient } from '$lib/server/notion/client.js';
 import type { PageServerLoad } from './$types.js';
+
+const redis = new Redis({ url: KV_REST_API_URL, token: KV_REST_API_TOKEN });
 
 interface PortfolioBlock {
 	type: string;
@@ -37,16 +40,15 @@ function blockToPortfolio(block: any): PortfolioBlock | null {
 			return null;
 	}
 }
-export const load: PageServerLoad = async ({ params, cookies }) => {
+export const load: PageServerLoad = async ({ params }) => {
 	const username = params.username;
 
-	// Try to get token from cookies (works if the portfolio owner is viewing)
-	// In production, portfolios would use a service-level token
-	const token = cookies.get('notion_token');
-	const dbIdsRaw = cookies.get('notion_db_ids');
+	// Look up stored token + dbIds from KV (written when user sets portfolio public)
+	const kvData = await redis.get<{ notion_token: string; db_ids: Record<string, string> }>(
+		`portfolio:${username.toLowerCase()}`
+	);
 
-	if (!token || !dbIdsRaw) {
-		// Return a minimal portfolio with a message encouraging the owner to set up
+	if (!kvData) {
 		return {
 			username,
 			found: false,
@@ -57,12 +59,11 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 		};
 	}
 
-	const dbIds = JSON.parse(dbIdsRaw);
+	const { notion_token: token, db_ids: dbIds } = kvData;
 	const client = createNotionClient(token);
 
-	// Find user by username in the User Profile DB
+	// Find user by username in the User Profile DB — just for profile data, not public check
 	let profile = { username, bio: '', creativeDna: '' };
-	let isPublic = false;
 
 	if (dbIds.userProfile) {
 		try {
@@ -79,7 +80,6 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 			if (userResponse.results.length) {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				const userProps = (userResponse.results[0] as any).properties;
-				isPublic = userProps['Portfolio Public']?.checkbox === true;
 				profile = {
 					username: userProps.Username?.title?.[0]?.text?.content || username,
 					bio: userProps.Bio?.rich_text?.[0]?.text?.content || '',
@@ -91,9 +91,7 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 		}
 	}
 
-	if (!isPublic) {
-		throw error(404, 'Portfolio not found or is private');
-	}
+	// Presence in KV means the owner has made it public — no further check needed
 
 	// Fetch published projects (Done + Public)
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

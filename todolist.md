@@ -65,7 +65,7 @@
 
 - [x] 40. Build `/portfolio/[username]/+page.svelte` — public page (no auth, served by SvelteKit)
 - [x] 41. Build `/api/portfolio/+server.ts` — reads published data from Notion
-- [ ] 42. Verify: shareable link shows work, process, and inspiration
+- [x] 42. Verify: shareable link shows work, process, and inspiration — KV storage fixed (no double-parse), portfolio public toggle saves to Upstash Redis, project cards open detail modal
 
 ## Phase 8 — Reminders + Polish
 

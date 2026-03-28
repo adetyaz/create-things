@@ -99,69 +99,84 @@
 {#if saved}
 	<SuccessState pageId={savedPageId} {apiBase} onReset={reset} />
 {:else if preview}
-	<div class="flex flex-col gap-3">
-		<img
-			src={preview}
-			alt="Screenshot preview"
-			class="max-h-40 w-full rounded-md border border-gray-200 object-contain"
-		/>
+	<div class="flex flex-col gap-0 p-4">
+		<p class="mb-4 font-display text-[9px] font-bold tracking-[0.3em] text-zine-yellow uppercase">
+			QUICK_CAPTURE_V1
+		</p>
+
+		<div class="mb-4 border-2 border-white/20">
+			<img src={preview} alt="Screenshot preview" class="max-h-36 w-full object-contain" />
+		</div>
 
 		<label
 			for="capture-screenshot-note"
-			class="text-xs font-medium tracking-wide text-gray-500 uppercase">Quick note</label
+			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase"
+			>OBSERVATIONS</label
 		>
 		<textarea
 			id="capture-screenshot-note"
 			bind:value={note}
-			class="w-full resize-none rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
+			class="mb-6 w-full resize-none border-b-2 border-white/10 bg-transparent pb-2 font-body text-sm text-white/80 placeholder-white/20 transition-colors outline-none focus:border-zine-yellow/50"
 			rows="2"
 			placeholder="What caught your eye?"
 		></textarea>
 
 		{#if error}
-			<p class="text-xs text-red-500">{error}</p>
+			<p class="mb-3 font-display text-[9px] tracking-widest text-red-400 uppercase">{error}</p>
 		{/if}
 
 		<div class="flex gap-2">
 			<button
 				onclick={reset}
-				class="flex-1 rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50"
+				class="flex-1 border-2 border-white/20 py-3 font-display text-[10px] font-bold tracking-widest text-white/40 uppercase transition-colors hover:border-white/40 hover:text-white/70"
 			>
-				Retake
+				RETAKE
 			</button>
 			<button
 				onclick={saveScreenshot}
 				disabled={saving}
-				class="flex-1 rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-700 disabled:opacity-50"
+				class="flex-1 border-2 border-zine-yellow bg-zine-yellow py-3 font-display text-[10px] font-bold tracking-widest text-zine-black uppercase shadow-[3px_3px_0px_rgba(255,230,0,0.3)] transition-all duration-75 hover:translate-x-px hover:translate-y-px hover:shadow-none disabled:opacity-30"
 			>
-				{saving ? 'Saving...' : 'Save to Notion'}
+				{saving ? 'SAVING...' : '→ CAPTURE'}
 			</button>
 		</div>
 	</div>
 {:else}
-	<div class="flex flex-col gap-3">
-		<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">Screenshot</p>
+	<div class="flex flex-col gap-0 p-4">
+		<p class="mb-6 font-display text-[9px] font-bold tracking-[0.3em] text-zine-yellow uppercase">
+			CAPTURE_VIEW
+		</p>
 
 		{#if error}
-			<p class="text-xs text-red-500">{error}</p>
+			<p class="mb-4 font-display text-[9px] tracking-widest text-red-400 uppercase">{error}</p>
 		{/if}
 
-		<button
-			onclick={captureFullPage}
-			disabled={capturing}
-			class="w-full rounded-lg border border-gray-200 px-4 py-3 text-left text-sm transition-colors hover:bg-gray-50 disabled:opacity-50"
-		>
-			<span class="font-medium">Full page</span>
-			<span class="mt-0.5 block text-xs text-gray-400">Capture the entire visible page</span>
-		</button>
+		<div class="flex flex-col gap-3">
+			<button
+				onclick={captureFullPage}
+				disabled={capturing}
+				class="w-full border-2 border-white/20 px-4 py-4 text-left transition-colors hover:border-zine-yellow/50 hover:bg-white/5 disabled:opacity-30"
+			>
+				<p class="font-display text-[10px] font-bold tracking-widest text-white/80 uppercase">
+					FULL PAGE
+				</p>
+				<p class="mt-1 font-display text-[8px] tracking-wider text-white/30 uppercase">
+					Capture entire visible area
+				</p>
+			</button>
 
-		<button
-			onclick={captureArea}
-			disabled={capturing}
-			class="w-full rounded-lg border border-gray-200 px-4 py-3 text-left text-sm transition-colors hover:bg-gray-50 disabled:opacity-50"
-		>
-			<span class="font-medium">Select area</span>
-			<span class="mt-0.5 block text-xs text-gray-400">Draw a box to capture a portion</span>
-		</button>
+			<button
+				onclick={captureArea}
+				disabled={capturing}
+				class="w-full border-2 border-white/20 px-4 py-4 text-left transition-colors hover:border-zine-yellow/50 hover:bg-white/5 disabled:opacity-30"
+			>
+				<p class="font-display text-[10px] font-bold tracking-widest text-white/80 uppercase">
+					SELECT AREA
+				</p>
+				<p class="mt-1 font-display text-[8px] tracking-wider text-white/30 uppercase">
+					Draw a box to capture a portion
+				</p>
+			</button>
+		</div>
 	</div>
 {/if}

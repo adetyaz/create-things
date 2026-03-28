@@ -4,13 +4,21 @@
 	let { data }: { data: PageData } = $props();
 	let expandedProject = $state<string | null>(null);
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const activeProject = $derived(data.projects.find((p: any) => p.id === expandedProject) ?? null);
+
 	function youtubeEmbed(url: string): string | null {
 		const m =
-			url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/) ||
-			null;
+			url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/) || null;
 		return m ? `https://www.youtube.com/embed/${m[1]}` : null;
 	}
+
+	function onKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') expandedProject = null;
+	}
 </script>
+
+<svelte:window onkeydown={onKeydown} />
 
 <svelte:head>
 	<title>{data.profile.username}'s Portfolio — createthings</title>
@@ -46,9 +54,11 @@
 					{#each data.projects as project (project.id)}
 						<button
 							type="button"
-							class="rounded-xl border border-zinc-800 bg-zinc-900 p-5 text-left transition-colors hover:border-zinc-700"
-							onclick={() =>
-								(expandedProject = expandedProject === project.id ? null : project.id)}
+							class="group rounded-xl border border-zinc-800 bg-zinc-900 p-5 text-left transition-colors hover:border-violet-500/60 {expandedProject ===
+							project.id
+								? 'border-violet-500/60'
+								: ''}"
+							onclick={() => (expandedProject = project.id)}
 						>
 							{#if project.coverImage}
 								<img
@@ -68,60 +78,94 @@
 							{#if project.dateCompleted}
 								<p class="mt-3 text-xs text-zinc-500">{project.dateCompleted}</p>
 							{/if}
+							<p
+								class="mt-3 text-xs text-violet-400 opacity-0 transition-opacity group-hover:opacity-100"
+							>
+								View details →
+							</p>
 						</button>
 					{/each}
 				</div>
-
-				<!-- Expanded project detail -->
-				{#each data.projects as project (project.id)}
-					{#if expandedProject === project.id && project.blocks?.length}
-						<div class="mt-6 rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-							<h3 class="mb-4 text-xl font-semibold text-zinc-100">{project.title}</h3>
-							<div class="space-y-3">
-								{#each project.blocks as block, bi (bi)}
-									{#if block.type === 'heading_2'}
-										<h2 class="text-lg font-semibold text-zinc-100">{block.content}</h2>
-									{:else if block.type === 'heading_3'}
-										<h3 class="text-base font-medium text-zinc-200">{block.content}</h3>
-									{:else if block.type === 'bulleted_list_item'}
-										<p class="pl-4 text-sm text-zinc-400">
-											&bull;&nbsp;{block.content}
-										</p>
-									{:else if block.type === 'image' && block.content}
-										<img
-											src={block.content}
-											alt=""
-											class="max-h-96 w-full rounded-lg object-contain"
-										/>
-									{:else if block.type === 'video' && block.content}
-										{#if youtubeEmbed(block.content)}
-											<iframe
-												src={youtubeEmbed(block.content)}
-												title="Video"
-												class="aspect-video w-full rounded-lg"
-												frameborder="0"
-												allowfullscreen
-											></iframe>
-										{:else}
-											<!-- eslint-disable-next-line svelte/valid-each-key -- external URL, not a route -->
-											<a
-												href={block.content}
-												target="_blank"
-												rel="external noopener noreferrer"
-												class="text-sm text-violet-400 underline">{block.content}</a
-											>
-										{/if}
-									{:else if block.type === 'divider'}
-										<hr class="border-zinc-800" />
-									{:else if block.content}
-										<p class="text-sm leading-relaxed text-zinc-400">{block.content}</p>
-									{/if}
-								{/each}
-							</div>
-						</div>
-					{/if}
-				{/each}
 			</section>
+		{/if}
+
+		<!-- Project detail modal -->
+		{#if activeProject}
+			<!-- Backdrop -->
+			<button
+				type="button"
+				class="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm"
+				aria-label="Close"
+				onclick={() => (expandedProject = null)}
+			></button>
+
+			<!-- Panel -->
+			<div
+				class="fixed inset-x-4 top-16 bottom-0 z-50 mx-auto max-w-2xl overflow-y-auto rounded-t-2xl border border-zinc-700 bg-zinc-950 p-6 shadow-2xl sm:inset-x-auto sm:top-12 sm:bottom-12 sm:left-1/2 sm:w-full sm:-translate-x-1/2 sm:rounded-2xl"
+			>
+				<div class="mb-5 flex items-start justify-between gap-4">
+					<div>
+						<h2 class="text-2xl font-semibold text-zinc-100">{activeProject.title}</h2>
+						{#if activeProject.remixTag}
+							<span
+								class="mt-1 inline-block rounded bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-300"
+							>
+								{activeProject.remixTag}
+							</span>
+						{/if}
+						{#if activeProject.dateCompleted}
+							<p class="mt-1 text-xs text-zinc-500">{activeProject.dateCompleted}</p>
+						{/if}
+					</div>
+					<button
+						type="button"
+						class="shrink-0 rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+						aria-label="Close"
+						onclick={() => (expandedProject = null)}
+					>
+						✕
+					</button>
+				</div>
+
+				{#if activeProject.blocks?.length}
+					<div class="space-y-3">
+						{#each activeProject.blocks as block, bi (bi)}
+							{#if block.type === 'heading_2'}
+								<h2 class="text-lg font-semibold text-zinc-100">{block.content}</h2>
+							{:else if block.type === 'heading_3'}
+								<h3 class="text-base font-medium text-zinc-200">{block.content}</h3>
+							{:else if block.type === 'bulleted_list_item'}
+								<p class="pl-4 text-sm text-zinc-400">&bull;&nbsp;{block.content}</p>
+							{:else if block.type === 'image' && block.content}
+								<img src={block.content} alt="" class="max-h-96 w-full rounded-lg object-contain" />
+							{:else if block.type === 'video' && block.content}
+								{#if youtubeEmbed(block.content)}
+									<iframe
+										src={youtubeEmbed(block.content)}
+										title="Video"
+										class="aspect-video w-full rounded-lg"
+										frameborder="0"
+										allowfullscreen
+									></iframe>
+								{:else}
+									<a
+										href={block.content}
+										target="_blank"
+										rel="external noopener noreferrer"
+										class="text-sm text-violet-400 underline">{block.content}</a
+									>
+								{/if}
+							{:else if block.type === 'divider'}
+								<hr class="border-zinc-800" />
+							{:else if block.content}
+								<p class="text-sm leading-relaxed text-zinc-400">{block.content}</p>
+							{/if}
+						{/each}
+					</div>
+				{:else}
+					<p class="text-sm text-zinc-500">No additional content for this project.</p>
+				{/if}
+			</div>
 		{/if}
 
 		<!-- Learning Milestones -->

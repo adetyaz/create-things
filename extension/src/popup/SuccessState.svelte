@@ -12,22 +12,29 @@
 	}
 </script>
 
-<div class="flex flex-col items-center gap-3 p-4 text-center">
-	<div class="flex h-12 w-12 items-center justify-center rounded-full bg-teal-50">
-		<span class="text-xl text-teal-600">&#10003;</span>
+<div class="flex flex-1 flex-col items-center justify-center gap-6 p-8 text-center">
+	<div>
+		<p class="mb-4 font-display text-[10px] font-bold tracking-[0.3em] text-zine-green uppercase">
+			DISPATCH_CONFIRMED
+		</p>
+		<div class="mb-2 font-display text-5xl font-bold text-zine-yellow">✓</div>
+		<h2 class="mb-2 font-display text-xl font-bold tracking-widest uppercase">CAPTURED</h2>
+		<p class="font-body text-xs text-white/40">
+			Saved to your Notion vault · AI analysis in progress
+		</p>
 	</div>
-	<p class="text-sm font-medium text-gray-800">Saved to Notion</p>
-	<p class="text-xs text-gray-400">Your inspiration is being analyzed by AI</p>
-	<button
-		onclick={viewInDashboard}
-		class="mt-2 w-full rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700"
-	>
-		View
-	</button>
-	<button
-		onclick={onReset}
-		class="text-xs text-gray-400 underline transition-colors hover:text-gray-600"
-	>
-		Capture something else
-	</button>
+	<div class="flex w-full flex-col gap-2">
+		<button
+			onclick={viewInDashboard}
+			class="w-full border-2 border-zine-yellow bg-zine-yellow py-3 font-display text-xs font-bold tracking-widest text-zine-black uppercase shadow-[3px_3px_0px_rgba(255,230,0,0.3)] transition-all duration-75 hover:translate-x-px hover:translate-y-px hover:shadow-none"
+		>
+			→ VIEW IN DASHBOARD
+		</button>
+		<button
+			onclick={onReset}
+			class="w-full border-2 border-white/20 py-3 font-display text-xs font-bold tracking-widest text-white/40 uppercase transition-colors hover:border-white/40 hover:text-white/70"
+		>
+			CAPTURE AGAIN
+		</button>
+	</div>
 </div>

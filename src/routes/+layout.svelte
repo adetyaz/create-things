@@ -4,16 +4,21 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import Toast from '$lib/components/Toast.svelte';
+	import Logo from '$lib/components/Logo.svelte';
 
-	let { children } = $props();
+	let { children, data } = $props();
 
 	const navItems = [
-		{ href: '/', label: 'Dashboard' },
-		{ href: '/publish', label: 'Publish' },
-		{ href: '/settings', label: 'Settings' }
+		{ href: '/', label: 'ARCHIVE' },
+		{ href: '/publish', label: 'NETWORK' },
+		{ href: '/settings', label: 'CONFIG' }
 	];
 
 	let isPortfolio = $derived(page.url.pathname.startsWith('/portfolio'));
+
+	function isActive(href: string) {
+		return href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);
+	}
 </script>
 
 <svelte:head>
@@ -21,31 +26,32 @@
 	<title>createthings</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 text-gray-900">
-	{#if !isPortfolio}
-		<nav class="border-b border-gray-200 bg-white">
-			<div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-				<a href={resolve('/')} class="text-lg font-medium">
-					<span class="text-gray-600">create</span><span class="text-gray-900">things</span>
+<div class="min-h-screen text-zine-black">
+	{#if !isPortfolio && data.connected}
+		<nav class="border-b-2 border-zine-black bg-zine-black">
+			<div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+				<a href={resolve('/')} class="leading-none">
+					<Logo size="md" bg="#FFE600" color="#0D0D0D" />
 				</a>
-				<div class="flex items-center gap-4">
+				<div class="flex items-center gap-8">
 					{#each navItems as item (item.href)}
 						<a
 							href={resolve(item.href as '/' | '/publish' | '/settings')}
-							class="text-sm transition-colors {page.url.pathname === item.href
-								? 'font-medium text-teal-600'
-								: 'text-gray-500 hover:text-gray-700'}"
+							class="font-display text-xs font-bold tracking-widest uppercase transition-colors
+								{isActive(item.href)
+								? 'border-b-2 border-zine-yellow pb-0.5 text-zine-yellow'
+								: 'text-white/50 hover:text-white'}"
 						>
 							{item.label}
 						</a>
 					{/each}
-					<a
-						href={resolve('/api/notion/logout')}
-						class="text-sm text-gray-400 transition-colors hover:text-red-500"
-					>
-						Logout
-					</a>
 				</div>
+				<a
+					href={resolve('/api/notion/logout')}
+					class="font-display text-xs font-bold tracking-widest text-white/30 uppercase transition-colors hover:text-white/60"
+				>
+					LOGOUT
+				</a>
 			</div>
 		</nav>
 	{/if}

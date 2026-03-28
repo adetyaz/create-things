@@ -3,8 +3,6 @@
 	import { enhance } from '$app/forms';
 
 	let { data, form } = $props();
-	let figmaKey = $derived(data.figmaFileKey);
-	let threshold = $derived(data.staleThreshold);
 	let copiedHeader = $state(false);
 	let copiedBody = $state(false);
 
@@ -81,7 +79,7 @@
 						id="figma-key"
 						type="text"
 						name="fileKey"
-						bind:value={figmaKey}
+						value={data.figmaFileKey}
 						placeholder="Enter your Figma file key"
 						class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-teal-500 focus:outline-none"
 					/>
@@ -113,7 +111,7 @@
 						id="stale-threshold"
 						type="number"
 						name="threshold"
-						bind:value={threshold}
+						value={data.staleThreshold}
 						min="1"
 						max="365"
 						class="w-20 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-teal-500 focus:outline-none"
@@ -130,6 +128,43 @@
 
 			{#if form?.staleSaved}
 				<p class="mt-2 text-xs text-teal-600">Stale threshold updated!</p>
+			{/if}
+		</div>
+	</section>
+
+	<!-- Dormant project threshold -->
+	<section class="mb-8">
+		<h2 class="mb-3 text-xs font-medium tracking-wide text-gray-400 uppercase">Dormant Projects</h2>
+		<div class="rounded-lg border border-gray-200 bg-white p-4">
+			<p class="mb-3 text-xs text-gray-400">
+				Projects marked <strong>In Progress</strong> that haven't been updated in this many days will
+				appear as a reminder on your dashboard.
+			</p>
+			<form method="POST" action="?/dormant" use:enhance>
+				<label for="dormant-days" class="mb-1 block text-xs text-gray-500">
+					Days before a project is considered dormant
+				</label>
+				<div class="flex items-center gap-3">
+					<input
+						id="dormant-days"
+						type="number"
+						name="dormantDays"
+						value={data.dormantDays}
+						min="1"
+						max="365"
+						class="w-20 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-teal-500 focus:outline-none"
+					/>
+					<span class="text-xs text-gray-400">days</span>
+					<button
+						type="submit"
+						class="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+					>
+						Update
+					</button>
+				</div>
+			</form>
+			{#if form?.dormantSaved}
+				<p class="mt-2 text-xs text-teal-600">Dormant threshold updated!</p>
 			{/if}
 		</div>
 	</section>
@@ -155,6 +190,59 @@
 			{/if}
 		</div>
 	</section>
+
+	<!-- Portfolio -->
+	{#if data.connected}
+		<section class="mb-8">
+			<h2 class="mb-3 text-xs font-medium tracking-wide text-gray-400 uppercase">Portfolio</h2>
+			<div class="rounded-lg border border-gray-200 bg-white p-4">
+				<p class="mb-3 text-xs text-gray-500">
+					Make your portfolio publicly shareable at <code>/portfolio/YOUR_USERNAME</code>.
+				</p>
+				<form method="POST" action="?/profile" use:enhance>
+					<div class="mb-3">
+						<label for="portfolio-username" class="mb-1 block text-xs text-gray-500">Username</label
+						>
+						<input
+							id="portfolio-username"
+							type="text"
+							name="username"
+							value={data.portfolioUsername}
+							placeholder="your-username"
+							class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-teal-500 focus:outline-none"
+						/>
+					</div>
+					<label class="mb-3 flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+						<input
+							type="checkbox"
+							name="portfolioPublic"
+							checked={data.portfolioPublic}
+							class="h-4 w-4 rounded border-gray-300 accent-teal-600"
+						/>
+						Make portfolio public
+					</label>
+					<button
+						type="submit"
+						class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700"
+					>
+						Save
+					</button>
+				</form>
+				{#if form?.profileSaved}
+					<p class="mt-2 text-xs text-teal-600">
+						Portfolio settings saved!
+						{#if data.portfolioPublic && data.portfolioUsername}
+							&nbsp;<a
+								href={resolve(`/portfolio/${data.portfolioUsername}`)}
+								class="underline"
+								target="_blank">View portfolio →</a
+							>
+						{/if}
+					</p>
+				{/if}
+			</div>
+		</section>
+	{/if}
 
 	<!-- Notion Automation (Phase 3 — item 22) -->
 	<section class="mb-8">
