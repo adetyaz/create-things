@@ -52,19 +52,19 @@
 
 		<label
 			for="capture-note"
-			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase"
+			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/60 uppercase"
 			>OBSERVATIONS</label
 		>
 		<textarea
 			id="capture-note"
 			bind:value={note}
-			class="mb-6 w-full resize-none border-b-2 border-white/10 bg-transparent pb-2 font-body text-sm text-white/80 placeholder-white/20 transition-colors outline-none focus:border-zine-yellow/50"
+			class="mb-6 w-full resize-none border-b-2 border-white/20 bg-transparent pb-2 font-body text-sm text-white/90 placeholder-white/50 transition-colors outline-none focus:border-zine-yellow/50"
 			rows="8"
 			placeholder="Ideas, concepts, thoughts, verbal inspiration..."
 		></textarea>
 
 		<div class="mb-6 flex items-center justify-between">
-			<span class="font-display text-[8px] tracking-widest text-white/20 uppercase"
+			<span class="font-display text-[8px] tracking-widest text-white/50 uppercase"
 				>{note.length} CHARS</span
 			>
 		</div>

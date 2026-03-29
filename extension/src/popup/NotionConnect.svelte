@@ -7,7 +7,7 @@
 	}
 </script>
 
-<div class="flex w-[500px] flex-col bg-zine-black text-zine-off-white" style="min-height: 480px;">
+<div class="flex w-125 flex-col bg-zine-black text-zine-off-white" style="min-height: 480px;">
 	<!-- Top bar -->
 	<div class="flex items-center justify-between border-b-2 border-white/10 px-4 py-3">
 		<span
@@ -16,12 +16,12 @@
 		>
 		<div class="flex items-center gap-4">
 			{#each ['ARCHIVE', 'LABS', 'NETWORK'] as tab (tab)}
-				<span class="font-display text-[9px] font-bold tracking-widest text-white/20 uppercase"
+				<span class="font-display text-[9px] font-bold tracking-widest text-white/40 uppercase"
 					>{tab}</span
 				>
 			{/each}
 		</div>
-		<span class="font-display text-[9px] tracking-widest text-white/20 uppercase">⚙</span>
+		<span class="font-display text-[9px] tracking-widest text-white/40 uppercase">⚙</span>
 	</div>
 
 	<!-- Connect content -->
@@ -35,7 +35,7 @@
 			<h1 class="mb-4 font-display text-3xl leading-tight font-bold uppercase">
 				CONNECT<br /><span class="bg-zine-yellow px-2 text-zine-black">NOTION</span>
 			</h1>
-			<p class="max-w-xs font-body text-sm leading-relaxed text-white/50">
+			<p class="max-w-xs font-body text-sm leading-relaxed text-white/70">
 				Link your Notion workspace to start capturing inspiration directly into your vault.
 			</p>
 		</div>
@@ -51,7 +51,7 @@
 				href="https://www.notion.so/desktop"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="font-display text-[10px] font-bold tracking-widest text-white/20 uppercase transition-colors hover:text-white/40"
+				class="font-display text-[10px] font-bold tracking-widest text-white/40 uppercase transition-colors hover:text-white/60"
 			>
 				DON'T HAVE NOTION? GET IT HERE
 			</a>
@@ -60,10 +60,10 @@
 
 	<!-- Footer -->
 	<div class="flex items-center justify-between border-t-2 border-white/10 px-4 py-2">
-		<span class="font-display text-[8px] font-bold tracking-widest text-white/10 uppercase"
+		<span class="font-display text-[8px] font-bold tracking-widest text-white/25 uppercase"
 			>TERMINAL_GRIP_DOME</span
 		>
-		<span class="font-display text-[8px] font-bold tracking-widest text-white/10 uppercase"
+		<span class="font-display text-[8px] font-bold tracking-widest text-white/25 uppercase"
 			>INITIAL_TRAP</span
 		>
 	</div>

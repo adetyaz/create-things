@@ -58,6 +58,7 @@ async function groqChat<T>(messages: GroqMessage[]): Promise<T> {
 // --- Text-only visual analysis fallback (used when Gemini quota is exhausted) ---
 
 export interface VisualAnalysisResult {
+	technique: string;
 	colors: string;
 	typography: string;
 	layout: string;
@@ -75,6 +76,8 @@ export async function analyzeFromText(opts: {
 	colorPalette: string;
 	sourceUrl?: string;
 	userNote?: string;
+	profession?: string;
+	professionDetail?: string;
 }): Promise<VisualAnalysisResult> {
 	const result = await groqChat<VisualAnalysisResult>([
 		{ role: 'system', content: TEXT_ANALYSIS_SYSTEM },
@@ -98,10 +101,13 @@ export interface NoteAnalysisResult {
 }
 
 /** Analyze a text note capture. */
-export async function analyzeNote(note: string): Promise<NoteAnalysisResult> {
+export async function analyzeNote(
+	note: string,
+	opts?: { profession?: string; professionDetail?: string }
+): Promise<NoteAnalysisResult> {
 	const result = await groqChat<NoteAnalysisResult>([
 		{ role: 'system', content: NOTE_ANALYSIS_SYSTEM },
-		{ role: 'user', content: noteAnalysisPrompt(note) }
+		{ role: 'user', content: noteAnalysisPrompt(note, opts) }
 	]);
 
 	if (!Array.isArray(result.mood)) {
@@ -124,6 +130,9 @@ export async function generateRoadmap(opts: {
 	inspirationTitle: string;
 	analysisStyle: string;
 	roadmapSuggestions: string;
+	profession?: string;
+	professionDetail?: string;
+	userNote?: string;
 }): Promise<RoadmapResult> {
 	return groqChat<RoadmapResult>([
 		{ role: 'system', content: ROADMAP_SYSTEM },

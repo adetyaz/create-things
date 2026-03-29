@@ -110,13 +110,17 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 
 	// Linked inspirations
 	const inspirationRelation = props.Inspiration?.relation || [];
-	const inspirations: { id: string; title: string }[] = [];
+	const inspirations: { id: string; title: string; imageUrl: string; sourceUrl: string }[] = [];
 	for (const rel of inspirationRelation) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const ip = (await client.pages.retrieve({ page_id: rel.id })) as any;
+		const ip_props = ip.properties;
 		inspirations.push({
 			id: ip.id,
-			title: ip.properties.Title?.title?.[0]?.text?.content || 'Untitled'
+			title: ip_props.Title?.title?.[0]?.text?.content || 'Untitled',
+			imageUrl:
+				ip_props.Image?.files?.[0]?.file?.url || ip_props.Image?.files?.[0]?.external?.url || '',
+			sourceUrl: ip_props['Source URL']?.url || ''
 		});
 	}
 

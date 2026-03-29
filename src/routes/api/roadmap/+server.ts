@@ -20,7 +20,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	const dbIds: DatabaseIds = JSON.parse(dbIdsRaw);
 	const client = createNotionClient(token);
 
-	const { inspirationId } = await request.json();
+	const { inspirationId, profession, professionDetail } = await request.json();
 	if (!inspirationId) return json({ error: 'Missing inspirationId' }, { status: 400 });
 
 	// Fetch the inspiration page and its analysis
@@ -28,6 +28,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	const inspirationPage = (await client.pages.retrieve({ page_id: inspirationId })) as any;
 	const iProps = inspirationPage.properties;
 	const title = iProps.Title?.title?.[0]?.text?.content || 'Untitled';
+	const userNote: string = iProps.Notes?.rich_text?.[0]?.text?.content || '';
 
 	// Get linked analysis
 	const analysisRelation = iProps.Analysis?.relation;
@@ -53,7 +54,10 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	const roadmap = await generateRoadmap({
 		inspirationTitle: title,
 		analysisStyle,
-		roadmapSuggestions
+		roadmapSuggestions,
+		profession: profession || undefined,
+		professionDetail: professionDetail || undefined,
+		userNote: userNote || undefined
 	});
 
 	// Write to Notion

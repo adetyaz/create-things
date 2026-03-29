@@ -1,22 +1,15 @@
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100" height="100">
   <title>createthings</title>
   <!-- Background -->
-  <rect width="100" height="100" rx="18" fill="#0d0d0d"/>
-  <!-- Primary L-bracket: top-left -->
-  <path d="M20 36 L20 20 L36 20" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="square"/>
-  <!-- Primary L-bracket: bottom-right -->
-  <path d="M80 64 L80 80 L64 80" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="square"/>
-  <!-- Secondary L-bracket: top-right -->
-  <path d="M64 20 L80 20 L80 36" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="square" opacity="0.3"/>
-  <!-- Secondary L-bracket: bottom-left -->
-  <path d="M36 80 L20 80 L20 64" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="square" opacity="0.3"/>
-  <!-- Subtle crosshair -->
-  <line x1="50" y1="26" x2="50" y2="74" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.15"/>
-  <line x1="26" y1="50" x2="74" y2="50" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.15"/>
-  <!-- Diagonal accent (creation stroke) -->
-  <line x1="28" y1="28" x2="72" y2="72" stroke="#7c3aed" stroke-width="2" stroke-opacity="0.9"/>
-  <!-- Compass circle -->
-  <circle cx="50" cy="50" r="6" fill="none" stroke="#ffffff" stroke-width="2"/>
-  <!-- Anchor dot -->
-  <circle cx="50" cy="50" r="2.5" fill="#7c3aed"/>
+  <rect width="100" height="100" rx="0" fill="#0d0d0d"/>
+  <!-- Primary L-bracket: top-left (yellow) -->
+  <path d="M18 38 L18 18 L38 18" fill="none" stroke="#FFE600" stroke-width="5" stroke-linecap="square"/>
+  <!-- Primary L-bracket: bottom-right (yellow) -->
+  <path d="M82 62 L82 82 L62 82" fill="none" stroke="#FFE600" stroke-width="5" stroke-linecap="square"/>
+  <!-- Secondary L-bracket: top-right (dim) -->
+  <path d="M62 18 L82 18 L82 38" fill="none" stroke="#FFE600" stroke-width="2" stroke-linecap="square" opacity="0.25"/>
+  <!-- Secondary L-bracket: bottom-left (dim) -->
+  <path d="M38 82 L18 82 L18 62" fill="none" stroke="#FFE600" stroke-width="2" stroke-linecap="square" opacity="0.25"/>
+  <!-- Center diamond -->
+  <polygon points="50,42 58,50 50,58 42,50" fill="#FFE600"/>
 </svg>

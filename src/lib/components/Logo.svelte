@@ -38,7 +38,7 @@
 	.create {
 		font-family: 'DM Sans', sans-serif;
 		font-weight: 400;
-		color: inherit;
+		color: #ffe600;
 	}
 
 	.things {

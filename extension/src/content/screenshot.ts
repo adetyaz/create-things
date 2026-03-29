@@ -185,7 +185,7 @@ async function captureSelection() {
 	});
 
 	if (saveResponse?.success) {
-		showSavedToast(saveResponse.pageId || '', saveResponse.apiBase || 'http://localhost:5173');
+		showSavedToast(saveResponse.pageId || '', saveResponse.apiBase || 'https://create-things.vercel.app');
 	}
 }
 

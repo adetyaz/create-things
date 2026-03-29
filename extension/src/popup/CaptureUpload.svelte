@@ -80,10 +80,10 @@
 			</div>
 		{:else}
 			<label
-				class="mb-4 flex cursor-pointer flex-col items-center gap-3 border-2 border-dashed border-white/20 p-8 transition-colors hover:border-zine-yellow/50"
+				class="mb-4 flex cursor-pointer flex-col items-center gap-3 border-2 border-dashed border-white/30 p-8 transition-colors hover:border-zine-yellow/50"
 			>
-				<span class="font-display text-2xl font-bold text-white/20">↑</span>
-				<span class="font-display text-[9px] font-bold tracking-widest text-white/30 uppercase"
+				<span class="font-display text-2xl font-bold text-white/40">↑</span>
+				<span class="font-display text-[9px] font-bold tracking-widest text-white/50 uppercase"
 					>DROP IMAGE / CLICK TO SELECT</span
 				>
 				<input type="file" accept="image/*" onchange={handleFileChange} class="hidden" />
@@ -92,13 +92,13 @@
 
 		<label
 			for="capture-upload-note"
-			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase"
+			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/60 uppercase"
 			>OBSERVATIONS</label
 		>
 		<textarea
 			id="capture-upload-note"
 			bind:value={note}
-			class="mb-6 w-full resize-none border-b-2 border-white/10 bg-transparent pb-2 font-body text-sm text-white/80 placeholder-white/20 transition-colors outline-none focus:border-zine-yellow/50"
+			class="mb-6 w-full resize-none border-b-2 border-white/20 bg-transparent pb-2 font-body text-sm text-white/90 placeholder-white/50 transition-colors outline-none focus:border-zine-yellow/50"
 			rows="2"
 			placeholder="What caught your eye?"
 		></textarea>

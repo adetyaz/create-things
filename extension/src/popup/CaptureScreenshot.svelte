@@ -7,7 +7,7 @@
 	let saving = $state(false);
 	let saved = $state(false);
 	let savedPageId = $state('');
-	let apiBase = $state('http://localhost:5173');
+	let apiBase = $state('https://create-things.vercel.app');
 	let error = $state('');
 
 	$effect(() => {
@@ -110,13 +110,13 @@
 
 		<label
 			for="capture-screenshot-note"
-			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase"
+			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/60 uppercase"
 			>OBSERVATIONS</label
 		>
 		<textarea
 			id="capture-screenshot-note"
 			bind:value={note}
-			class="mb-6 w-full resize-none border-b-2 border-white/10 bg-transparent pb-2 font-body text-sm text-white/80 placeholder-white/20 transition-colors outline-none focus:border-zine-yellow/50"
+			class="mb-6 w-full resize-none border-b-2 border-white/20 bg-transparent pb-2 font-body text-sm text-white/90 placeholder-white/50 transition-colors outline-none focus:border-zine-yellow/50"
 			rows="2"
 			placeholder="What caught your eye?"
 		></textarea>
@@ -128,7 +128,7 @@
 		<div class="flex gap-2">
 			<button
 				onclick={reset}
-				class="flex-1 border-2 border-white/20 py-3 font-display text-[10px] font-bold tracking-widest text-white/40 uppercase transition-colors hover:border-white/40 hover:text-white/70"
+				class="flex-1 border-2 border-white/30 py-3 font-display text-[10px] font-bold tracking-widest text-white/60 uppercase transition-colors hover:border-white/50 hover:text-white/90"
 			>
 				RETAKE
 			</button>

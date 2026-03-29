@@ -25,7 +25,7 @@
 	];
 </script>
 
-<div class="flex w-[500px] flex-col bg-zine-black text-zine-off-white" style="min-height: 480px;">
+<div class="flex w-125 flex-col bg-zine-black text-zine-off-white" style="min-height: 480px;">
 	{#if view === 'loading'}
 		<div class="flex flex-1 items-center justify-center">
 			<div class="flex flex-col items-center gap-4">
@@ -45,18 +45,18 @@
 				>UNFILTERED</span
 			>
 			<div class="flex items-center gap-4">
-				{#each ['ARCHIVE', 'LABS', 'NETWORK'] as tab, i}
+				{#each ['ARCHIVE', 'LABS', 'NETWORK'] as tab, i (i)}
 					<span
 						class="font-display text-[9px] font-bold tracking-widest uppercase {i === 0
 							? 'border-b border-zine-yellow pb-px text-zine-yellow'
-							: 'text-white/20'}">{tab}</span
+							: 'text-white/60'}">{tab}</span
 					>
 				{/each}
 			</div>
 			<div class="flex items-center gap-1.5">
 				<span class="h-1.5 w-1.5 rounded-full bg-zine-green" style="box-shadow: 0 0 4px #00FC40;"
 				></span>
-				<span class="font-display text-[9px] font-bold tracking-widest text-white/30 uppercase"
+				<span class="font-display text-[9px] font-bold tracking-widest text-white/70 uppercase"
 					>LIVE</span
 				>
 			</div>
@@ -67,20 +67,20 @@
 			<!-- Sidebar -->
 			<div class="flex w-28 shrink-0 flex-col border-r-2 border-white/10 py-3">
 				<div class="mb-3 border-b border-white/10 px-3 pb-3">
-					<p class="font-display text-[8px] font-bold tracking-[0.25em] text-white/20 uppercase">
+					<p class="font-display text-[8px] font-bold tracking-[0.25em] text-white/60 uppercase">
 						OPERATOR_01
 					</p>
-					<p class="mt-0.5 font-display text-[8px] tracking-wide text-white/30 uppercase">
+					<p class="mt-0.5 font-display text-[8px] tracking-wide text-white/60 uppercase">
 						UNFILTERED
 					</p>
 				</div>
 				<nav class="flex flex-1 flex-col gap-px px-2">
-					{#each navItems as item}
+					{#each navItems as item (item.id)}
 						<button
 							onclick={() => (view = item.id)}
 							class="w-full px-2 py-2.5 text-left transition-colors {view === item.id
 								? 'bg-zine-yellow text-zine-black'
-								: 'text-white/40 hover:bg-white/5 hover:text-white/70'}"
+								: 'text-white/70 hover:bg-white/5 hover:text-white'}"
 						>
 							<p class="font-display text-[10px] leading-tight font-bold tracking-widest uppercase">
 								{item.label}
@@ -88,7 +88,7 @@
 							<p
 								class="mt-0.5 font-display text-[7px] tracking-wider uppercase {view === item.id
 									? 'text-zine-black/50'
-									: 'text-white/20'}"
+									: 'text-white/50'}"
 							>
 								{item.sub}
 							</p>
@@ -100,7 +100,7 @@
 						onclick={() => {
 							view = 'connect';
 						}}
-						class="w-full px-2 py-2 text-left text-white/20 transition-colors hover:text-white/40"
+						class="w-full px-2 py-2 text-left text-white/60 transition-colors hover:text-white/90"
 					>
 						<p class="font-display text-[9px] tracking-widest uppercase">⚙ CONFIG</p>
 					</button>
@@ -123,10 +123,10 @@
 
 		<!-- Footer -->
 		<div class="flex shrink-0 items-center justify-between border-t-2 border-white/10 px-4 py-2">
-			<span class="font-display text-[8px] font-bold tracking-widest text-white/10 uppercase"
+			<span class="font-display text-[8px] font-bold tracking-widest text-white/30 uppercase"
 				>TERMINAL_GRIP_DOME</span
 			>
-			<span class="font-display text-[8px] font-bold tracking-widest text-white/10 uppercase"
+			<span class="font-display text-[8px] font-bold tracking-widest text-white/30 uppercase"
 				>INITIAL_TRAP</span
 			>
 		</div>

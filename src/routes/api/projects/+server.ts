@@ -43,11 +43,12 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		}
 	});
 
-	// Update inspiration status to Active
+	// Update inspiration: set Status to Active and link the new project
 	await client.pages.update({
 		page_id: inspirationId,
 		properties: {
-			Status: { select: { name: 'Active' } }
+			Status: { select: { name: 'Active' } },
+			Projects: { relation: [{ id: project.id }] }
 		}
 	});
 

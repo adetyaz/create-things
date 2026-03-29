@@ -37,10 +37,12 @@
 				<h1
 					class="mb-8 font-display text-[clamp(3rem,10vw,8rem)] leading-none font-bold tracking-tight uppercase"
 				>
-					CAPTURE.<br />
-					BUILD.<br />
-					<span class="inline-block bg-zine-yellow px-3 py-1 text-zine-black">PUBLISH.</span>
+					CREATIVE<br />
+					<span class="inline-block bg-zine-yellow px-3 py-1 text-zine-black">ANARCHY.</span>
 				</h1>
+				<p class="mb-4 font-display text-sm font-bold tracking-[0.2em] text-white/50 uppercase">
+					CAPTURE · BUILD · PUBLISH
+				</p>
 				<p class="mb-12 max-w-lg font-body text-lg leading-relaxed text-white/60 md:text-xl">
 					The creative operator's toolkit. Clip inspiration from anywhere, build projects inside
 					Notion, and broadcast your work across every channel.
@@ -258,7 +260,9 @@
 	<div class="min-h-screen bg-zine-off-white">
 		<div class="mx-auto max-w-7xl px-6 py-10">
 			<!-- Page header -->
-			<div class="mb-8 flex items-start justify-between border-b-2 border-zine-black pb-6">
+			<div
+				class="mb-6 flex flex-col gap-3 border-b-2 border-zine-black pb-6 sm:flex-row sm:items-start sm:justify-between"
+			>
 				<div>
 					<p
 						class="mb-1 font-display text-xs font-bold tracking-[0.3em] text-zine-black/40 uppercase"
@@ -266,15 +270,31 @@
 						OPERATOR_01
 					</p>
 					<h1 class="font-display text-3xl font-bold tracking-tight uppercase">
-						INSPIRATION <span class="bg-zine-yellow px-2">STREAM</span>
+						INSPIRATION <span class="bg-zine-yellow px-2">STREAM_V5</span>
 					</h1>
 				</div>
-				<div class="mt-1 flex items-center gap-2">
+				<div class="flex items-center gap-2">
 					<span class="h-2 w-2 rounded-full bg-zine-green shadow-[0_0_6px_#00FC40]"></span>
 					<span class="font-display text-xs font-bold tracking-widest text-zine-black/40 uppercase"
 						>CONNECTED</span
 					>
 				</div>
+			</div>
+
+			<!-- Filter tabs -->
+			<div class="mb-8 flex items-center gap-0 border-b-2 border-zine-black">
+				<button
+					type="button"
+					class="border-r-2 border-zine-black bg-zine-black px-6 py-2.5 font-display text-[10px] font-bold tracking-widest text-zine-yellow uppercase"
+				>
+					LIVE_FEED
+				</button>
+				<button
+					type="button"
+					class="px-6 py-2.5 font-display text-[10px] font-bold tracking-widest text-zine-black/40 uppercase transition-colors hover:text-zine-black"
+				>
+					RE-FILTERED
+				</button>
 			</div>
 
 			{#if data.inspirations.length === 0}
@@ -313,7 +333,9 @@
 						<p class="mb-4 font-body text-xs text-zine-black/70 italic">"{data.dormantQuote}"</p>
 						<div class="flex flex-col gap-2">
 							{#each data.dormantProjects as proj (proj.id)}
-								<div class="flex items-center justify-between bg-zine-black px-4 py-2">
+								<div
+									class="flex flex-wrap items-center justify-between gap-2 bg-zine-black px-4 py-2"
+								>
 									<div>
 										<span
 											class="font-display text-sm font-bold tracking-wide text-zine-off-white uppercase"
@@ -358,7 +380,7 @@
 						<div class="flex flex-col gap-2">
 							{#each data.staleItems as stale (stale.id)}
 								<div
-									class="flex items-center justify-between border-2 border-zine-black bg-white px-4 py-2"
+									class="flex flex-wrap items-center justify-between gap-2 border-2 border-zine-black bg-white px-4 py-2"
 								>
 									<span class="font-display text-sm font-bold tracking-wide uppercase"
 										>{stale.title}</span
@@ -440,6 +462,16 @@
 					{/each}
 				</div>
 			{/if}
+
+			<!-- DISPATCH_HQ footer -->
+			<div class="mt-16 flex items-center justify-between border-t-2 border-zine-black pt-6">
+				<p class="font-display text-[10px] font-bold tracking-[0.3em] text-zine-black/25 uppercase">
+					DISPATCH_HQ
+				</p>
+				<p class="font-display text-[10px] font-bold tracking-[0.3em] text-zine-black/25 uppercase">
+					STAY_UNFILTERED
+				</p>
+			</div>
 		</div>
 	</div>
 {/if}

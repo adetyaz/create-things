@@ -24,7 +24,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	const dbIds: DatabaseIds = JSON.parse(dbIdsRaw);
 	const client = createNotionClient(token);
 
-	const { inspirationId } = await request.json();
+	const { inspirationId, profession, professionDetail } = await request.json();
 	if (!inspirationId) return json({ error: 'Missing inspirationId' }, { status: 400 });
 
 	try {
@@ -42,7 +42,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		if (captureType === 'note') {
 			if (!noteText) return json({ error: 'Note has no text content' }, { status: 400 });
 
-			const noteAnalysis = await analyzeNote(noteText);
+			const noteAnalysis = await analyzeNote(noteText, { profession, professionDetail });
 
 			await writeAnalysisResults(client, dbIds, {
 				inspirationPageId: inspirationId,
@@ -90,7 +90,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			imageUrl: imageSource || undefined,
 			colorPalette: colorPaletteStr,
 			sourceUrl: sourceUrl || undefined,
-			userNote: noteText || undefined
+			userNote: noteText || undefined,
+			profession: profession || undefined,
+			professionDetail: professionDetail || undefined
 		});
 
 		const attribution =
@@ -102,6 +104,11 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 				.filter(Boolean)
 				.join(' | ') || 'Unknown';
 
+		// Prepend identified technique to style for richer roadmap context
+		const styleWithTechnique = analysis.technique
+			? `${analysis.technique} — ${analysis.style}`
+			: analysis.style;
+
 		await writeAnalysisResults(client, dbIds, {
 			inspirationPageId: inspirationId,
 			title: `Analysis — ${title}`,
@@ -109,7 +116,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			typography: analysis.typography,
 			layout: analysis.layout,
 			mood: analysis.mood,
-			style: analysis.style,
+			style: styleWithTechnique,
 			components: analysis.components,
 			attribution,
 			forDevelopers: analysis.forDevelopers,

@@ -19,7 +19,7 @@
 		</p>
 		<div class="mb-2 font-display text-5xl font-bold text-zine-yellow">✓</div>
 		<h2 class="mb-2 font-display text-xl font-bold tracking-widest uppercase">CAPTURED</h2>
-		<p class="font-body text-xs text-white/40">
+		<p class="font-body text-xs text-white/60">
 			Saved to your Notion vault · AI analysis in progress
 		</p>
 	</div>
@@ -32,7 +32,7 @@
 		</button>
 		<button
 			onclick={onReset}
-			class="w-full border-2 border-white/20 py-3 font-display text-xs font-bold tracking-widest text-white/40 uppercase transition-colors hover:border-white/40 hover:text-white/70"
+			class="w-full border-2 border-white/30 py-3 font-display text-xs font-bold tracking-widest text-white/60 uppercase transition-colors hover:border-white/50 hover:text-white/90"
 		>
 			CAPTURE AGAIN
 		</button>

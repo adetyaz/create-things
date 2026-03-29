@@ -25,11 +25,15 @@ export async function analyzeImage(opts: {
 	colorPalette: string;
 	sourceUrl?: string;
 	userNote?: string;
+	profession?: string;
+	professionDetail?: string;
 }): Promise<AnalysisResult> {
 	const userPrompt = analysisPrompt({
 		colorPalette: opts.colorPalette,
 		sourceUrl: opts.sourceUrl,
-		userNote: opts.userNote
+		userNote: opts.userNote,
+		profession: opts.profession,
+		professionDetail: opts.professionDetail
 	});
 
 	// Build the parts array for Gemini
@@ -97,7 +101,9 @@ export async function analyzeImage(opts: {
 		imageBase64: opts.imageBase64,
 		colorPalette: opts.colorPalette,
 		sourceUrl: opts.sourceUrl,
-		userNote: opts.userNote
+		userNote: opts.userNote,
+		profession: opts.profession,
+		professionDetail: opts.professionDetail
 	});
 	if (openRouterResult) return openRouterResult;
 
@@ -106,6 +112,8 @@ export async function analyzeImage(opts: {
 	return analyzeFromText({
 		colorPalette: opts.colorPalette,
 		sourceUrl: opts.sourceUrl,
-		userNote: opts.userNote
+		userNote: opts.userNote,
+		profession: opts.profession,
+		professionDetail: opts.professionDetail
 	});
 }

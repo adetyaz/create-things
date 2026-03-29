@@ -185,7 +185,10 @@ export function getDbSchemas() {
  * but the REST API fully supports it. Type assertion used accordingly.
  */
 export async function linkDatabases(client: Client, ids: DatabaseIds): Promise<void> {
-	await client.dataSources.update({
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const dsUpdate = (client as any).dataSources.update;
+
+	await dsUpdate({
 		data_source_id: ids.inspirationVault,
 		properties: {
 			Analysis: { relation: { data_source_id: ids.analysisResults, dual_property: {} } },
@@ -194,21 +197,21 @@ export async function linkDatabases(client: Client, ids: DatabaseIds): Promise<v
 		}
 	});
 
-	await client.dataSources.update({
+	await dsUpdate({
 		data_source_id: ids.analysisResults,
 		properties: {
 			Inspiration: { relation: { data_source_id: ids.inspirationVault, dual_property: {} } }
 		}
 	});
 
-	await client.dataSources.update({
+	await dsUpdate({
 		data_source_id: ids.roadmaps,
 		properties: {
 			Inspiration: { relation: { data_source_id: ids.inspirationVault, dual_property: {} } }
 		}
 	});
 
-	await client.dataSources.update({
+	await dsUpdate({
 		data_source_id: ids.projects,
 		properties: {
 			Inspiration: { relation: { data_source_id: ids.inspirationVault, dual_property: {} } },
@@ -216,7 +219,7 @@ export async function linkDatabases(client: Client, ids: DatabaseIds): Promise<v
 		}
 	});
 
-	await client.dataSources.update({
+	await dsUpdate({
 		data_source_id: ids.publishQueue,
 		properties: {
 			Project: { relation: { data_source_id: ids.projects, dual_property: {} } }

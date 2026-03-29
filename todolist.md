@@ -73,3 +73,39 @@
 - [x] 44. Build weekly digest (Vercel cron or Notion scheduled automation)
 - [x] 45. Polish UI, error states, loading states
 - [ ] 46. Record demo video following the demo script
+
+---
+
+## User Story Coverage — v1.0 Summary
+
+> Full breakdown in [user-stories.md](user-stories.md). Status as of March 2026.
+
+| Area                        | Total  | ✅ Done | 🔶 Partial | ⬜ Not Started |
+| --------------------------- | ------ | ------- | ---------- | -------------- |
+| 01 Onboarding & Setup       | 3      | 3       | 0          | 0              |
+| 02 Capture                  | 6      | 6       | 0          | 0              |
+| 03 Analyze                  | 4      | 4       | 0          | 0              |
+| 04 Learn                    | 3      | 2       | 0          | 1              |
+| 05 Think — Creative Journal | 3      | 1       | 0          | 2              |
+| 06 Create                   | 3      | 2       | 0          | 1              |
+| 07 Publish                  | 4      | 4       | 0          | 0              |
+| 08 Figma Export             | 2      | 0       | 0          | 2              |
+| 09 Portfolio                | 3      | 1       | 1          | 1              |
+| 10 Identity                 | 1      | 0       | 1          | 0              |
+| 11 Reminders                | 3      | 2       | 1          | 0              |
+| **Total**                   | **35** | **25**  | **3**      | **6**          |
+
+### Not started (6)
+
+- US-015 Micro-lesson inline on any analysis point
+- US-018 AI reflection prompts in project journal
+- US-019 Public / private toggle on journal entries
+- US-021 Content draft outline generation
+- US-027 Export screenshot to Figma
+- US-028 Connect Figma account in settings _(Figma REST API cannot create frames — requires plugin, deferred)_
+
+### Partial — needs completing (3)
+
+- US-030 Portfolio visibility controls — project Public checkbox done; journal toggle, DNA toggle, full-private mode not yet
+- US-032 Creative DNA auto-generation — display field done; profile synthesis from vault not yet
+- US-035 Weekly digest — `/api/digest` route done; dashboard card + Monday cron not yet wired

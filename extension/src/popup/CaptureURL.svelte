@@ -66,14 +66,14 @@
 			QUICK_CAPTURE_V1
 		</p>
 
-		<div class="mb-4 border-2 border-white/10 p-3">
+		<div class="mb-4 border-2 border-white/20 p-3">
 			<div class="flex items-start gap-2">
-				<span class="mt-px shrink-0 font-display text-[9px] text-white/30 uppercase">[ ]</span>
+				<span class="mt-px shrink-0 font-display text-[9px] text-white/60 uppercase">[ ]</span>
 				<input
 					id="capture-url"
 					type="url"
 					bind:value={currentUrl}
-					class="flex-1 bg-transparent font-body text-xs text-white/70 placeholder-white/20 outline-none"
+					class="flex-1 bg-transparent font-body text-xs text-white/90 placeholder-white/50 outline-none"
 					placeholder="https://..."
 				/>
 			</div>
@@ -81,25 +81,25 @@
 
 		<label
 			for="capture-url"
-			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase"
+			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/60 uppercase"
 			>CAPTURE_ORIGIN</label
 		>
 		<input
 			type="text"
 			bind:value={currentTitle}
-			class="mb-4 w-full border-b-2 border-white/10 bg-transparent pb-2 font-body text-sm text-white/80 placeholder-white/20 transition-colors outline-none focus:border-zine-yellow/50"
+			class="mb-4 w-full border-b-2 border-white/20 bg-transparent pb-2 font-body text-sm text-white/90 placeholder-white/50 transition-colors outline-none focus:border-zine-yellow/50"
 			placeholder="Page title"
 		/>
 
 		<label
 			for="capture-url-note"
-			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase"
+			class="mb-1 font-display text-[9px] font-bold tracking-[0.2em] text-white/60 uppercase"
 			>OBSERVATIONS</label
 		>
 		<textarea
 			id="capture-url-note"
 			bind:value={note}
-			class="mb-6 w-full resize-none border-b-2 border-white/10 bg-transparent pb-2 font-body text-sm text-white/80 placeholder-white/20 transition-colors outline-none focus:border-zine-yellow/50"
+			class="mb-6 w-full resize-none border-b-2 border-white/20 bg-transparent pb-2 font-body text-sm text-white/90 placeholder-white/50 transition-colors outline-none focus:border-zine-yellow/50"
 			rows="3"
 			placeholder="What caught your eye?"
 		></textarea>

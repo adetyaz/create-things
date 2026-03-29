@@ -7,6 +7,7 @@ import { OPENROUTER_API_KEY } from '$env/static/private';
 import { ANALYSIS_SYSTEM, analysisPrompt } from './prompts.js';
 
 export interface AnalysisResult {
+	technique: string;
 	colors: string;
 	typography: string;
 	layout: string;
@@ -71,11 +72,15 @@ export async function analyzeImageOpenRouter(opts: {
 	colorPalette: string;
 	sourceUrl?: string;
 	userNote?: string;
+	profession?: string;
+	professionDetail?: string;
 }): Promise<AnalysisResult | null> {
 	const userPrompt = analysisPrompt({
 		colorPalette: opts.colorPalette,
 		sourceUrl: opts.sourceUrl,
-		userNote: opts.userNote
+		userNote: opts.userNote,
+		profession: opts.profession,
+		professionDetail: opts.professionDetail
 	});
 
 	// Build image content part

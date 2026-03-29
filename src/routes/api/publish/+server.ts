@@ -47,7 +47,14 @@ async function handlePrepare(
 
 	// Fetch the project page
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const projectPage = (await client.pages.retrieve({ page_id: body.projectId })) as any;
+	let projectPage: any;
+	try {
+		projectPage = await client.pages.retrieve({ page_id: body.projectId });
+	} catch (e: unknown) {
+		const cause = (e as { cause?: unknown })?.cause;
+		const msg = cause instanceof Error ? cause.message : String(e);
+		throw error(502, `Notion API unreachable: ${msg}`);
+	}
 	const props = projectPage.properties;
 
 	const projectTitle = props.Title?.title?.[0]?.text?.content || 'Untitled';
