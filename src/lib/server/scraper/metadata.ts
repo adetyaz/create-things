@@ -33,8 +33,7 @@ export interface UrlMetadata {
 export async function scrapeMetadata(targetUrl: string): Promise<UrlMetadata> {
 	const response = await fetch(targetUrl, {
 		headers: {
-			'User-Agent':
-				'Mozilla/5.0 (compatible; createthings/1.0; +https://createthings.vercel.app)'
+			'User-Agent': 'Mozilla/5.0 (compatible; createthings/1.0; +https://create-things.vercel.app)'
 		},
 		signal: AbortSignal.timeout(10000)
 	});

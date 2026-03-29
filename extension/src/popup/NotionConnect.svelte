@@ -1,5 +1,5 @@
 <script lang="ts">
-	const API_BASE = 'http://localhost:5173';
+	const API_BASE = 'https://create-things.vercel.app';
 
 	function connectNotion() {
 		chrome.tabs.create({ url: `${API_BASE}/api/notion/authorize` });

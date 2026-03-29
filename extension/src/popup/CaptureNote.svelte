@@ -6,7 +6,7 @@
 	let saving = $state(false);
 	let saved = $state(false);
 	let savedPageId = $state('');
-	let apiBase = $state('http://localhost:5173');
+	let apiBase = $state('https://create-things.vercel.app');
 	let error = $state('');
 
 	$effect(() => {

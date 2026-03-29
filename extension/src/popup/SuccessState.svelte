@@ -2,7 +2,7 @@
 	let {
 		onReset,
 		pageId = '',
-		apiBase = 'http://localhost:5173'
+		apiBase = 'https://create-things.vercel.app'
 	}: { onReset: () => void; pageId?: string; apiBase?: string } = $props();
 
 	function viewInDashboard() {

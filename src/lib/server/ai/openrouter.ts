@@ -35,7 +35,7 @@ async function tryModel(model: string, messages: object[]): Promise<AnalysisResu
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-			'HTTP-Referer': 'https://createthings.app',
+			'HTTP-Referer': 'https://create-things.vercel.app',
 			'X-Title': 'createthings'
 		},
 		body: JSON.stringify({

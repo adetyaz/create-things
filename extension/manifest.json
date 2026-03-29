@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "createthings",
-	"description": "Your creative OS — capture inspiration, analyze it with AI, learn from it, create your own work, and publish with proper attribution.",
+	"description": "Capture inspiration, analyze it with AI, learn from it, create your own work, and publish with proper attribution.",
 	"version": "0.1.0",
 
 	"icons": {
