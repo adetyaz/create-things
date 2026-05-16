@@ -49,7 +49,9 @@
 				</p>
 				<div class="flex flex-wrap items-center gap-4">
 					<a
-						href="#extension"
+						href="https://chromewebstore.google.com/detail/createthings/inemmheangfaedcdcmjgdobaopjcmeea"
+						target="_blank"
+						rel="noopener"
 						class="border-2 border-zine-yellow bg-zine-yellow px-8 py-4 font-display text-sm font-bold tracking-widest text-zine-black uppercase shadow-[4px_4px_0px_#FFE600] transition-all duration-100 hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
 					>
 						↓ GET THE EXTENSION
@@ -92,7 +94,7 @@
 						{/each}
 					</ul>
 					<a
-						href="https://chrome.google.com/webstore"
+						href="https://chromewebstore.google.com/detail/createthings/inemmheangfaedcdcmjgdobaopjcmeea"
 						target="_blank"
 						rel="noopener"
 						class="inline-block border-2 border-zine-yellow bg-zine-yellow px-8 py-4 font-display text-sm font-bold tracking-widest text-zine-black uppercase shadow-[4px_4px_0px_rgba(255,230,0,0.4)] transition-all duration-100 hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
@@ -312,7 +314,7 @@
 						Install the extension and start clipping. Your vault is empty and waiting.
 					</p>
 					<a
-						href="https://chrome.google.com/webstore"
+						href="https://chromewebstore.google.com/detail/createthings/inemmheangfaedcdcmjgdobaopjcmeea"
 						target="_blank"
 						rel="noopener"
 						class="border-2 border-zine-black bg-zine-yellow px-6 py-3 font-display text-xs font-bold tracking-widest text-zine-black uppercase shadow-[4px_4px_0px_#0D0D0D] transition-all duration-100 hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
