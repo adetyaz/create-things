@@ -9,6 +9,7 @@
 		"build:ext": "vite build --config extension/vite.config.ts",
 		"dev:ext": "vite build --config extension/vite.config.ts --watch",
 		"preview": "vite preview",
+		"dev:worker": "vite build && node scripts/dev-worker.mjs",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -19,17 +20,21 @@
 		"test:e2e": "playwright test"
 	},
 	"devDependencies": {
+		"@cloudflare/workers-types": "^5.20261030.1",
 		"@eslint/compat": "^2.0.2",
 		"@eslint/js": "^9.39.2",
 		"@playwright/test": "^1.58.2",
 		"@sveltejs/adapter-auto": "^7.0.0",
+		"@sveltejs/adapter-cloudflare": "^7.2.9",
 		"@sveltejs/kit": "^2.50.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"@tailwindcss/vite": "^4.1.18",
 		"@types/chrome": "^0.1.38",
 		"@types/node": "^22",
+		"@types/pg": "^8.23.1",
 		"@types/webextension-polyfill": "^0.12.5",
 		"@vitest/browser-playwright": "^4.1.0",
+		"drizzle-kit": "^0.31.11",
 		"eslint": "^9.39.2",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.14.0",
@@ -46,18 +51,28 @@
 		"vite": "^7.3.1",
 		"vitest": "^4.1.0",
 		"vitest-browser-svelte": "^2.0.2",
-		"webextension-polyfill": "^0.12.0"
+		"webextension-polyfill": "^0.12.0",
+		"wrangler": "^4.156.0"
 	},
 	"dependencies": {
+		"@mysten-incubation/memwal": "^0.1.12",
+		"@mysten/seal": "^1.5.2",
+		"@mysten/sui": "^2.38.0",
+		"@neon/config": "^1.9.6",
+		"@neon/env": "^1.6.6",
 		"@notionhq/client": "^5.14.0",
+		"@protobuf-ts/runtime": "^2.11.1",
+		"@protobuf-ts/runtime-rpc": "^2.11.1",
 		"@sveltejs/adapter-vercel": "^6.3.3",
 		"@upstash/redis": "^1.37.0",
+		"drizzle-orm": "^0.45.4",
 		"metascraper": "^5.50.0",
 		"metascraper-author": "^5.50.0",
 		"metascraper-description": "^5.50.0",
 		"metascraper-image": "^5.50.0",
 		"metascraper-title": "^5.50.0",
 		"metascraper-url": "^5.50.0",
-		"node-vibrant": "^4.0.4"
+		"node-vibrant": "^4.0.4",
+		"pg": "^8.23.1"
 	}
 }

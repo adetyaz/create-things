@@ -25,9 +25,10 @@ It's meant to be a complete digital experience: the app has weather, a day and n
 13. [API Routes](#api-routes)
 14. [Costs](#costs)
 15. [Environment Variables](#environment-variables)
-16. [Build Order](#build-order)
-17. [To Verify Before Building](#to-verify-before-building)
-18. [After Launch](#after-launch)
+16. [Hackathon: Tatum × Walrus "Total Recall"](#hackathon-tatum--walrus-total-recall)
+17. [Build Order](#build-order)
+18. [To Verify Before Building](#to-verify-before-building)
+19. [After Launch](#after-launch)
 
 ---
 
@@ -342,6 +343,56 @@ The app looks different depending on how you've been doing and what's happening 
 - **Quiet hours** (default 22:00–08:00 local) and per-channel settings
 - **Weekly digest:** what you started, finished and let go, steps done, cards reviewed, how much the pet ate. Encouraging when the week was empty.
 
+### 13. Assistant Memory (Walrus)
+
+The pet is an accountability partner that **remembers**. It knows your goals, what you want to learn, your current plan and how you actually work, so it can help when life doesn't follow the plan.
+
+**What it remembers**
+
+| Memory                  | Example                                                                |
+| ----------------------- | ---------------------------------------------------------------------- |
+| Goals                   | "Launch my portfolio site", "get comfortable in Blender"               |
+| Learning goals          | "Wants to learn Spanish; prefers short daily practice"                 |
+| The plan                | "Website contact page: Tue–Thu this week"                              |
+| How you work            | "Follows through on 30-min slots in the morning; drifts after 3 days off" |
+| What tripped you up     | "Kerning confused you; the side-by-side example worked"                |
+| What you learned        | Topics from completed steps and cards, and which ones you keep forgetting |
+| Parked ideas            | "Note on CSS grid, parked while building the website"                  |
+| Suggestions and answers | Picks you started, skipped or let go; expansions you accepted          |
+
+**What it does with it**
+
+1. **Fits new ideas into what you're already doing.** When something new comes up mid-plan (a note, a voice ramble, a new link), the pet recalls the plan and offers ways to fit it in **without killing the vibe**:
+   - "This is about the website. Add it as a step there?"
+   - "You set Tue–Thu for the contact page. Swap Thursday for this, or park it until Friday?"
+   - "Write it down for 5 minutes now, then back to the contact page"
+   - Stop and continue: pause the current item with progress kept, and the pet reminds you where you left off
+2. **Builds and keeps a proper plan.** Focus steps can be placed on days. The pet tracks everything you said you'd do and adjusts the plan when you capture something new or skip a day.
+3. **Suggests what's next and how it connects.** "After the website, try the motion course next month. Your layout skills carry over." Knowledge from finished items and cards feeds the next item's roadmap.
+4. **Gets better visibly.** Pick for me, roadmaps, "I'm stuck" answers and nudges all use what it remembers, and the pet says so ("Last Tuesday kerning tripped you up…").
+
+**Voice mode ("just yap")**
+
+- Hold the mic in the PWA or extension and ramble ideas
+- Transcribed, then split into separate ideas and sorted: new item, step for a current Focus item, journal note, or learning goal
+- Each idea goes through the fit-it-in flow above; nothing is added without your OK
+
+**Rules**
+
+- **Postgres stays the source of truth** (items, steps, journal, cards, pet). Walrus holds only what the assistant has learned.
+- **Summaries, not raw text.** The hosted Walrus relayer can read what it receives, so journal entries and transcripts stay in Postgres; Walrus gets short summaries ("struggled with kerning, prefers short steps").
+- Saves go through a queue (Walrus rate limits) and never block the app
+- **"What the pet knows about you"** in Settings: see every memory, delete one, or forget everything
+- Memory is part of the assistant: guide/actions stay free; recalls inside chat count toward the chat quota
+
+### 14. On-chain Proof + Payments (Tatum on Sui)
+
+The chain stays invisible unless you go looking.
+
+- **Memory receipts:** Settings shows your memory's Sui account, how many memories are stored and when they last changed, read through **Tatum's Sui RPC**, with an explorer link
+- **Pay with USDC on Sui:** credit packs and per-request **Plus/Pro** AI calls can be paid with USDC on Sui using **MPP** (`@suimpp/mpp`; no x402 package settles on Sui mainnet). Tatum's Sui gRPC endpoint confirms each payment on-chain before credits are added. Card payments (Breakdown §Monetisation) still come later.
+- **SUI price:** paying with SUI is converted to credits at the live rate from **Tatum's Data API**
+
 ---
 
 ## Monetisation
@@ -494,6 +545,48 @@ Settings → Connect Notion → scheduled one-way export of items, journals, kno
 Settings → Download Obsidian vault → zip of Markdown files
 ```
 
+### Flow 12: Plan with days
+
+```
+Focus item started → its steps are placed on days
+  → Today shows today's planned step first
+  → Drag a step to move it to another day
+  → Skipped a day → the pet offers to move the step forward (never silently)
+  → Every plan change is remembered (plan, plan_change)
+```
+
+### Flow 13: Fit a new idea in
+
+```
+A note, link or voice idea arrives while a plan is running
+  → Pet recalls the plan and the related Focus item
+  → Offers: add it as a step · swap a planned day · park it until a set day · write it down for 5 minutes, then back
+  → "You set Tue–Thu for the contact page. Park this until Friday?"
+  → Nothing changes without your OK; the choice is remembered (idea_parked / idea_merged / plan_change)
+  → Stop and continue: pausing keeps progress, and the pet says where you left off when you return
+```
+
+### Flow 14: Just yap (voice)
+
+```
+Hold the mic in the PWA or extension and ramble
+  → Audio transcribed (audio + transcript stay in Postgres)
+  → Split into separate ideas, each sorted: new item · step for a Focus item · journal note · learning goal
+  → Each idea goes through Flow 13; you approve what's added
+  → A short summary goes to memory (voice_ideas)
+```
+
+### Flow 15: Pay for a Pro answer with USDC on Sui
+
+```
+Ask the pet on the Plus/Pro tier without enough credits
+  → Server answers with an MPP payment request
+  → Wallet pays USDC on Sui
+  → Tatum's Sui RPC confirms the payment on-chain
+  → Ledger row recorded, then the answer is generated
+  → A failed or unconfirmed payment never charges and never generates
+```
+
 ---
 
 ## Tech Stack
@@ -504,7 +597,7 @@ Settings → Download Obsidian vault → zip of Markdown files
 | Extension          | Manifest V3, Svelte popup (exists)                               |
 | Hosting            | **Cloudflare Workers** (`adapter-cloudflare`), replacing Vercel  |
 | Database           | **Neon Postgres** through **Cloudflare Hyperdrive**              |
-| ORM                | Drizzle (works on Workers with Hyperdrive), to confirm           |
+| ORM / driver       | Drizzle over `node-postgres` (`pg`) through Hyperdrive, one short-lived client per request (Neon's recommendation for Cloudflare). Confirmed 30 Oct against Neon via local Hyperdrive emulation |
 | Auth               | **Better Auth**: magic link + Google (Apple later)               |
 | Files              | **Cloudflare R2** (captures, sounds, pet assets), replacing Uploadcare |
 | Cache              | Cloudflare KV (weather per city, model config)                   |
@@ -516,6 +609,10 @@ Settings → Download Obsidian vault → zip of Markdown files
 | Weather            | Provider to choose (Open-Meteo commercial plan likely), cached per city |
 | 3D pet             | Designed in **Spline**; real-time 3D on capable devices, lightweight pre-rendered fallback on low-power phones and the extension |
 | Audio              | Web Audio (generated noise + mixing), loops in R2                |
+| Assistant memory   | **Walrus Memory** (`@mysten-incubation/memwal` 0.1.12, hosted mainnet relayer; needs `@mysten/sui` + `@mysten/seal` installed) |
+| Voice transcription| Workers AI speech-to-text (Whisper), to confirm                  |
+| Sui reads          | **Tatum** Sui gRPC gateway through `TatumGrpcTransport` (see Hackathon section) + Data API |
+| Crypto payments    | USDC on Sui via **MPP** (`@suimpp/mpp`)                          |
 | Payments           | To decide last                                                   |
 | Desktop (later)    | Tauri or Electron                                                |
 
@@ -580,20 +677,20 @@ Settings → Download Obsidian vault → zip of Markdown files
 
 ## Data Model
 
-Postgres tables (main columns only).
+Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/schema.ts`; migrations are in `drizzle/`. `user_id` columns hold Better Auth user ids; their foreign keys are added with auth (Phase 0 #4).
 
 | Table                | Columns                                                                 |
 | -------------------- | ----------------------------------------------------------------------- |
 | `users`, `sessions`, `accounts` | Managed by Better Auth                                       |
-| `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
-| `items`              | id, user_id, title, source_url, author, platform, capture_type, image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, saved_at, last_active_at |
+| `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
+| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, saved_at, last_active_at |
 | `analyses`           | id, item_id, colors, typography, layout, mood[], style, components, for_developers, for_creators, brief, attribution, model |
 | `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress         |
 | `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, done_at            |
-| `projects`           | id, item_id, title, status, content (editor JSON), started_at, completed_at |
-| `journal_entries`    | id, project_id, body, source (manual/pomodoro/check-in), created_at     |
+| `projects`           | id, user_id, item_id, title, status, content (editor JSON), started_at, completed_at |
+| `journal_entries`    | id, user_id, project_id, body, source (manual/pomodoro/check-in/voice), created_at |
 | `pomodoro_sessions`  | id, user_id, step_id, started_at, ended_at, completed, note             |
-| `knowledge_cards`    | id, user_id, item_id, source_type, source_id, type (qa/explain), prompt, answer, interval_days, next_review_at, last_rating, review_count |
+| `knowledge_cards`    | id, user_id, item_id, source_type (roadmap_step/journal/pomodoro/lesson/manual), source_id, type (qa/explain), prompt, answer, interval_days, next_review_at, last_rating, review_count |
 | `pets`               | id, user_id, species, breed, name, sliders (JSON), status (alive/ran_away/dead), growth, last_fed_at, food_today, food_today_date, returning_days, born_at, died_at, memorial_item_id, paid |
 | `pet_feeds`          | id, pet_id, source_type, source_id, size (snack/meal/feast), created_at |
 | `catalog_items`      | id, kind (accessory/decor/toy/sound_pack/pet/fur), slot, species_only, price_credits, earn_rule, season, available_from/to |
@@ -605,6 +702,10 @@ Postgres tables (main columns only).
 | `arena_channels`     | id, user_id, slug, mode (triage/curated)                                |
 | `exports`            | user_id, target (notion), token (encrypted), last_run_at                |
 | `push_subscriptions` | id, user_id, endpoint, keys                                             |
+| `plan_slots`         | id, user_id, step_id, day, position (a Focus step placed on a day)      |
+| `memories`           | id, user_id, type, summary, source_type, source_id, status (queued/sent/failed), attempts, last_error, walrus_job_id, created_at, deleted_at (local copy + outbox for Walrus) |
+| `voice_captures`     | id, user_id, audio_key (R2), transcript, ideas (JSON), created_at       |
+| `sui_payments`       | id, user_id, tx_digest, amount, coin (usdc/sui), purpose (credits/request), confirmed_at |
 | `notifications`      | id, user_id, kind, channel, sent_at                                     |
 
 ---
@@ -631,6 +732,11 @@ Postgres tables (main columns only).
 | `/api/export/*`                    | Notion connect + run, Obsidian zip              |
 | `/api/push/*`                      | Subscribe / unsubscribe                         |
 | `/api/webhooks/payments`           | Add credits after confirmed payment             |
+| `/api/plan`                        | Place steps on days, move them                  |
+| `/api/ideas/fit`                   | Suggest how a new idea fits the current plan    |
+| `/api/voice`                       | Upload a voice ramble → transcript → ideas      |
+| `/api/memory/*`                    | List, delete one, forget all; receipts from Sui |
+| `/api/pay/sui/*`                   | MPP payment, confirmation via Tatum             |
 | Queue consumers                    | analysis, arena-import, notion-export, notify   |
 | Crons                              | digest (weekly), notifications (hourly), arena sync (daily) |
 
@@ -664,7 +770,9 @@ Key prices: Workers Paid $5/month base · Workers AI $0.011 per 1k neurons (10k 
 PUBLIC_APP_URL=http://localhost:5173
 
 # Database
-DATABASE_URL=                 # Neon (local dev); Hyperdrive binding in production
+DATABASE_URL=                 # Neon pooled URL (pulled by `neon deploy`)
+DATABASE_URL_UNPOOLED=        # Neon direct URL: what Hyperdrive connects to (locally and in production)
+NEON_BRANCH=                  # Neon branch the env vars came from
 
 # Auth
 BETTER_AUTH_SECRET=
@@ -697,9 +805,106 @@ TURNSTILE_SECRET_KEY=
 # Payments (added last)
 PAYMENTS_SECRET_KEY=
 PAYMENTS_WEBHOOK_SECRET=
+
+# Walrus Memory (server-side only)
+MEMWAL_PRIVATE_KEY=           # delegate private key
+MEMWAL_PUBLIC_KEY=            # public delegate key = MEMWAL_AGENT_ID on the hackathon form
+MEMWAL_ACCOUNT_ID=            # 0x… memory account object on Sui
+MEMWAL_SERVER_URL=            # https://relayer.memory.walrus.xyz (mainnet)
+
+# Tatum
+TATUM_API_KEY=
+
+# Dev only: turns on /api/dev/checks under `wrangler dev` (always on in `vite dev`)
+DEV_CHECKS=
+
+# Sui payments
+SUI_PAYMENTS_ADDRESS=         # where USDC/SUI payments are received
 ```
 
 Workers AI, R2, KV, Queues and Hyperdrive are Cloudflare **bindings** in `wrangler.toml`, not keys.
+
+---
+
+## Hackathon: Tatum × Walrus "Total Recall"
+
+[tatum.io/hackathon/total-recall](https://tatum.io/hackathon/total-recall) · submissions close **10 Nov 2026, 17:00 UTC** · judging 11–16 Nov · winners 17 Nov · one submission per person · existing projects allowed if they show new progress since 20 Oct
+
+### Track
+
+**Track 02: Smart Agents for Real Life.** The brief: "Agents that monitor inboxes, expenses, habits, or workflows. Portable memory means they pick up where they left off across tools and sessions." For "anyone who wished their assistant remembered last Tuesday." createthings fits: the pet is an agent that monitors habits and plans, and its memory follows you across the extension, the PWA and voice.
+
+### Prizes we're going for
+
+| Prize                       | Amount            | How we compete                                                        |
+| --------------------------- | ----------------- | --------------------------------------------------------------------- |
+| Track 02                    | $500 / $300 / $200 | The whole entry                                                      |
+| Best Walrus Memory          | $500              | "Deepest learning loop. Memories that visibly change the product": the pet's picks, plan changes and answers change because of memory, and it says why |
+| Best Use of Agent Payments  | $500              | Plus/Pro AI requests paid per call with USDC on Sui via MPP, confirmed through Tatum |
+| Best Tatum AI Builder App   | $500              | Skipped: it's for apps built primarily with ai.tatum.io               |
+
+Bonus points for X and LinkedIn posts.
+
+### Judging
+
+| Criterion                  | Weight | What it means for us                                           |
+| -------------------------- | ------ | -------------------------------------------------------------- |
+| Walrus + Tatum integration | 30%    | "Meaningful and creative use of Walrus Memory, as well as building with Tatum RPCs or Data APIs" |
+| Technical quality          | 30%    | "Clean code and successful Tatum Sui RPC integration"           |
+| Creativity                 | 20%    | The pet as an accountability partner that remembers            |
+| Presentation               | 20%    | Demo, video, blog post                                          |
+
+### Where Tatum is used
+
+| Use                          | Tatum product           | Why it scores                                                     |
+| ---------------------------- | ----------------------- | ----------------------------------------------------------------- |
+| Memory receipts              | Sui RPC                 | Reads the Walrus Memory account on Sui: ties Tatum and Walrus together; satisfies "successful Tatum Sui RPC integration" |
+| Payment confirmation         | Sui RPC                 | Every MPP payment is checked on-chain (transaction + balance change) before credits are added; needed for the Agent Payments prize |
+| SUI → credits rate           | Data API (exchange rate) | Live SUI/USD price for pay-with-SUI                               |
+| Payment notifications        | Not used                | Tatum Notifications don't support Sui (checked 30 Oct); payments are confirmed by querying Tatum's Sui gRPC endpoint |
+
+All Tatum calls go through one server module with the API key (`src/lib/server/tatum`); nothing on the client.
+
+**How Tatum Sui access works (tested 30 Oct from the Workers runtime):**
+
+- Tatum's Sui JSON-RPC endpoint is gone (HTTP 404 on mainnet and testnet). Only the gRPC gateway works: `sui-mainnet-grpc.gateway.tatum.io` / `sui-testnet-grpc.gateway.tatum.io`.
+- The gateway speaks native gRPC, not gRPC-web, so the Sui SDK's default client can't use it. It does answer plain HTTP/1.1 requests with normal gRPC message frames, so `TatumGrpcTransport` sends unary gRPC over `fetch` and plugs into the official `SuiGrpcClient`. Workers can't read HTTP trailers, so a call counts as OK when a message arrives and no error status is sent.
+- The same API key works on mainnet and testnet.
+- Free plan limit: **3 requests per second** (paid: 200). Cache reads and keep payment checks to a few calls.
+- Data API `GET /v4/data/rate/symbol?symbol=SUI&basePair=USD` supports SUI (source: CoinGecko).
+
+### Memory types (10+ required on mainnet)
+
+`goal` · `learning_goal` · `plan` · `plan_change` · `idea_parked` · `idea_merged` · `session_summary` · `stuck_topic` · `lesson_learned` · `review_weakness` · `pick_feedback` · `work_pattern` · `expansion` · `voice_ideas`
+
+### Submission checklist
+
+- [ ] Walrus Memory integrated and writing on **mainnet**
+- [ ] Tatum RPC used for on-chain data
+- [ ] At least 10 memories stored on mainnet
+- [ ] Blog post: what it does, how it uses Tatum + Walrus, **how it learned over time** (link goes in the description)
+- [ ] Working demo and public repo
+- [ ] 2–3 minute demo video
+- [ ] Form: Tatum account ID, SUI address, Sui account ID, `MEMWAL_AGENT_ID` (the public delegate key, `MEMWAL_PUBLIC_KEY` in `.env`), feedback
+- [ ] X / LinkedIn posts
+
+### What the demo needs
+
+The memory loop has to run end to end: capture or voice → items → Pick for me → plan with days → steps + pomodoro → journal/session note → pet remembers → a new idea arrives mid-plan → the pet fits it in using memory → pay for a Pro answer with USDC on Sui → memory receipts on Sui.
+
+From the build order that means: Phase 0 (without R2 if needed), Phase 1 capture + analysis, Phase 2 choosing, Phase 3 steps + pomodoro, Phase 4 pet (fallback render is enough), the pet chat from Phase 6, plus sections 13 and 14.
+
+### Hackathon build order (agreed 30 Oct)
+
+| Stage              | Work                                                                                   |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| A · Foundations    | Phase 0 #1 (Cloudflare adapter) · H1 Walrus SDK live test · H10 Tatum client · MPP payment test · Phase 0 #2–4, #7–9 |
+| B · Core loop      | Phase 1 #10–14 · H2 memory outbox · Phase 2 #17–21 · Phase 3 #24–26 · H5 plan with days · Phase 4 #31–36, #38 · Phase 6 #48 pet chat |
+| C · Memory at work | H3 memory types · H4 recall + citations · H6 fit-it-in · H7 voice · H8 next things · H9 + H11 memory page and receipts |
+| D · Payments       | Phase 10 #79 Plus/Pro tiers · H12 Pro answer per request · H13 credit packs in USDC/SUI |
+| E · Submit         | H15 full loop on a fresh account · H16 README + public repo · H17 blog · H18 video, posts, form |
+
+Not needed for the demo loop and left for later unless chosen: Phase 0 #5 (extension sign-in), #6 (R2); Phase 1 #15 (Turnstile); Phase 3 #27–29; Phase 4 #37, #39.
 
 ---
 
@@ -707,7 +912,9 @@ Workers AI, R2, KV, Queues and Hyperdrive are Cloudflare **bindings** in `wrangl
 
 ### What already exists and carries over
 
-SvelteKit app and Zine design system, the extension's capture UI, AI prompts and analysis logic, roadmap generation, the project editor and journal, stale and digest logic. The Notion code is reused for the Notion export.
+SvelteKit app, the extension's capture logic, AI prompts and analysis logic, roadmap generation, the project editor and journal, stale and digest logic. The Notion code is reused for the Notion export.
+
+**The UI is being redesigned.** The v1 Zine look (and `ui-todolist.md`, which describes it) does not carry over. The new design direction is still to be decided.
 
 ### Phase 0: Platform move
 
@@ -796,8 +1003,9 @@ SvelteKit app and Zine design system, the extension's capture UI, AI prompts and
 
 | Item                                                     | When        |
 | -------------------------------------------------------- | ----------- |
-| `node-vibrant` and `metascraper` run on Workers          | Phase 0     |
-| ORM choice (Drizzle) with Hyperdrive                     | Phase 0     |
+| New UI design direction (replaces the v1 Zine look)      | Before building v2 screens |
+| ~~`node-vibrant` and `metascraper` run on Workers~~ Checked 30 Oct: `metascraper` works; `node-vibrant` fails at runtime (its image decoder breaks on Workers: "Class constructor Inflate cannot be invoked without new"). Replacement to decide | Phase 0     |
+| ~~ORM choice (Drizzle) with Hyperdrive~~ Done 30 Oct locally (`wrangler dev` and `vite dev`); still create the real Hyperdrive config with `wrangler hyperdrive create` using DATABASE_URL_UNPOOLED | Phase 0     |
 | Which Workers AI models return reliable structured JSON  | Phase 1     |
 | Spline export: live sliders, performance on phones, fallback renders | Phase 4 |
 | iPhone PWA background audio when the screen locks        | Phase 3     |
@@ -805,6 +1013,10 @@ SvelteKit app and Zine design system, the extension's capture UI, AI prompts and
 | Are.na API endpoints, auth and rate limits               | Phase 9     |
 | Payment provider availability in your country            | Phase 10    |
 | Workers AI rate limit increase                           | Phase 11    |
+| ~~Walrus Memory SDK runs on Workers~~ Done 30 Oct: health, a real mainnet save and a recall all work under `wrangler dev`. A save takes ~30 s to confirm, so saves must go through the queue | Hackathon |
+| Workers AI speech-to-text quality for rambling voice notes (Whisper, Whisper v3 Turbo, Deepgram Nova-3 / Flux available; test with real recordings in H7) | Hackathon |
+| ~~Which x402 / MPP package settles USDC on Sui mainnet~~ Done 30 Oct: `@suimpp/mpp` 0.9.0. `@t2000/x402` was removed from npm; `@t2000/mpp-sui` doesn't exist. Still check: browser-wallet payments, and Tatum's key header on its custom endpoint | Hackathon |
+| ~~Tatum Notifications support Sui address events~~ Done 30 Oct: not supported | Hackathon |
 
 ---
 

@@ -1,0 +1,21 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "createthings",
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"compatibility_date": "2026-10-01",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	"hyperdrive": [
+		{
+			"binding": "HYPERDRIVE",
+			// Placeholder until the Hyperdrive config is created (`wrangler hyperdrive create`, needs `wrangler login`).
+			// Locally, `npm run dev:worker` points this binding at DATABASE_URL_UNPOOLED from .env.
+			"id": "00000000000000000000000000000000"
+		}
+	]
+	// Other bindings (Queues, KV, R2, Workers AI) are added as each resource is created.
+	// Secrets: `.env` locally (passed with --env-file), `wrangler secret put` in production.
+}

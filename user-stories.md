@@ -2,7 +2,7 @@
 
 **v2.0 · October 2026** · Source of truth: [Project Breakdown.md](Project%20Breakdown.md)
 
-70 stories across 14 areas. Every story is written for one user: someone scattered, with too many things they want to do.
+78 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
 
 ## Keys
 
@@ -754,6 +754,96 @@
 
 ---
 
+## 15 · Assistant Memory & Voice
+
+| ID     | Story                                        | Phase     | Status |
+| ------ | -------------------------------------------- | --------- | ------ |
+| US-071 | Have my pet remember my goals and plan        | Hackathon | `[ ]`  |
+| US-072 | Fit a new idea in without killing the vibe    | Hackathon | `[ ]`  |
+| US-073 | Plan my steps on days                         | Hackathon | `[ ]`  |
+| US-074 | Yap my ideas by voice                         | Hackathon | `[ ]`  |
+| US-075 | Get told what to do next and how it connects  | Hackathon | `[ ]`  |
+| US-076 | See and delete what my pet knows              | Hackathon | `[ ]`  |
+
+### US-071 — Have my pet remember my goals and plan
+
+> As someone juggling many things, I want my pet to remember what I'm aiming for and what I'm doing so that its help fits my life.
+
+- AC-01 Goals, learning goals, the plan, how I work, what tripped me up and what I learned are saved as memories
+- AC-02 Memories are short summaries; raw journal text and transcripts stay in our database
+- AC-03 Pick for me, roadmaps, "I'm stuck" answers and nudges use these memories, and the pet says which one ("Last Tuesday kerning tripped you up…")
+- AC-04 Saving a memory never slows the app; failed saves retry from a queue
+
+### US-072 — Fit a new idea in without killing the vibe
+
+> As someone who gets new ideas mid-task, I want help fitting them in so that I don't lose the idea or my momentum.
+
+- AC-01 When a note, voice idea or link arrives while I have a plan, the pet recalls the plan and offers options: add as a step to a related Focus item, swap a planned day, park it until a set day, or write it down for 5 minutes and go back
+- AC-02 It names the related item and days ("You set Tue–Thu for the contact page")
+- AC-03 Stop and continue: pausing keeps progress, and the pet tells me where I left off when I return
+- AC-04 Nothing changes in the plan without my OK
+
+### US-073 — Plan my steps on days
+
+> As someone who loses track, I want my steps placed on days so that I know what's on today.
+
+- AC-01 Place Focus steps on days; drag to move them
+- AC-02 Today shows today's planned step first
+- AC-03 Skipped days move forward with an offer from the pet, never silently
+- AC-04 Plan changes are remembered
+
+### US-074 — Yap my ideas by voice
+
+> As someone whose ideas come out messy, I want to just talk so that I don't have to organise them myself.
+
+- AC-01 Hold the mic in the PWA or extension and speak freely
+- AC-02 Transcribed, split into separate ideas, each sorted: new item, step for a Focus item, journal note or learning goal
+- AC-03 Each idea goes through the fit-it-in flow (US-072); I approve what's added
+- AC-04 Audio and transcript stay private; only summaries go to memory
+
+### US-075 — Get told what to do next and how it connects
+
+> As someone who wants to do lots of things, I want suggestions that build on each other so that what I learn carries forward.
+
+- AC-01 When I finish or near the end of an item, the pet suggests a next one from my Shortlist and goals
+- AC-02 It says what carries over ("Your layout skills from the website help with the motion course")
+- AC-03 The next roadmap skips or shortens what I already know
+
+### US-076 — See and delete what my pet knows
+
+> As a user, I want to see my pet's memory so that I trust it.
+
+- AC-01 Settings → "What your pet knows": every memory, newest first, with its status
+- AC-02 Delete one, or forget everything (with a confirm)
+- AC-03 Memory receipts: the Sui account, memory count and last change, read through Tatum, with an explorer link
+
+---
+
+## 16 · Sui Payments
+
+| ID     | Story                                        | Phase     | Status |
+| ------ | -------------------------------------------- | --------- | ------ |
+| US-077 | Pay for a Pro answer with USDC on Sui         | Hackathon | `[ ]`  |
+| US-078 | Buy credits with USDC or SUI                  | Hackathon | `[ ]`  |
+
+### US-077 — Pay for a Pro answer with USDC on Sui
+
+> As a user without credits, I want to pay for one stronger answer so that I don't have to buy a pack.
+
+- AC-01 Plus/Pro requests can be paid per call with USDC on Sui via MPP
+- AC-02 The payment is confirmed on-chain through Tatum's Sui RPC before the answer is generated
+- AC-03 A failed or unconfirmed payment never charges and never generates
+
+### US-078 — Buy credits with USDC or SUI
+
+> As a crypto user, I want to pay with what I hold so that buying is easy.
+
+- AC-01 Credit packs payable in USDC or SUI on Sui
+- AC-02 SUI is converted at the live rate from Tatum's Data API, shown before paying
+- AC-03 Credits are added only after Tatum confirms the transaction; recorded in the credit ledger
+
+---
+
 ## Summary
 
 | Area                         | Stories | Partly exists |
@@ -772,4 +862,6 @@
 | 12 Notifications & Digest    | 4       | 2             |
 | 13 Credits & Store           | 6       | 0             |
 | 14 PWA & Platform            | 3       | 0             |
-| **Total**                    | **70**  | **8**         |
+| 15 Assistant Memory & Voice  | 6       | 0             |
+| 16 Sui Payments              | 2       | 0             |
+| **Total**                    | **78**  | **8**         |

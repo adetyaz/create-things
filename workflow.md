@@ -5,10 +5,12 @@
 ## Where things stand
 
 - **Concept:** rebuilt and agreed. See [Project Breakdown.md](Project%20Breakdown.md).
-- **Stories:** 70 stories in [user-stories.md](user-stories.md); 8 partly exist in the old code.
-- **Tasks:** 86 steps across 12 phases in [todolist.md](todolist.md).
+- **Stories:** 78 stories in [user-stories.md](user-stories.md) (US-071–078 are the hackathon ones); 8 partly exist in the old code.
+- **Tasks:** 108 in [todolist.md](todolist.md): 18 hackathon tasks (H1–H18), 86 steps across Phases 0–11, and 4 after launch.
+- **UI:** being redesigned. The v1 Zine look doesn't carry over; the new direction is still to be decided.
 - **Plan:** v2 uses Neon Postgres on Cloudflare; Notion is only an optional export.
-- **Code:** not migrated yet. The repo still has the old v1 build (data in users' Notion, Vercel, publish + portfolio). **Next up: Phase 0, the platform move.**
+- **Hackathon:** entering Tatum × Walrus "Total Recall", Track 02 (Smart Agents for Real Life). Scope and checklist in the Breakdown; tasks H1–H18 in the todolist.
+- **Code:** not migrated yet. The repo still has the old v1 build (data in users' Notion, Vercel, publish + portfolio). **Now: hackathon Stage A.** Done: Cloudflare adapter switched, H1 Walrus live test, H10 Tatum client, Neon Postgres wired (Drizzle + `pg` via Hyperdrive, tested locally). Waiting on `wrangler login` for the real Hyperdrive config and other bindings. Next: MPP payment test, then Neon + schema, auth and removing v1 code. Order in the Breakdown's Hackathon section.
 
 ## How the docs fit together
 
@@ -18,7 +20,7 @@
 | user-stories.md        | What each feature must do (acceptance criteria) | A feature's scope changes      |
 | todolist.md            | What to build next, in order                 | A task is finished and verified  |
 | workflow.md            | Where things stand                           | A phase starts or ends           |
-| ui-todolist.md         | Zine design implementation                   | Still describes v1 screens; needs a v2 pass |
+| ui-todolist.md         | The old v1 Zine look                         | Out of date: the UI is being redesigned; replace once the new direction is set |
 
 ## Working rules
 
@@ -27,6 +29,14 @@
 3. A story's status changes to `[x]` only when all its acceptance criteria pass.
 4. Decisions change the Breakdown first, then stories, then the todolist.
 5. Commit docs with the code that changes them, so they can't get lost again.
+
+## Branches: one per feature
+
+- `main` always builds and passes `npm run check`. Nothing half-done lands on it.
+- Each feature gets its own branch from the latest `main`: `feature/<short-name>` (e.g. `feature/auth`, `feature/memory-outbox`, `feature/sui-payments`). A feature is one todolist item or a small group that ships together.
+- The branch carries its own doc updates (rules 4 and 5).
+- Before merging: `npm run build` and `npm run check` pass, and the feature's Verify step or live test passes.
+- Merge into `main` once agreed, then delete the branch. Start the next feature from the updated `main`.
 
 ## Phases
 
@@ -47,6 +57,6 @@
 
 ## Carried over from v1
 
-Built in v1 and reusable after porting: the SvelteKit app and Zine design system, the extension's capture UI (all five types), screenshot area selection, AI prompts and analysis logic, roadmap generation, the project editor and journal, stale and digest logic, and the Notion client (reused for export).
+Built in v1 and reusable after porting: the SvelteKit app, the extension's capture logic (all five types), screenshot area selection, AI prompts and analysis logic, roadmap generation, the project editor and journal, stale and digest logic, and the Notion client (reused for export).
 
-Dropped from v1: publish queue and Buffer, portfolio and Upstash, Figma export, Creative DNA, Notion as the database.
+Dropped from v1: publish queue and Buffer, portfolio and Upstash, Figma export, Creative DNA, Notion as the database, and the Zine look.

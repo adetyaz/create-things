@@ -4,16 +4,39 @@
 
 ---
 
+## Hackathon — Tatum × Walrus "Total Recall" (Track 02)
+
+> Details: [Project Breakdown.md](Project%20Breakdown.md#hackathon-tatum--walrus-total-recall). Builds on Phases 0–4 plus pet chat (Phase 6, item 48).
+
+- [x] H1. Confirm the Walrus Memory SDK runs on Workers; health check against the mainnet relayer (30 Oct: health + mainnet save + recall pass under `wrangler dev`; `/api/dev/checks`)
+- [ ] H2. `memories` table + queue consumer that sends summaries to Walrus within its rate limit (US-071)
+- [ ] H3. Memory writes for every type in the Breakdown list; at least 10 on mainnet
+- [ ] H4. Recall wired into Pick for me, roadmaps, "I'm stuck"/"teach me" and pet chat; the pet cites the memory it used (US-071)
+- [ ] H5. Plan with days: `plan_slots`, drag to move, Today shows today's step (US-073)
+- [ ] H6. Fit-it-in flow for new ideas: add as step / swap day / park / 5-minute note; stop and continue (US-072)
+- [ ] H7. Voice mode: record → Workers AI transcription → split + sort ideas → fit-it-in (US-074)
+- [ ] H8. Next-thing suggestions that carry knowledge forward (US-075)
+- [ ] H9. "What your pet knows": list, delete, forget all (US-076)
+- [x] H10. Tatum client (server-only): Sui RPC + Data API (30 Oct: `src/lib/server/tatum`, gRPC over fetch; mainnet + testnet + SUI/USD pass under `wrangler dev`)
+- [ ] H11. Memory receipts read from Sui through Tatum (US-076)
+- [ ] H12. Per-request Pro payment with `@suimpp/mpp`, confirmed via Tatum (US-077). Needs Phase 10 item 79 (Plus/Pro tiers) first
+- [ ] H13. Credit packs in USDC/SUI with the Tatum exchange rate (US-078)
+- [x] H14. Check whether Tatum Notifications cover Sui: they don't (30 Oct); payments are confirmed through Tatum's Sui gRPC endpoint instead
+- [ ] H15. Verify: run the full demo loop on a fresh account; memories visible on the Walrus dashboard
+- [ ] H16. README matches what's built; repo public
+- [ ] H17. Blog post (what it does, Tatum + Walrus, how it learned over time)
+- [ ] H18. 2–3 min demo video; X + LinkedIn posts; submit the form
+
 ## Phase 0 — Platform move
 
 - [ ] 1. Switch to `@sveltejs/adapter-cloudflare`; add `wrangler.toml` with R2, KV, Queues, Hyperdrive, Workers AI bindings
-- [ ] 2. Neon project + Hyperdrive config; confirm ORM (Drizzle) works through Hyperdrive
-- [ ] 3. Database schema + migrations for the tables in the Data Model section
+- [ ] 2. Neon project + Hyperdrive config; confirm ORM (Drizzle) works through Hyperdrive (30 Oct: Neon project linked via `neon.ts`, Drizzle + `pg` read/write pass through local Hyperdrive emulation. Left: real Hyperdrive config, needs `wrangler login`)
+- [ ] 3. Database schema + migrations for the tables in the Data Model section (30 Oct: 25 tables in `src/lib/server/db/schema.ts`, first migration `drizzle/0000_init.sql` generated, not applied yet)
 - [ ] 4. Better Auth: magic link + Google (US-001)
 - [ ] 5. Extension signs in against the new API
 - [ ] 6. R2 uploads replace Uploadcare; signed URLs for private images
 - [ ] 7. Remove publish, portfolio, Figma, Creative DNA, Upstash and Notion-as-database code, plus their routes, nav links and landing-page copy
-- [ ] 8. Check `node-vibrant` and `metascraper` on Workers; swap them or move them into a queue consumer
+- [ ] 8. Check `node-vibrant` and `metascraper` on Workers; swap them or move them into a queue consumer (30 Oct: metascraper works; node-vibrant fails, replacement to decide)
 - [ ] 9. Verify: sign in on web and extension, upload an image to R2, read/write Postgres from a Worker
 
 ## Phase 1 — Capture + AI foundation

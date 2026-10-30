@@ -15,13 +15,13 @@ The code in this repo hasn't been migrated yet. It's the old v1 build, which sto
 | Doc | What it covers |
 | --- | --- |
 | [Project Breakdown.md](Project%20Breakdown.md) | The full v2 concept, architecture, data model, costs and build order |
-| [user-stories.md](user-stories.md) | 70 user stories with acceptance criteria |
+| [user-stories.md](user-stories.md) | 78 user stories with acceptance criteria |
 | [todolist.md](todolist.md) | Build checklist by phase |
 | [workflow.md](workflow.md) | Current status and how the docs fit together |
 
 ## v2 stack
 
-SvelteKit (Svelte 5) PWA · Manifest V3 extension · Cloudflare Workers, R2, KV, Queues, Workers AI, AI Gateway · Neon Postgres via Hyperdrive · Better Auth · Resend · Web Push · 3D pet designed in Spline
+SvelteKit (Svelte 5) PWA · Manifest V3 extension · Cloudflare Workers, R2, KV, Queues, Workers AI, AI Gateway · Neon Postgres via Hyperdrive · Better Auth · Resend · Web Push · 3D pet designed in Spline · Walrus Memory (assistant memory) · Tatum (Sui RPC + Data API) · USDC on Sui via MPP
 
 ## Developing (v1 code)
 
