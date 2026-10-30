@@ -1,8 +1,9 @@
 import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
+import { items } from '$lib/server/db/schema';
 import { memoryClient } from '$lib/server/memory/walrus';
 import { getExchangeRate, suiClient } from '$lib/server/tatum';
 
@@ -40,6 +41,30 @@ export const GET: RequestHandler = async ({ url, platform }) => {
 				sql`select current_database() as database, current_user as user, version() as version, now() as now`
 			);
 			return rows[0];
+		})
+	);
+	await check('postgres.schema', () =>
+		withDb(platform, async (db) => {
+			// Typed insert + read on a real table, rolled back so no row is left behind.
+			const rolledBack = new Error('rollback');
+			let seen: unknown;
+			try {
+				await db.transaction(async (tx) => {
+					const [row] = await tx
+						.insert(items)
+						.values({ userId: 'dev-check', title: 'Schema check', captureType: 'note' })
+						.returning();
+					const [read] = await tx.select().from(items).where(eq(items.id, row.id));
+					seen = { id: read.id, status: read.status, savedAt: read.savedAt };
+					throw rolledBack;
+				});
+			} catch (e) {
+				if (e !== rolledBack) throw e;
+			}
+			const [{ left }] = (
+				await db.execute(sql`select count(*)::int as left from items where user_id = 'dev-check'`)
+			).rows as { left: number }[];
+			return { insertedAndRead: seen, rowsLeftAfterRollback: left };
 		})
 	);
 	await check('postgres.writeRead', () =>
