@@ -1,81 +1,52 @@
 # createthings — Workflow
 
-## Completed
+> v2.0 · October 2026
 
-### Phase 1 — Foundation
+## Where things stand
 
-- Scaffold SvelteKit project with adapter-vercel
-- Notion OAuth flow (connect workspace)
-- Auto-creates all 6 databases on first connect
-- Notion API client wrapper
+- **Concept:** rebuilt and agreed. See [Project Breakdown.md](Project%20Breakdown.md).
+- **Stories:** 70 stories in [user-stories.md](user-stories.md); 8 partly exist in the old code.
+- **Tasks:** 86 steps across 12 phases in [todolist.md](todolist.md).
+- **Plan:** v2 uses Neon Postgres on Cloudflare; Notion is only an optional export.
+- **Code:** not migrated yet. The repo still has the old v1 build (data in users' Notion, Vercel, publish + portfolio). **Next up: Phase 0, the platform move.**
 
-### Phase 2 — Extension (capture layer)
+## How the docs fit together
 
-- MV3 extension with Svelte components (unified app)
-- Onboarding UI, main capture UI (5 capture types)
-- CaptureURL, CaptureNote, CaptureUpload components
-- Screenshot content script (full page + select area)
-- Capture payload → Notion Inspiration Vault
+| Doc                    | Answers                                      | Update when                      |
+| ---------------------- | -------------------------------------------- | -------------------------------- |
+| Project Breakdown.md   | What we're building and how                  | A product or architecture decision changes |
+| user-stories.md        | What each feature must do (acceptance criteria) | A feature's scope changes      |
+| todolist.md            | What to build next, in order                 | A task is finished and verified  |
+| workflow.md            | Where things stand                           | A phase starts or ends           |
+| ui-todolist.md         | Zine design implementation                   | Still describes v1 screens; needs a v2 pass |
 
-### Phase 3 — AI Analysis Pipeline
+## Working rules
 
-- URL metadata scraper (`metascraper`)
-- Color extraction (`node-vibrant`)
-- Prompt templates, Gemini Vision, Groq text generation
-- Notion webhook receiver (`/api/webhook/notion`)
-- Notion Automation: new entry → webhook → AI analysis → write back
+1. Build in phase order. Each phase ends with a **Verify** task; don't start the next phase until it passes.
+2. Before a phase, check its items in **To Verify Before Building** (Project Breakdown.md).
+3. A story's status changes to `[x]` only when all its acceptance criteria pass.
+4. Decisions change the Breakdown first, then stories, then the todolist.
+5. Commit docs with the code that changes them, so they can't get lost again.
 
-### Phase 4 — Extension App Views
+## Phases
 
-- Dashboard view — inspiration vault grid
-- Inspiration detail — analysis card with full breakdown
-- Roadmap view + `/api/roadmap` Groq generation
-- Project view — project page + journal editor
+| Phase | Name                     | Status      |
+| ----- | ------------------------ | ----------- |
+| 0     | Platform move            | Next        |
+| 1     | Capture + AI foundation  | Not started |
+| 2     | Choosing                 | Not started |
+| 3     | Starting + Pomodoro      | Not started |
+| 4     | Pet v1                   | Not started |
+| 5     | Remembering              | Not started |
+| 6     | Pet, full version        | Not started |
+| 7     | Living interface + weather | Not started |
+| 8     | PWA + notifications      | Not started |
+| 9     | Integrations             | Not started |
+| 10    | Store + payments         | Not started |
+| 11    | Launch prep              | Not started |
 
-### Phase 5 — Publish
+## Carried over from v1
 
-- Publish queue view
-- `/api/publish` — caption generation + social posting
-- Buffer adapter (Bearer auth, `api.buffer.com`)
-- Approve action publishes directly via Buffer (no Notion Automation needed)
+Built in v1 and reusable after porting: the SvelteKit app and Zine design system, the extension's capture UI (all five types), screenshot area selection, AI prompts and analysis logic, roadmap generation, the project editor and journal, stale and digest logic, and the Notion client (reused for export).
 
-### Phase 6 — Figma Export
-
-- Settings view with Figma connect
-- `lib/figma/export.ts` scaffolded
-- Export button on inspiration card
-- **Deferred:** Figma REST API cannot create frames — requires a Figma Plugin (future work)
-
-### Phase 7 — Portfolio (public web page)
-
-- `/portfolio/[username]` public page (no auth)
-- Portfolio data stored in Upstash Redis (KV) keyed by username
-- Settings section: username input + "Make portfolio public" toggle
-- Project cards with detail modal (blocks, images, YouTube embeds)
-- Shareable at `/portfolio/YOUR_USERNAME`
-
-### Phase 8 — Reminders + Polish
-
-- Stale project check in dashboard load
-- Weekly digest (Vercel cron)
-- Dormant project detection with motivational quotes + configurable threshold
-- Test dormant reminder button on dashboard
-
----
-
-## Open / Pending
-
-| #   | Item                                                   | Notes                                       |
-| --- | ------------------------------------------------------ | ------------------------------------------- |
-| 15  | Verify all 5 capture types save to Notion              | Needs live extension testing                |
-| 24  | Verify URL → analysis in Notion within 30s             | Needs webhook + Notion Automation live test |
-| 30  | Verify full loop: capture → analysis → roadmap         | End-to-end test                             |
-| 35  | Verify caption drafted, approved, published via Buffer | Needs Buffer account + live test            |
-| 39  | Figma export                                           | Deferred — requires Figma Plugin            |
-| 46  | Record demo video                                      | After verification items done               |
-
----
-
-## New UI — Territory
-
-> Expand this section as work progresses
+Dropped from v1: publish queue and Buffer, portfolio and Upstash, Figma export, Creative DNA, Notion as the database.

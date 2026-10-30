@@ -1,538 +1,775 @@
 # createthings — User Stories
 
-**Full product · all features · all three user types · v1.0 · March 2026**
+**v2.0 · October 2026** · Source of truth: [Project Breakdown.md](Project%20Breakdown.md)
 
-User types: **[Designer]** · **[Developer]** · **[Content Creator]**
-35 user stories across 11 feature areas.
+70 stories across 14 areas. Every story is written for one user: someone scattered, with too many things they want to do.
 
----
+## Keys
 
-## Status Key
-
-- `[ ]` Not started
-- `[~]` In progress / partial
-- `[x]` Done
+- **Status:** `[ ]` not started · `[~]` partly exists in the old code and needs porting or changing · `[x]` done
+- **Phase:** the build phase in Project Breakdown.md
 
 ---
 
-## 01 · Onboarding & Setup
+## 01 · Accounts & Onboarding
 
-| ID     | Story                                  | Type            | Status |
-| ------ | -------------------------------------- | --------------- | ------ |
-| US-001 | Connect Notion workspace               | Designer        | `[x]`  |
-| US-002 | Auto-create databases on first connect | Developer       | `[x]`  |
-| US-003 | Set platform preferences               | Content Creator | `[x]`  |
+| ID     | Story                         | Phase | Status |
+| ------ | ----------------------------- | ----- | ------ |
+| US-001 | Sign in                       | 0     | `[ ]`  |
+| US-002 | Brain-dump what's on my mind  | 2     | `[ ]`  |
+| US-003 | Choose and name my pet        | 4     | `[ ]`  |
+| US-004 | Set my pet's timeline         | 6     | `[ ]`  |
+| US-005 | Adjust my settings            | 2     | `[~]`  |
 
-### US-001 — Connect Notion workspace `[x]`
+### US-001 — Sign in
 
-> As a designer, I want to connect my Notion workspace when I first open the extension so that createthings has a home for all my inspiration and work.
+> As a new user, I want to sign in quickly so that I can start without setting anything up.
 
-- AC-01 Without a Notion connection, onboarding screen is shown instead of capture UI
-- AC-02 Onboarding shows two options: Download Notion and Connect existing workspace
-- AC-03 Clicking Connect opens Notion OAuth flow in a new tab
-- AC-04 After successful OAuth, extension closes the tab and returns to connected capture UI
-- AC-05 Success state confirms connection with workspace name visible
-- AC-06 All 6 Notion databases are auto-created on first connect
-- AC-07 A root page called `createthings` is created and all databases live inside it
+- AC-01 Sign in with an email magic link or Google
+- AC-02 The extension signs in against the same account
+- AC-03 No Notion account is needed
+- AC-04 Turnstile runs on signup
 
-### US-002 — Auto-create databases on first connect `[x]`
+### US-002 — Brain-dump what's on my mind
 
-> As a developer, I want all my Notion databases created automatically when I connect so that I don't have to manually set up any structure before I can start using the tool.
+> As someone with too many ideas, I want to dump them all in at the start so that the app knows what I'm juggling.
 
-- AC-01 All 6 databases created: Inspiration Vault, Analysis Results, Roadmaps, Projects, Publish Queue, User Profile
-- AC-02 Relations between databases are set up correctly — Inspiration Vault links to Analysis, Projects, and Roadmaps
-- AC-03 All database property types match the schema — selects, relations, checkboxes, dates, rich text, URLs
-- AC-04 Setup completes within 10 seconds
-- AC-05 If setup fails, clear error with retry option is shown
-- AC-06 Database IDs are stored in User Profile entry for future API calls
+- AC-01 Onboarding asks "What's on your mind?" and accepts 3+ quick entries (text or links)
+- AC-02 Option to import an Are.na channel instead
+- AC-03 Entries are saved as items and analysed in the background
+- AC-04 Onboarding ends on Today with "Let's pick one thing"
 
-### US-003 — Set platform preferences `[x]`
+### US-003 — Choose and name my pet
 
-> As a content creator, I want to set which social platforms I use so that createthings only drafts captions for the platforms I actually post on.
+> As a new user, I want to pick a pet that feels like mine so that I care about feeding it.
 
-- AC-01 Settings shows all platforms: Twitter/X, LinkedIn, Instagram, Reddit
-- AC-02 User can select one or more platforms
-- AC-03 Preferences saved to User Profile Notion database
-- AC-04 Caption drafting only generates content for selected platforms
-- AC-05 User can update preferences at any time from settings
-- AC-06 Stale threshold can also be set in settings (default: 14 days)
+- AC-01 Choose from dog, cat, fluffy monster, dragon, each with breeds
+- AC-02 Set the fluffy ↔ tough slider and colors with a live preview
+- AC-03 Name the pet; rename any time
+- AC-04 Each species and breed shows a sample of its personality
+
+### US-004 — Set my pet's timeline
+
+> As a new user, I want to choose how long my pet can go without food so that the pressure matches my pace.
+
+- AC-01 Defaults: runs away after 30 days, dies after 60
+- AC-02 Minimums: run away ≥ 10 days, death ≥ 21 days
+- AC-03 Earlier hunger stages scale to fit the chosen timeline
+- AC-04 Later changes: more lenient any time; stricter at most once a month
+
+### US-005 — Adjust my settings
+
+> As a user, I want one place to tune the app so that it fits how I work.
+
+- AC-01 Focus limit (1–3), daily review cap, pomodoro lengths, liveliness, tone slider
+- AC-02 Notifications per channel, quiet hours
+- AC-03 Weather mode (auto / city / off), focus sounds on/off
+- AC-04 Connections: Are.na, Notion export, Obsidian download
 
 ---
 
 ## 02 · Capture
 
-| ID     | Story                              | Type            | Status |
-| ------ | ---------------------------------- | --------------- | ------ |
-| US-004 | Capture current page URL           | Designer        | `[x]`  |
-| US-005 | Capture a full page screenshot     | Designer        | `[x]`  |
-| US-006 | Capture a selected area screenshot | Designer        | `[x]`  |
-| US-007 | Paste a URL manually               | Developer       | `[x]`  |
-| US-008 | Upload an image file               | Developer       | `[x]`  |
-| US-009 | Capture a note                     | Content Creator | `[x]`  |
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-006 | Capture from the browser extension     | 1     | `[~]`  |
+| US-007 | Capture from my phone                  | 8     | `[ ]`  |
+| US-008 | Connect Are.na channels                | 9     | `[ ]`  |
+| US-009 | Keep Are.na in sync                    | 9     | `[ ]`  |
 
-### US-004 — Capture current page URL `[x]`
+### US-006 — Capture from the browser extension
 
-> As a designer browsing Dribbble, I want to save a design I love with one click so that I can capture it without breaking my browsing flow.
+> As a laptop user, I want to save anything I find in one click so that I don't break my flow.
 
-- AC-01 Opening extension auto-fills current tab URL and page title
-- AC-02 User can optionally add a quick note before saving
-- AC-03 Save to Notion creates a new entry in Inspiration Vault
-- AC-04 Entry is created with Status: Pending and Capture Type: url
-- AC-05 Date Saved set to today automatically
-- AC-06 Success confirmation shown with link to view entry in app
-- AC-07 Capture takes no more than 3 seconds
+- AC-01 Screenshot (full or area), current URL, pasted URL, image upload, note
+- AC-02 Optional quick note on every capture
+- AC-03 Saved to our database (Status: Inbox) in under 3 seconds; images to R2
+- AC-04 Analysis is queued automatically
 
-### US-005 — Capture a full page screenshot `[x]`
+### US-007 — Capture from my phone
 
-> As a designer, I want to screenshot an entire page so that I can save the full visual reference including parts below the fold.
+> As a phone user, I want to share things into createthings so that ideas don't stay stuck in other apps.
 
-- AC-01 Screenshot > Full page captures the entire visible viewport
-- AC-02 Screenshot captured as base64 and attached to the Notion entry
-- AC-03 Image appears in Inspiration Vault entry as a file attachment
-- AC-04 Capture type set to screenshot
-- AC-05 Process completes within 5 seconds
+- AC-01 The installed PWA appears in the share sheet for links and images
+- AC-02 Quick-add note or link on Today
+- AC-03 Works offline; the capture syncs when back online
 
-### US-006 — Capture a selected area screenshot `[x]`
+### US-008 — Connect Are.na channels
 
-> As a designer, I want to select just a portion of a page so that I can capture only the specific component or section that inspired me.
+> As an Are.na user, I want my channels brought in so that I don't save things twice.
 
-- AC-01 Screenshot > Select area injects an overlay onto the current page
-- AC-02 Overlay dims the full page at 50% opacity
-- AC-03 User can click and drag to draw a selection box
-- AC-04 Selection box has 8 resize handles on corners and edges
-- AC-05 Selected area shows through overlay at full brightness
-- AC-06 Confirm button appears below the selection
-- AC-07 Pressing Escape cancels and removes the overlay
-- AC-08 Confirmed selection is captured as an image and saved to Notion
-- AC-09 Capture type set to screenshot
+- AC-01 Connect Are.na and see my channels
+- AC-02 Choose channels; per channel pick "triage these" (default) or "already curated"
+- AC-03 Blocks map to items: Image → upload, Link/Media/Attachment → url, Text → note
+- AC-04 Curated channels go straight to Shortlist; others to Inbox
+- AC-05 Nothing is written back to Are.na
 
-### US-007 — Paste a URL manually `[x]`
+### US-009 — Keep Are.na in sync
 
-> As a developer, I want to paste a URL from somewhere other than my current tab so that I can save references I find in Slack, email, or other apps.
+> As an Are.na user, I want new blocks to show up automatically so that I don't have to re-import.
 
-- AC-01 Paste URL shows a text input field in the extension popup
-- AC-02 User pastes or types any URL
-- AC-03 SvelteKit server fetches metadata: title, author, og:image from the URL
-- AC-04 Fetched data populates the Notion entry automatically
-- AC-05 If metadata fetch fails, URL is still saved with user-entered URL as title
-- AC-06 Capture type set to url
-
-### US-008 — Upload an image file `[x]`
-
-> As a developer, I want to upload a screenshot or image from my local files so that I can save references I have already captured outside the browser.
-
-- AC-01 Upload image opens the system file picker
-- AC-02 Accepted file types: PNG, JPG, JPEG, WEBP, GIF
-- AC-03 Maximum file size: 10MB
-- AC-04 Selected image attached to Notion Inspiration Vault entry
-- AC-05 Capture type set to upload
-- AC-06 If file is too large, error shown
-
-### US-009 — Capture a note `[x]`
-
-> As a content creator, I want to type a free-text note about an idea or feeling so that I can capture verbal inspiration even when there is no visual reference to save.
-
-- AC-01 Selecting Note shows a textarea in the extension popup
-- AC-02 User can type freely — no character limit enforced at capture
-- AC-03 Note saved to Notion with Capture Type: note
-- AC-04 AI analysis is triggered just like image and URL captures
-- AC-05 Analysis for notes extracts concept, mood, direction, and generates a starting brief
-- AC-06 Visual reference suggestions included in analysis output
+- AC-01 Daily sync plus a "Sync now" button
+- AC-02 Already-imported block IDs are skipped
+- AC-03 Imports are queued so large channels don't slow the app
 
 ---
 
 ## 03 · Analyze
 
-| ID     | Story                                 | Type            | Status |
-| ------ | ------------------------------------- | --------------- | ------ |
-| US-010 | See visual analysis of a saved design | Designer        | `[x]`  |
-| US-011 | See technical analysis of a saved UI  | Developer       | `[x]`  |
-| US-012 | See content analysis of a saved post  | Content Creator | `[x]`  |
-| US-013 | See analysis of a saved note          | Content Creator | `[x]`  |
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-010 | See an analysis of what I saved        | 1     | `[~]`  |
+| US-011 | Know how big and hard something is     | 1     | `[ ]`  |
+| US-012 | Have learning goals recognised         | 1     | `[ ]`  |
 
-### US-010 — See visual analysis of a saved design `[x]`
+### US-010 — See an analysis of what I saved
 
-> As a designer, I want to see a full breakdown of any saved design so that I understand exactly what makes it work and what I can learn from it.
+> As a user, I want to understand what makes a saved thing work so that I know what I'd be getting into.
 
-- AC-01 Analysis card shows: color palette (hex values), typography (fonts, weights, pairing), layout/composition notes, mood tags, style description, identified components
-- AC-02 Analysis generated automatically after saving — no manual trigger required
-- AC-03 Analysis ready within 30 seconds of saving
-- AC-04 Status on Inspiration Vault updates from Pending → Ready when analysis completes
-- AC-05 User sees notification or badge indicating analysis is ready
-- AC-06 Source attribution (creator name, origin URL, platform) shown on every card
+- AC-01 Images/URLs: colors, typography, layout, mood, components, technical and content notes
+- AC-02 Notes: concept, direction, starting brief
+- AC-03 Source attribution (author, URL, platform)
+- AC-04 Runs through AI Gateway on a queue; status moves Inbox → Ready
+- AC-05 Uses the free quota or credits; failed runs are refunded
 
-### US-011 — See technical analysis of a saved UI `[x]`
+### US-011 — Know how big and hard something is
 
-> As a developer, I want the AI to identify the component structure and likely tech patterns in a saved interface so that I know what to study and replicate.
+> As someone who can't decide, I want an estimate of size and difficulty so that I can pick something that fits my time.
 
-- AC-01 Analysis card includes a For Developers section
-- AC-02 Covers: likely component breakdown, UI architecture hints, interaction pattern notes, probable tech stack indicators
-- AC-03 Analysis is specific to what is visible — not generic
-- AC-04 Developer analysis appears alongside standard visual analysis
+- AC-01 Size: afternoon / weekend / week / month
+- AC-02 Difficulty: easy / medium / hard
+- AC-03 Shown on the item card and used by Pick for me
 
-### US-012 — See content analysis of a saved post `[x]`
+### US-012 — Have learning goals recognised
 
-> As a content creator, I want the AI to break down the hook, tone, and structure of any saved post so that I can learn what made it work and apply those patterns to my own writing.
+> As someone trying to learn something hard, I want "learn X" notes treated as skills so that I get a learning path, not a copy-this brief.
 
-- AC-01 Analysis card includes a For Creators section
-- AC-02 Covers: hook style, opening technique, narrative structure, tone description, why it likely performed well
-- AC-03 Works on URL captures from Twitter, LinkedIn, blog posts, newsletters
-- AC-04 Creator analysis appears alongside standard analysis
-
-### US-013 — See analysis of a saved note `[x]`
-
-> As a content creator, I want my typed notes analyzed so that even a vague idea gets shaped into something I can act on.
-
-- AC-01 Note captures analyzed for: concept and theme, mood and emotional direction, suggested visual references, a starting creative brief
-- AC-02 Output displayed as text-based analysis card — no image required
-- AC-03 Visual reference suggestions include descriptive direction, not just keywords
-- AC-04 Brief is actionable — gives the creator a clear starting point
+- AC-01 Notes like "learn Blender" or "learn Spanish" are marked as learning goals
+- AC-02 Learning goals get skill roadmaps (US-018)
+- AC-03 The user can switch the type if it's wrong
 
 ---
 
-## 04 · Learn
+## 04 · Sort
 
-| ID     | Story                                    | Type      | Status |
-| ------ | ---------------------------------------- | --------- | ------ |
-| US-014 | Generate a learning roadmap              | Designer  | `[x]`  |
-| US-015 | Get a micro-lesson on any analysis point | Developer | `[ ]`  |
-| US-016 | Track learning progress                  | Designer  | `[x]`  |
+| ID     | Story                      | Phase | Status |
+| ------ | -------------------------- | ----- | ------ |
+| US-013 | Triage my pile quickly     | 2     | `[ ]`  |
 
-### US-014 — Generate a learning roadmap `[x]`
+### US-013 — Triage my pile quickly
 
-> As a designer, I want to generate a personalized learning roadmap from any saved inspiration so that I know exactly what skills I need to build to create something similar.
+> As someone with a huge pile, I want to sort it one card at a time so that I end up with a short list.
 
-- AC-01 "Build my roadmap" button appears on every analysis card
-- AC-02 Generates a roadmap via Groq AI based on the analysis
-- AC-03 Roadmap includes: skills list, ordered milestones, resources and references per skill
-- AC-04 Roadmap saved as a new page in Roadmaps Notion database
-- AC-05 Roadmap linked to source inspiration entry via relation
-- AC-06 Roadmap appears in app linked from analysis card
-- AC-07 Generation completes within 15 seconds
-
-### US-015 — Get a micro-lesson on any analysis point `[ ]`
-
-> As a developer, I want to tap on any single analysis point and get a short explanation of it so that I can go deep on the specific things I do not yet understand.
-
-- AC-01 Every individual analysis point has a "Teach me this" button or tap area
-- AC-02 Tapping generates a short explanation (3–5 paragraphs) of that specific concept
-- AC-03 Explanation is contextual — tied to the saved piece, not generic
-- AC-04 Micro-lesson appears inline on the analysis card without leaving the page
-- AC-05 Lesson generated within 10 seconds
-
-### US-016 — Track learning progress `[x]`
-
-> As a designer, I want to mark skills as complete on my roadmap so that I can see how much I have grown over time.
-
-- AC-01 Each skill and milestone has a checkbox to mark as done
-- AC-02 Marking a skill updates the Roadmap Notion entry
-- AC-03 Progress status updates: Not started → In progress → Complete
-- AC-04 Completed skills visually distinguished from pending ones
-- AC-05 Progress indicator shows percentage complete across all milestones
+- AC-01 Today shows "Sort N new things (about X min)" when more than ~10 are unsorted
+- AC-02 One card at a time: Keep → Shortlist, Let go → Archived, Later → stays Ready
+- AC-03 Keyboard and swipe support
+- AC-04 End screen: "Kept 3, let go of 8", framed as progress
 
 ---
 
-## 05 · Think — Creative Journal
+## 05 · Focus
 
-| ID     | Story                              | Type            | Status |
-| ------ | ---------------------------------- | --------------- | ------ |
-| US-017 | Write a journal entry on a project | Designer        | `[x]`  |
-| US-018 | Receive AI reflection prompts      | Content Creator | `[ ]`  |
-| US-019 | Make journal entries public        | Designer        | `[ ]`  |
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-014 | Open to one clear thing                | 2     | `[ ]`  |
+| US-015 | Let the app pick for me                | 2     | `[ ]`  |
+| US-016 | Stay limited to a few things           | 2     | `[ ]`  |
 
-### US-017 — Write a journal entry on a project `[x]`
+### US-014 — Open to one clear thing
 
-> As a designer, I want a private thought space on every project so that I can document my process as I work and remember why I made certain decisions.
+> As a scattered person, I want the app to open on just what matters today so that I'm not overwhelmed.
 
-- AC-01 Every project page has a journal section
-- AC-02 User can write free-text entries of any length
-- AC-03 Entries saved to Projects Notion database journal field
-- AC-04 Multiple entries can be added over time — newest first
-- AC-05 Each entry has a timestamp
-- AC-06 Journal entries are private by default
+- AC-01 Today shows: pet room, one Focus item, its current step, Start Pomodoro, reviews due
+- AC-02 Nothing else competes for attention
+- AC-03 With no Focus item, the main action is Pick for me
+- AC-04 Works offline from the last synced state
 
-### US-018 — Receive AI reflection prompts `[ ]`
+### US-015 — Let the app pick for me
 
-> As a content creator, I want the AI to ask me targeted questions about my process so that I can articulate my creative decisions more clearly in my journal.
+> As someone who freezes when choosing, I want the app to suggest one thing so that I can just start.
 
-- AC-01 AI prompts appear in the journal section contextually based on linked inspiration
-- AC-02 Example prompts: "What feeling were you trying to create?", "What would you do differently?", "What did the original piece teach you?"
-- AC-03 Prompts change based on capture type and analysis — not generic
-- AC-04 User can dismiss prompts or respond to them as journal entries
-- AC-05 Responded prompts saved alongside free-text entries
+- AC-01 Asks time available (15 / 30 / 60+ min) and energy (low / normal / high)
+- AC-02 Suggests one Shortlist item that fits, with its first step
+- AC-03 Start · Not today (next suggestion) · Let it go
+- AC-04 Start sets Status: Focus, creates the project page, and generates a roadmap if missing
 
-### US-019 — Make journal entries public `[ ]`
+### US-016 — Stay limited to a few things
 
-> As a designer, I want to choose which journal entries appear on my public portfolio so that potential clients can see my thinking process.
+> As someone who starts too many things, I want a limit on what's in progress so that I finish something.
 
-- AC-01 Each journal entry has a Private / Public toggle
-- AC-02 Public entries appear on portfolio page under Process section
-- AC-03 Private entries never visible outside the app
-- AC-04 Default state is Private
-- AC-05 User can change visibility of any entry at any time
+- AC-01 Focus limit default 1, up to 3 (settings)
+- AC-02 Starting another item at the limit asks me to pause or finish one first
+- AC-03 Pause returns an item to Shortlist with progress kept
 
 ---
 
-## 06 · Create
+## 06 · Roadmaps
 
-| ID     | Story                                     | Type            | Status |
-| ------ | ----------------------------------------- | --------------- | ------ |
-| US-020 | Generate a project brief from analysis    | Designer        | `[x]`  |
-| US-021 | Generate a content draft outline          | Content Creator | `[ ]`  |
-| US-022 | Link multiple inspirations to one project | Developer       | `[x]`  |
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-017 | Get steps small enough to start        | 3     | `[~]`  |
+| US-018 | Get a learning path for a skill        | 3     | `[ ]`  |
+| US-019 | Get unstuck                            | 6     | `[ ]`  |
+| US-020 | Get taught one thing                   | 6     | `[ ]`  |
 
-### US-020 — Generate a project brief from analysis `[x]`
+### US-017 — Get steps small enough to start
 
-> As a designer, I want an AI-generated project brief based on my saved inspiration so that I have a structured starting point instead of a blank canvas.
+> As someone who stalls on big tasks, I want every milestone broken into small steps so that the next one always feels doable.
 
-- AC-01 "Start creating" button appears on every analysis card
-- AC-02 Tapping creates a new Project entry in Notion linked to the inspiration
-- AC-03 AI generates a brief: creative direction, mood and tone, key elements to incorporate, suggested approach
-- AC-04 Brief appears in the project page in the app
-- AC-05 User can edit the brief freely
-- AC-06 Brief saved to Projects Notion database
+- AC-01 Each step takes 15–30 minutes
+- AC-02 Only the current step is prominent; the rest are collapsed
+- AC-03 Steps can be marked done; progress shown per milestone
+- AC-04 Completing a step feeds the pet (meal) and offers card drafts
 
-### US-021 — Generate a content draft outline `[ ]`
+### US-018 — Get a learning path for a skill
 
-> As a content creator, I want an AI-generated outline based on my saved inspiration so that I am not starting from a blank page when I sit down to write.
+> As someone learning something hard, I want a skill roadmap so that I build up from basics to doing it myself.
 
-- AC-01 For URL and note captures from content sources, an outline option appears on the analysis card
-- AC-02 AI generates: suggested headline, hook options, section structure, closing CTA suggestion
-- AC-03 Outline saved to Project page in Notion
-- AC-04 User can edit and expand the outline freely
-- AC-05 Outline is informed by the hook and structure analysis from the captured piece
+- AC-01 Structure: basics → practice → a small project
+- AC-02 More knowledge cards drafted along the way than a project roadmap
+- AC-03 Resources listed per milestone
 
-### US-022 — Link multiple inspirations to one project `[x]`
+### US-019 — Get unstuck
 
-> As a developer, I want to link several saved references to a single project so that I can build something that combines ideas from multiple sources.
+> As someone who quits when stuck, I want help on the spot so that I keep going.
 
-- AC-01 Project page has an "Add inspiration" button
-- AC-02 User can link any number of saved inspirations to one project
-- AC-03 Linked inspirations appear as reference cards in the project page
-- AC-04 Relation stored in both Projects and Inspiration Vault Notion databases
-- AC-05 All linked inspirations are credited if the project is published
+- AC-01 Ask the pet "I'm stuck" on any step
+- AC-02 Reply is a smaller step or a short explanation, in the pet's voice
+- AC-03 Cost shown before sending; uses free quota first
 
----
+### US-020 — Get taught one thing
 
-## 07 · Publish
+> As a learner, I want a short lesson on any point so that I understand it before moving on.
 
-| ID     | Story                                      | Type            | Status |
-| ------ | ------------------------------------------ | --------------- | ------ |
-| US-023 | Tag work with a remix label                | Designer        | `[x]`  |
-| US-024 | Get platform-specific captions drafted     | Content Creator | `[x]`  |
-| US-025 | Review and edit captions before publishing | Designer        | `[x]`  |
-| US-026 | Auto-credit the original creator           | Developer       | `[x]`  |
-
-### US-023 — Tag work with a remix label `[x]`
-
-> As a designer, I want to tag my published work as inspired by, remixed, or recreated so that my audience always understands my relationship to the original.
-
-- AC-01 Before publishing, user selects remix tag: Inspired by, Remixed from, or Recreated
-- AC-02 Tag is required — publish flow does not proceed without a selection
-- AC-03 Tag stored in Projects Notion database
-- AC-04 Tag appears in published caption as a clear attribution statement
-- AC-05 Tag visible on portfolio page alongside the published work
-
-### US-024 — Get platform-specific captions drafted `[x]`
-
-> As a content creator, I want AI to write captions tailored to each platform so that I am not manually rewriting the same post five different ways.
-
-- AC-01 Prepare to publish generates separate captions for each connected platform
-- AC-02 Twitter/X: max 280 characters, punchy, uses hashtags
-- AC-03 LinkedIn: professional framing, slightly longer, no excessive hashtags
-- AC-04 Instagram: visual-first language, emoji-friendly, hashtags at end
-- AC-05 Reddit: community-aware tone, no hard sell, conversational
-- AC-06 Each caption auto-includes credit line based on saved attribution
-- AC-07 All captions saved as drafts in Publish Queue Notion database
-
-### US-025 — Review and edit captions before publishing `[x]`
-
-> As a designer, I want to review and edit every caption before it goes live so that I always have final say on what is posted under my name.
-
-- AC-01 Publish queue page shows all drafted captions side by side
-- AC-02 Each caption editable inline
-- AC-03 Credit line is editable but not removable
-- AC-04 User selects which platforms to publish to before approving
-- AC-05 Approve and queue button updates Publish Queue status to Approved in Notion
-- AC-06 Notion automation detects Approved status and triggers publish webhook
-- AC-07 Confirmation shown when post goes live
-
-### US-026 — Auto-credit the original creator `[x]`
-
-> As a developer, I want the credit line generated automatically from the saved source attribution so that I never forget to credit the original creator.
-
-- AC-01 Credit line generated from attribution field captured during analysis
-- AC-02 Format: `Inspired by [Author] — [Source URL]`
-- AC-03 If no author detected, credit line shows source URL only
-- AC-04 Credit line inserted into every platform caption automatically
-- AC-05 Credit line cannot be fully removed — only edited
-- AC-06 For Recreated tag: `Recreated from [Author] — original at [URL]`
+- AC-01 "Teach me this" on any analysis point or step, asked through the pet
+- AC-02 3–5 short paragraphs, tied to my item, not generic
+- AC-03 Offers to turn the lesson into knowledge cards
 
 ---
 
-## 08 · Figma Export
+## 07 · Project Space, Journal & Export
 
-| ID     | Story                                 | Type     | Status |
-| ------ | ------------------------------------- | -------- | ------ |
-| US-027 | Export a captured screenshot to Figma | Designer | `[ ]`  |
-| US-028 | Connect Figma account in settings     | Designer | `[ ]`  |
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-021 | Work in a project space                | 3     | `[~]`  |
+| US-022 | Journal what I'm learning              | 3     | `[~]`  |
+| US-023 | Get reflection prompts                 | 3     | `[ ]`  |
+| US-024 | Export to Notion                       | 9     | `[ ]`  |
+| US-025 | Download as an Obsidian vault          | 9     | `[ ]`  |
 
-### US-027 — Export a captured screenshot to Figma `[ ]`
+### US-021 — Work in a project space
 
-> As a designer, I want to send any captured screenshot directly to my Figma workspace so that I have the reference right inside my design tool without switching contexts.
+> As a user, I want one page for my Focus item so that my work and references are together.
 
-- AC-01 Export to Figma button appears on inspiration cards where capture type is screenshot or upload
-- AC-02 Button does not appear on URL-only or note captures
-- AC-03 If Figma not connected, tapping opens settings drawer to connect
-- AC-04 If connected, image sent to Figma via REST API as a new frame
-- AC-05 Frame named: `[inspiration title] — captured via createthings`
-- AC-06 Source URL added as a Figma comment on the frame
-- AC-07 Success toast: "Saved to Figma workspace"
-- AC-08 Export completes within 5 seconds
+- AC-01 Editor with headings, images, embeds
+- AC-02 Linked inspirations shown alongside
+- AC-03 Autosave, with offline drafts
 
-### US-028 — Connect Figma account in settings `[ ]`
+### US-022 — Journal what I'm learning
 
-> As a designer, I want to connect my Figma account once so that all future exports happen without any extra steps.
+> As a learner, I want to write down what I tried and learned so that I remember and my pet gets fed.
 
-- AC-01 Settings page has a Connect Figma section
-- AC-02 Tapping Connect opens Figma OAuth flow
-- AC-03 After approval, Figma Connected set to true in User Profile Notion database
-- AC-04 Connected state shown clearly in settings with workspace name
-- AC-05 User can disconnect Figma from settings at any time
+- AC-01 Dated entries, newest first
+- AC-02 Sources: manual, pomodoro note, check-in
+- AC-03 AI checks the entry relates to my Focus item and sizes the feed (free)
+- AC-04 Offers to draft knowledge cards from the entry
 
----
+### US-023 — Get reflection prompts
 
-## 09 · Portfolio
+> As someone who struggles to reflect, I want a question after a session so that I notice what I learned.
 
-| ID     | Story                                 | Type            | Status |
-| ------ | ------------------------------------- | --------------- | ------ |
-| US-029 | View my public portfolio page         | Designer        | `[x]`  |
-| US-030 | Control what appears on my portfolio  | Content Creator | `[~]`  |
-| US-031 | Show process behind a published piece | Developer       | `[ ]`  |
+- AC-01 Prompts after a pomodoro or step, based on the item and step
+- AC-02 Answer as a journal entry or dismiss
 
-### US-029 — View my public portfolio page `[x]`
+### US-024 — Export to Notion
 
-> As a designer, I want an automatically generated portfolio page that I can share as a single link so that anyone can see my work, process, and creative journey without me building a separate site.
+> As a Notion user, I want my work copied to Notion so that it's documented where I keep everything.
 
-- AC-01 Portfolio page available at `createthings.app/@username`
-- AC-02 Publicly accessible — no login required for visitors
-- AC-03 Page shows sections: Work, Process, Learning, Inspiration, Creative DNA
-- AC-04 Work section shows all published projects marked as Public
-- AC-05 Process section shows journal entries marked as Public
-- AC-06 Page updates automatically when new work is published
-- AC-07 Page loads within 3 seconds
+- AC-01 Connect Notion in settings
+- AC-02 Scheduled one-way export of items, journal entries and knowledge cards
+- AC-03 Edits in Notion are not synced back
 
-### US-030 — Control what appears on my portfolio `[~]`
+### US-025 — Download as an Obsidian vault
 
-> As a content creator, I want to choose exactly what is visible on my public portfolio so that I only show what I am ready to share.
+> As an Obsidian user, I want my work as Markdown files so that I own a copy.
 
-- AC-01 Every project has a Public checkbox ✓ (done)
-- AC-02 Every journal entry has a Private / Public toggle ✗ (not yet)
-- AC-03 Inspiration sources only appear if linked project is public ✗ (not yet)
-- AC-04 Creative DNA card toggled on or off in settings ✗ (not yet)
-- AC-05 Portfolio visibility setting can make entire page private with one toggle ✗ (not yet)
-- AC-06 Changes take effect immediately ✗ (not yet)
-
-### US-031 — Show process behind a published piece `[ ]`
-
-> As a developer, I want visitors to my portfolio to see the inspiration and process behind my work so that they understand how I think and not just what I produce.
-
-- AC-01 Each published piece links to a detail view
-- AC-02 Detail view shows: finished work, source inspiration, remix tag, credit line, public journal entries
-- AC-03 Inspiration source shows original URL and creator attribution
-- AC-04 Journal entries show creative decisions made during the project
-- AC-05 Visitor sees full journey from inspiration to finished work
+- AC-01 Download a zip of Markdown files with front matter
+- AC-02 One file per item, journal entry set and knowledge card set, with links between them
 
 ---
 
-## 10 · Identity
+## 08 · Pomodoro & Focus Sounds
 
-| ID     | Story                                  | Type     | Status |
-| ------ | -------------------------------------- | -------- | ------ |
-| US-032 | Build a Creative DNA profile over time | Designer | `[~]`  |
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-026 | Focus in pomodoros                     | 3     | `[ ]`  |
+| US-027 | Log what I did after a session         | 3     | `[ ]`  |
+| US-028 | Play and mix focus sounds              | 3     | `[ ]`  |
+| US-029 | Hear my pet while I focus              | 4     | `[ ]`  |
+| US-030 | Unlock more sound packs                | 10    | `[ ]`  |
 
-### US-032 — Build a Creative DNA profile over time `[~]`
+### US-026 — Focus in pomodoros
 
-> As a designer, I want the system to build a profile of my creative taste from everything I save so that I have a clear picture of what I am drawn to and what defines my aesthetic.
+> As someone easily distracted, I want timed focus sessions so that I work in bursts I can manage.
 
-- AC-01 Creative DNA profile generated from saved inspirations ✗ (not yet)
-- AC-02 Profile updates automatically as more inspirations are saved ✗ (not yet)
-- AC-03 Profile describes: recurring color tendencies, preferred layout styles, common mood tags, aesthetic patterns ✗ (not yet)
-- AC-04 Profile stored in User Profile Notion database ✗ (not yet)
-- AC-05 Profile shown on portfolio page as a Creative DNA card ✓ (creativeDna field shown on portfolio)
-- AC-06 Profile visibility toggled on or off by user ✗ (not yet)
+- AC-01 Start from the current step
+- AC-02 Defaults 25 / 5 / 15 (long break after 4), adjustable
+- AC-03 Focus: pet sleeps, interface calm. Break: pet wakes and plays; light interaction allowed for the break's length
+- AC-04 Full session = meal; stopping after 10+ minutes = snack
+- AC-05 Timer keeps running offline and across tabs
+
+### US-027 — Log what I did after a session
+
+> As a user, I want a quick note when the timer ends so that progress is recorded without effort.
+
+- AC-01 One-line "What did you do?" prompt at the end of focus
+- AC-02 Feeds the pet; can be saved as a journal entry
+- AC-03 Can draft knowledge cards
+
+### US-028 — Play and mix focus sounds
+
+> As someone who focuses better with sound, I want ambient sounds so that I get into the zone.
+
+- AC-01 Off by default; remembered once switched on
+- AC-02 Noise (white/pink/brown) generated in the browser; nature, places and music loops from R2
+- AC-03 Mix several sounds with separate volumes
+- AC-04 Fade in on focus, fade out on break; optional break sound
+- AC-05 Cached for offline use
+
+### US-029 — Hear my pet while I focus
+
+> As a pet owner, I want my pet's sleeping sounds as a focus sound so that it feels like it's next to me.
+
+- AC-01 Breathing, purring or snoring matched to species (dragon: rumbles and crackle)
+- AC-02 Optional end chime in the pet's voice
+
+### US-030 — Unlock more sound packs
+
+> As a regular user, I want more sound packs so that I don't get bored.
+
+- AC-01 Free starter set: noise, rain, café, your pet
+- AC-02 More packs earned at growth milestones or bought with credits
+- AC-03 Weather suggests a mix ("It's raining in Lagos. Rain + fireplace?")
 
 ---
 
-## 11 · Reminders
+## 09 · Knowledge Review
 
-| ID     | Story                                 | Type            | Status |
-| ------ | ------------------------------------- | --------------- | ------ |
-| US-033 | Get reminded about stale inspirations | Content Creator | `[x]`  |
-| US-034 | Set my own stale threshold            | Designer        | `[x]`  |
-| US-035 | Receive a weekly creative digest      | Developer       | `[~]`  |
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-031 | Turn completed steps into cards        | 5     | `[ ]`  |
+| US-032 | Turn journal entries into cards        | 5     | `[ ]`  |
+| US-033 | Review cards on a schedule             | 5     | `[ ]`  |
+| US-034 | Explain it back in my own words        | 5     | `[ ]`  |
+| US-035 | Browse everything I've learned         | 5     | `[ ]`  |
 
-### US-033 — Get reminded about stale inspirations `[x]`
+### US-031 — Turn completed steps into cards
 
-> As a content creator, I want to be nudged about inspiration I saved and forgot so that nothing in my vault goes to waste.
+> As a learner, I want cards drafted from what I just did so that it sticks.
 
-- AC-01 Stale check runs every time the dashboard loads
-- AC-02 Stale check also runs on a weekly schedule
-- AC-03 An inspiration is stale when it has been Pending past the user's threshold
-- AC-04 Stale nudge shows: title, how long saved, three options: Start a project / Archive it / Reset timer
-- AC-05 Nudge is contextual — not just a generic reminder
-- AC-06 Status updates in Notion based on user's action
+- AC-01 1–3 cards drafted per completed step (more for skill roadmaps)
+- AC-02 Keep, edit or discard each one
+- AC-03 Each kept card is a snack for the pet
 
-### US-034 — Set my own stale threshold `[x]`
+### US-032 — Turn journal entries into cards
 
-> As a designer, I want to set how many days before an inspiration is flagged as stale so that the system respects my own working pace.
+> As a learner, I want cards suggested from what I wrote so that my reflections become memory.
 
-- AC-01 Stale threshold configurable in settings
-- AC-02 Default value is 14 days
-- AC-03 User can enter any number of days
-- AC-04 Threshold saved to User Profile Notion database
-- AC-05 Changing threshold takes effect immediately on next stale check
+- AC-01 Suggested from journal entries and pomodoro notes
+- AC-02 Only saved after I approve them
+- AC-03 Manual cards can be added any time
 
-### US-035 — Receive a weekly creative digest `[~]`
+### US-033 — Review cards on a schedule
 
-> As a developer, I want a weekly summary of what I saved, created, published, and learned so that I stay aware of my creative output and stay accountable.
+> As someone who forgets, I want cards to come back at the right time so that I keep what I learned.
 
-- AC-01 Weekly digest generated every Monday ✗ (not yet scheduled)
-- AC-02 Covers: inspirations saved, projects started, work published, roadmap milestones, stale items ✓ (API route exists at /api/digest)
-- AC-03 Digest shown as a card on the dashboard ✗ (not yet wired to dashboard)
-- AC-04 Digest data pulled from all 6 Notion databases via query ✓ (API route does this)
-- AC-05 If nothing happened that week, encouraging empty state shown ✗ (not yet)
+- AC-01 Intervals 1, 3, 7, 14, 30, 60 days
+- AC-02 Got it → next interval; Shaky → repeat; Forgot → back to 1 day
+- AC-03 Due reviews on Today, capped (default 5/day)
+- AC-04 Finishing a review session is a snack
+- AC-05 Downloaded reviews work offline
+
+### US-034 — Explain it back in my own words
+
+> As a learner, I want to test real understanding so that I'm not just memorising.
+
+- AC-01 "Explain" cards ask me to write the idea in my own words
+- AC-02 AI compares it with the source and points out gaps
+- AC-03 Uses free quota or credits
+
+### US-035 — Browse everything I've learned
+
+> As a learner, I want to see all my knowledge in one place so that I can see I'm growing.
+
+- AC-01 Library grouped by item or topic, with search
+- AC-02 Each card links to its source item, step or journal entry
+
+---
+
+## 10 · The Pet
+
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-036 | Have my pet live in the app            | 4     | `[ ]`  |
+| US-037 | Get a pet with personality             | 6     | `[ ]`  |
+| US-038 | Be guided by my pet                    | 4     | `[ ]`  |
+| US-039 | Do things by clicking my pet           | 4     | `[ ]`  |
+| US-040 | Chat with my pet                       | 6     | `[ ]`  |
+| US-041 | Feed my pet by doing the work          | 4     | `[ ]`  |
+| US-042 | See my pet get hungry                  | 4     | `[ ]`  |
+| US-043 | Pause hunger when I need a break       | 4     | `[ ]`  |
+| US-044 | Win back a pet that ran away           | 6     | `[ ]`  |
+| US-045 | Remember a pet that died               | 6     | `[ ]`  |
+| US-046 | Revive or hatch a new pet              | 6     | `[ ]`  |
+| US-047 | Watch my pet grow                      | 6     | `[ ]`  |
+| US-048 | Shape my pet's body                    | 6     | `[ ]`  |
+| US-049 | Dress up my pet                        | 6     | `[ ]`  |
+| US-050 | Decorate the room and play             | 6     | `[ ]`  |
+| US-051 | Have my pet react to what I do         | 6     | `[ ]`  |
+
+### US-036 — Have my pet live in the app
+
+> As a user, I want my pet to be around while I work so that it feels like company.
+
+- AC-01 Own room on Today; walks on other screens
+- AC-02 Idles, walks, sleeps, purrs, eats, gets sad
+- AC-03 Real-time 3D on capable devices; lightweight fallback on low-power phones and the extension
+- AC-04 Can be minimised or shooed
+
+### US-037 — Get a pet with personality
+
+> As a user, I want my pet to have its own character so that talking to it is fun.
+
+- AC-01 Personality set by species and breed (eager dog, dramatic husky, sarcastic cat, proud dragon)
+- AC-02 Tone slider from gentle to savage
+- AC-03 Personality changes how things are said, never the advice
+
+### US-038 — Be guided by my pet
+
+> As a scattered person, I want my pet to tell me what's next so that I don't have to think about it.
+
+- AC-01 Speech bubbles: next step, onboarding tips, reminders
+- AC-02 Free; no AI cost
+- AC-03 Moves away from the cursor, never covers text being typed, quiet during pomodoros
+
+### US-039 — Do things by clicking my pet
+
+> As a user, I want quick actions on my pet so that starting is one click.
+
+- AC-01 Click the pet: start pomodoro, check in, open reviews, pick focus
+- AC-02 Free
+
+### US-040 — Chat with my pet
+
+> As a learner, I want to ask my pet questions so that help feels personal.
+
+- AC-01 Chat replaces the stuck / teach buttons (US-019, US-020)
+- AC-02 Replies in the pet's personality; fast (Groq)
+- AC-03 Free daily quota, then credits; cost shown before sending
+
+### US-041 — Feed my pet by doing the work
+
+> As someone who needs a reason to show up, I want my work to feed my pet so that small efforts feel worth it.
+
+- AC-01 Only Focus work counts: pomodoros, steps, journal entries, cards, review sessions, check-ins, finishing an item
+- AC-02 Saving things never feeds it; journaling about a Shortlist item prompts "Make this your focus?"
+- AC-03 Food sizes: snack, meal, feast; the AI journal check is free
+- AC-04 Daily food cap
+- AC-05 Food flies to the pet with an animation; the food type matches the species
+
+### US-042 — See my pet get hungry
+
+> As someone who drifts away, I want to see my pet suffer a little so that I come back.
+
+- AC-01 Hunger calculated from time since last fed and my timeline
+- AC-02 Happy → Peckish → Hungry → Starving, each with its own look
+- AC-03 One feed always moves it up at least one state
+
+### US-043 — Pause hunger when I need a break
+
+> As someone going on holiday or ill, I want to pause the clock so that a real break isn't punished.
+
+- AC-01 Rest mode with an end date
+- AC-02 Hunger and neglect stop while it's on; the pet is shown resting
+
+### US-044 — Win back a pet that ran away
+
+> As someone returning after a long gap, I want a way to get my pet back so that it's not over.
+
+- AC-01 After the run-away threshold: empty bed, pawprints
+- AC-02 3 days of activity bring it home, with a reunion animation
+- AC-03 Growth and items are kept
+
+### US-045 — Remember a pet that died
+
+> As someone whose pet died, I want it remembered so that the loss means something.
+
+- AC-01 After the death threshold: a skeleton in the room, then a memorial
+- AC-02 Every dead pet gets a memorial on the shelf, with its signature item
+- AC-03 All other items stay in my account
+
+### US-046 — Revive or hatch a new pet
+
+> As someone coming back after my pet died, I want a way to start again so that I don't quit.
+
+- AC-01 Revive the same pet with credits, keeping growth (cheaper for bought pets)
+- AC-02 Or earn a new egg with about 7 days of activity; the new pet is free and starts fresh
+- AC-03 The whole app works without a pet
+
+### US-047 — Watch my pet grow
+
+> As a long-term user, I want my pet to grow with my effort so that I can see how far I've come.
+
+- AC-01 Growth from total food eaten; visible growth stages
+- AC-02 Milestones unlock earned accessories, sounds and looks
+
+### US-048 — Shape my pet's body
+
+> As a user, I want to make my pet cute or tough so that it feels like mine.
+
+- AC-01 Free sliders: fluffy ↔ tough, fur length, size, colors, patterns, eyes, horns/armor
+- AC-02 Live preview; change any time
+
+### US-049 — Dress up my pet
+
+> As a user, I want accessories so that I can show off my pet's style.
+
+- AC-01 Slots: head, face, neck, back, held item
+- AC-02 Shared attachment points so items fit every species; some premium items are species-only
+- AC-03 Earned at milestones or bought with credits; purely cosmetic
+- AC-04 Items belong to my account and move between pets
+
+### US-050 — Decorate the room and play
+
+> As a user, I want to make my pet's room nice and play with it on breaks so that breaks are fun.
+
+- AC-01 Room items: bed, bowl, wallpaper, floor, plants, memorial shelf
+- AC-02 Toys (ball, yarn, laser dot, bone), each adding a break game
+- AC-03 Earned or bought; cosmetic only
+
+### US-051 — Have my pet react to what I do
+
+> As a user, I want my pet to notice me so that it feels alive.
+
+- AC-01 Reactions: cursor, click, drag, typing, pomodoro start/break, step done, review got it, new capture, idle, late night, coming back
+- AC-02 Liveliness setting: calm / normal (default) / chaotic
+- AC-03 Calms down automatically during pomodoros and typing
+- AC-04 Respects reduced-motion settings
+
+---
+
+## 11 · Living Interface & Weather
+
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-052 | See neglect in the interface           | 7     | `[ ]`  |
+| US-053 | See the app come back to life          | 7     | `[ ]`  |
+| US-054 | Get my local weather                   | 7     | `[ ]`  |
+| US-055 | Live through weather, day and seasons  | 7     | `[ ]`  |
+| US-056 | See my pet react to the weather        | 7     | `[ ]`  |
+| US-057 | Choose or turn off weather             | 7     | `[ ]`  |
+
+### US-052 — See neglect in the interface
+
+> As someone who drifts away, I want the app to look neglected so that I feel the gap without reading numbers.
+
+- AC-01 Dust → cobwebs → food-scrap bones → empty bed/pawprints → skeleton, following the pet's state
+- AC-02 Only on Today, project space and extension; settings stay clean
+- AC-03 Cobwebs sway on hover and tear on click; dust lifts under the cursor
+- AC-04 Never blocks buttons or hides text
+
+### US-053 — See the app come back to life
+
+> As someone returning, I want my first action to clean everything up so that coming back feels rewarding.
+
+- AC-01 First feed after a gap plays a sweep-clean animation
+- AC-02 The pet runs to the screen
+
+### US-054 — Get my local weather
+
+> As a user, I want the app's weather to match mine so that it feels connected to my day.
+
+- AC-01 City from the IP address, no permission pop-up
+- AC-02 Option to type a city
+- AC-03 Only the city is stored
+- AC-04 Weather cached per city for about an hour
+
+### US-055 — Live through weather, day and seasons
+
+> As a user, I want the app to feel like a place so that it's somewhere I want to be.
+
+- AC-01 Rain, fog, snow on cards, sun rays, lightning, wind
+- AC-02 Day/night lighting from local time; seasons by hemisphere; seasonal touches
+- AC-03 Mixes with neglect (abandoned + rain is extra gloomy)
+- AC-04 Never affects hunger or progress; respects reduced motion
+
+### US-056 — See my pet react to the weather
+
+> As a pet owner, I want my pet to react to the weather so that it feels real.
+
+- AC-01 Raincoat, hides from thunder, sunbathes, shakes off wet fur, builds a snowman on breaks
+- AC-02 Real weather moments unlock accessories (scarf on first snow)
+- AC-03 Weather suggests focus sound mixes
+
+### US-057 — Choose or turn off weather
+
+> As a user, I want control over weather so that it suits my mood.
+
+- AC-01 "Weather from anywhere": pick any city, or always sunny
+- AC-02 Turn weather off
+
+---
+
+## 12 · Notifications & Digest
+
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-058 | See my pet's mood in the extension     | 8     | `[ ]`  |
+| US-059 | Get nudged by my pet                   | 8     | `[~]`  |
+| US-060 | Control when I'm nudged                | 8     | `[ ]`  |
+| US-061 | Get a weekly digest                    | 8     | `[~]`  |
+
+### US-058 — See my pet's mood in the extension
+
+> As a laptop user, I want to see my pet while browsing so that I'm reminded without being nagged.
+
+- AC-01 Extension icon badge shows mood and reviews due
+- AC-02 Popup shows the pet (lightweight render) and a link to the app
+
+### US-059 — Get nudged by my pet
+
+> As someone who forgets, I want reminders from my pet so that they feel personal, not like spam.
+
+- AC-01 Email and web push, written in the pet's voice
+- AC-02 Triggers: hunger stages, stale Shortlist/Focus items, pomodoro end, reviews due
+- AC-03 Stale nudge offers Start / Let it go / Later
+
+### US-060 — Control when I'm nudged
+
+> As a user, I want to control notifications so that they don't annoy me.
+
+- AC-01 Per-channel on/off
+- AC-02 Quiet hours (default 22:00–08:00 local)
+
+### US-061 — Get a weekly digest
+
+> As a user, I want a weekly summary so that I can see my progress.
+
+- AC-01 Started, finished, let go, steps done, cards reviewed, food eaten
+- AC-02 Card on Today plus email
+- AC-03 Encouraging message when the week was empty
+
+---
+
+## 13 · Credits & Store
+
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-062 | Use AI free every day                  | 1     | `[ ]`  |
+| US-063 | See what AI costs before I use it      | 1     | `[ ]`  |
+| US-064 | Choose a stronger model                | 10    | `[ ]`  |
+| US-065 | Buy credits                            | 10    | `[ ]`  |
+| US-066 | Buy items in the store                 | 10    | `[ ]`  |
+| US-067 | Get limited-edition pets               | 10    | `[ ]`  |
+
+### US-062 — Use AI free every day
+
+> As a free user, I want some AI every day so that I can use the app fully without paying.
+
+- AC-01 Daily free quota on Basic models, reset every day
+- AC-02 The pet's journal check, guide and actions never use quota
+
+### US-063 — See what AI costs before I use it
+
+> As a user, I want to know the cost of an AI action so that I'm never surprised.
+
+- AC-01 Cost shown next to AI actions ("1 credit")
+- AC-02 Balance and history in settings
+- AC-03 Failed calls are refunded
+- AC-04 Out of credits: actions explain what's needed; nothing created is locked
+
+### US-064 — Choose a stronger model
+
+> As a power user, I want better models for important things so that I get better roadmaps and explanations.
+
+- AC-01 Tiers: Basic (1×), Plus (3×), Pro (10×)
+- AC-02 Choose per action or set a default
+
+### US-065 — Buy credits
+
+> As a user, I want to buy credits so that I can use more AI and customise my pet.
+
+- AC-01 One-off packs (e.g. $5 / $10 / $20, bonus on bigger packs)
+- AC-02 Credits arrive after the payment webhook confirms
+- AC-03 Credits never expire
+
+### US-066 — Buy items in the store
+
+> As a user, I want to buy accessories, decor and sounds so that my pet and room feel special.
+
+- AC-01 Catalog of premium accessories, decor, fur colors, toys, sound packs
+- AC-02 Paid with credits; all cosmetic
+- AC-03 Revives are also bought here
+
+### US-067 — Get limited-edition pets
+
+> As a collector, I want seasonal pets so that there's always something new.
+
+- AC-01 Seasonal drops, available for a limited time
+- AC-02 Original designs only; no copyrighted characters
+- AC-03 Same death rules, but cheaper to revive
+
+---
+
+## 14 · PWA & Platform
+
+| ID     | Story                                  | Phase | Status |
+| ------ | -------------------------------------- | ----- | ------ |
+| US-068 | Install the app                        | 8     | `[ ]`  |
+| US-069 | Keep working offline                   | 8     | `[ ]`  |
+| US-070 | Stay protected from abuse              | 1     | `[ ]`  |
+
+### US-068 — Install the app
+
+> As a phone or desktop user, I want to install createthings so that it feels like a real app.
+
+- AC-01 Installable PWA with icon, splash and app-like behaviour
+- AC-02 Share sheet target (US-007)
+
+### US-069 — Keep working offline
+
+> As someone on the move, I want the core to work offline so that a bad connection doesn't break my habit.
+
+- AC-01 Offline: Today, pomodoro, pet (last state), journal drafts, notes, downloaded reviews, cached sounds
+- AC-02 Changes sync automatically when back online
+- AC-03 Online-only actions say so clearly
+
+### US-070 — Stay protected from abuse (system)
+
+> As the owner, I want bots and abuse blocked so that free AI doesn't bankrupt the app.
+
+- AC-01 Turnstile on signup and on free-quota AI use
+- AC-02 Per-user and per-IP rate limits
+- AC-03 Per-user AI spending caps in AI Gateway
 
 ---
 
 ## Summary
 
-| Area            | Total  | Done   | Partial | Not Started |
-| --------------- | ------ | ------ | ------- | ----------- |
-| 01 Onboarding   | 3      | 3      | 0       | 0           |
-| 02 Capture      | 6      | 6      | 0       | 0           |
-| 03 Analyze      | 4      | 4      | 0       | 0           |
-| 04 Learn        | 3      | 2      | 0       | 1           |
-| 05 Think        | 3      | 1      | 0       | 2           |
-| 06 Create       | 3      | 2      | 0       | 1           |
-| 07 Publish      | 4      | 4      | 0       | 0           |
-| 08 Figma Export | 2      | 0      | 0       | 2           |
-| 09 Portfolio    | 3      | 1      | 1       | 1           |
-| 10 Identity     | 1      | 0      | 1       | 0           |
-| 11 Reminders    | 3      | 2      | 1       | 0           |
-| **Total**       | **35** | **25** | **3**   | **6**       |
-
-### Not started (6)
-
-- US-015 Micro-lesson on any analysis point
-- US-018 AI reflection prompts in journal
-- US-019 Make journal entries public
-- US-021 Content draft outline generation
-- US-027 Export screenshot to Figma
-- US-028 Connect Figma in settings
-
-### Partial / needs completing (3)
-
-- US-030 Portfolio visibility controls (project Public checkbox done; journal toggle, DNA toggle, full private mode not yet)
-- US-032 Creative DNA auto-generation (display done; profile generation from vault not yet)
-- US-035 Weekly digest (API route done; dashboard card + Monday schedule not yet)
+| Area                         | Stories | Partly exists |
+| ---------------------------- | ------- | ------------- |
+| 01 Accounts & Onboarding     | 5       | 1             |
+| 02 Capture                   | 4       | 1             |
+| 03 Analyze                   | 3       | 1             |
+| 04 Sort                      | 1       | 0             |
+| 05 Focus                     | 3       | 0             |
+| 06 Roadmaps                  | 4       | 1             |
+| 07 Project, Journal & Export | 5       | 2             |
+| 08 Pomodoro & Sounds         | 5       | 0             |
+| 09 Knowledge Review          | 5       | 0             |
+| 10 The Pet                   | 16      | 0             |
+| 11 Living Interface & Weather| 6       | 0             |
+| 12 Notifications & Digest    | 4       | 2             |
+| 13 Credits & Store           | 6       | 0             |
+| 14 PWA & Platform            | 3       | 0             |
+| **Total**                    | **70**  | **8**         |

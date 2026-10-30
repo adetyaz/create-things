@@ -1,111 +1,136 @@
 # createthings — Build Todolist
 
-> Tick each item only after it is fully completed and verified.
+> v2.0 · Tick an item only when it's built **and** verified. Phases and details: [Project Breakdown.md](Project%20Breakdown.md#build-order). Stories: [user-stories.md](user-stories.md).
 
 ---
 
-## Phase 1 — Foundation
+## Phase 0 — Platform move
 
-- [x] 1. Scaffold SvelteKit project with adapter-vercel
-- [x] 2. Set up Notion OAuth flow (connect workspace)
-- [x] 3. Build `lib/notion/setup.ts` — auto-creates all 6 databases on first connect
-- [x] 4. Build `lib/notion/client.ts` — Notion API client wrapper
-- [x] 5. Verify: user can connect Notion, databases appear in their workspace
+- [ ] 1. Switch to `@sveltejs/adapter-cloudflare`; add `wrangler.toml` with R2, KV, Queues, Hyperdrive, Workers AI bindings
+- [ ] 2. Neon project + Hyperdrive config; confirm ORM (Drizzle) works through Hyperdrive
+- [ ] 3. Database schema + migrations for the tables in the Data Model section
+- [ ] 4. Better Auth: magic link + Google (US-001)
+- [ ] 5. Extension signs in against the new API
+- [ ] 6. R2 uploads replace Uploadcare; signed URLs for private images
+- [ ] 7. Remove publish, portfolio, Figma, Creative DNA, Upstash and Notion-as-database code, plus their routes, nav links and landing-page copy
+- [ ] 8. Check `node-vibrant` and `metascraper` on Workers; swap them or move them into a queue consumer
+- [ ] 9. Verify: sign in on web and extension, upload an image to R2, read/write Postgres from a Worker
 
-## Phase 2 — Extension (capture layer)
+## Phase 1 — Capture + AI foundation
 
-- [x] 6. Set up MV3 extension with Svelte components (unified app — MetaMask model)
-- [x] 7. Build `notion-check.ts` — checks chrome.storage for token
-- [x] 8. Build `NotionConnect.svelte` — onboarding UI (no token state)
-- [x] 9. Build `Popup.svelte` — main capture UI with 5 options
-- [x] 10. Build `CaptureURL.svelte` — auto-fills current tab URL
-- [x] 11. Build `CaptureNote.svelte` — text input
-- [x] 12. Build `CaptureUpload.svelte` — file picker
-- [x] 13. Build `screenshot.ts` content script (full page + select area)
-- [x] 14. Build `capture.ts` — sends payload to Notion API
-- [ ] 15. Verify: all 5 capture types save entries to Notion Inspiration Vault
+- [ ] 10. Items API; extension capture writes to Postgres (US-006)
+- [ ] 11. AI Gateway set up with Workers AI primary and DeepInfra fallback
+- [ ] 12. Test which models return reliable structured JSON; pick defaults per task
+- [ ] 13. Analysis queue consumer: analysis + size + difficulty + learning-goal detection (US-010–012)
+- [ ] 14. Credit ledger, balances and daily free quota enforced on every AI call; refund on failure (US-062, US-063)
+- [ ] 15. Turnstile + per-user and per-IP rate limits (US-070)
+- [ ] 16. Verify: capture a URL, screenshot and note → analysis appears; quota decreases; a forced failure refunds
 
-## Phase 3 — AI Analysis Pipeline
+## Phase 2 — Choosing
 
-- [x] 16. Build `lib/scraper/metadata.ts` — metascraper URL fetcher
-- [x] 17. Build `lib/colors/extract.ts` — node-vibrant color extraction
-- [x] 18. Write all prompt templates in `lib/ai/prompts.ts`
-- [x] 19. Build `lib/ai/gemini.ts` — Gemini Vision API integration
-- [x] 20. Build `lib/ai/groq.ts` — Groq text generation integration
-- [x] 21. Build `/api/webhook/notion/+server.ts` — receives Notion automation webhook
-- [x] 22. Set up Notion Automation: new Inspiration Vault entry → webhook
-- [x] 23. Build `lib/notion/mcp.ts` — MCP write-back for analysis results
-- [ ] 24. Verify: save a URL → analysis appears in Notion within 30 seconds
+- [ ] 17. Today screen as home (US-014)
+- [ ] 18. Onboarding brain dump (US-002)
+- [ ] 19. Triage screen + API (US-013)
+- [ ] 20. Pick for me + API (US-015)
+- [ ] 21. Focus limit + pause (US-016)
+- [ ] 22. Settings page rebuilt for v2 (US-005)
+- [ ] 23. Verify: from 15 captures, triage to a Shortlist, get a suggestion, start it
 
-## Phase 4 — Extension App Views (full-page tab)
+## Phase 3 — Starting + Pomodoro
 
-- [x] 25. Build dashboard view — inspiration vault grid
-- [x] 26. Build inspiration detail view — analysis card with full breakdown
-- [x] 27. Build roadmap view — learning roadmap display
-- [x] 28. Build `/api/roadmap/+server.ts` — Groq roadmap generation
-- [x] 29. Build project view — project page + journal editor
-- [ ] 30. Verify: full loop from capture → analysis card → roadmap works
+- [ ] 24. Roadmap prompt with ≤30-minute steps; project vs skill style (US-017, US-018)
+- [ ] 25. Project space + journal ported to Postgres (US-021, US-022)
+- [ ] 26. Pomodoro timer, start from step, end-of-session note (US-026, US-027)
+- [ ] 27. Focus sounds: Web Audio noise, R2 loops, mixer, fades, starter set (US-028)
+- [ ] 28. Reflection prompts (US-023)
+- [ ] 29. Check iPhone PWA background audio behaviour
+- [ ] 30. Verify: start a step, run a pomodoro with sounds, log a note, step completes
 
-## Phase 5 — Publish
+## Phase 4 — Pet v1
 
-- [x] 31. Build publish queue view in extension
-- [x] 32. Build `/api/publish/+server.ts` — caption generation + social posting
-- [x] 33. Build `lib/publish/buffer.ts` — Buffer adapter
-- [x] 34. ~~Set up Notion Automation: Publish Queue status = Approved → webhook~~ — approve action now publishes directly via Buffer, no automation needed
-- [ ] 35. Verify: caption drafted, approved, published to at least one platform
+- [ ] 31. First species modelled in Spline: idle, walk, sleep, eat, sad
+- [ ] 32. Check Spline export: live sliders and phone performance; build the pre-rendered fallback
+- [ ] 33. Pet room on Today; walking on other screens; minimise/shoo (US-036)
+- [ ] 34. Onboarding pet picker (one species for now) (US-003)
+- [ ] 35. Feeding from pomodoros, steps, journal (free AI check), check-ins; daily cap (US-041)
+- [ ] 36. Calculated hunger states (US-042)
+- [ ] 37. Rest mode (US-043)
+- [ ] 38. Level 1 guide bubbles + Level 2 click actions (US-038, US-039)
+- [ ] 39. Pet sleeping sounds + chime (US-029)
+- [ ] 40. Verify: feed through each source, watch hunger drop over simulated days, rest mode pauses it
 
-## Phase 6 — Figma Export
+## Phase 5 — Remembering
 
-- [x] 36. Build settings view — includes Figma connect
-- [x] 37. Build `lib/figma/export.ts` — Figma REST API frame creation
-- [x] 38. Add [ Export to Figma ] button to inspiration card (image captures only)
-- [ ] 39. ~~Verify: screenshot capture → export to Figma → frame appears in Figma workspace~~ — deferred; Figma REST API cannot create frames, requires a Figma Plugin (future work)
+- [ ] 41. Card drafting from steps, journal and pomodoro notes; approve flow (US-031, US-032)
+- [ ] 42. Spaced review with intervals, ratings and daily cap (US-033)
+- [ ] 43. Explain-it-back checking (US-034)
+- [ ] 44. Knowledge library (US-035)
+- [ ] 45. Verify: card created → due tomorrow → each rating sets the right next date
 
-## Phase 7 — Portfolio (public web page)
+## Phase 6 — Pet, full version
 
-- [x] 40. Build `/portfolio/[username]/+page.svelte` — public page (no auth, served by SvelteKit)
-- [x] 41. Build `/api/portfolio/+server.ts` — reads published data from Notion
-- [x] 42. Verify: shareable link shows work, process, and inspiration — KV storage fixed (no double-parse), portfolio public toggle saves to Upstash Redis, project cards open detail modal
+- [ ] 46. All 4 launch species with breeds; shared attachment points
+- [ ] 47. Personalities + tone slider (US-037)
+- [ ] 48. Level 3 chat via Groq, replacing stuck/teach buttons (US-019, US-020, US-040)
+- [ ] 49. Onboarding timeline with minimums; change rules (US-004)
+- [ ] 50. Run away + 3-day return (US-044)
+- [ ] 51. Death, skeleton, memorial shelf, signature item (US-045)
+- [ ] 52. Revive with credits / earn an egg (US-046)
+- [ ] 53. Growth stages + earned unlocks (US-047)
+- [ ] 54. Body sliders (US-048)
+- [ ] 55. Accessories, room decor, toys + break games (US-049, US-050)
+- [ ] 56. Micro-interactions + liveliness setting (US-051)
+- [ ] 57. Verify: full pet lifecycle on a test account with a short timeline
 
-## Phase 8 — Reminders + Polish
+## Phase 7 — Living interface + weather
 
-- [x] 43. Build stale check logic in dashboard load
-- [x] 44. Build weekly digest (Vercel cron or Notion scheduled automation)
-- [x] 45. Polish UI, error states, loading states
-- [ ] 46. Record demo video following the demo script
+- [ ] 58. Neglect overlays tied to pet state; cobweb/dust interactions (US-052)
+- [ ] 59. Sweep-clean animation on return (US-053)
+- [ ] 60. Choose weather provider; city-level KV cache (US-054)
+- [ ] 61. IP city + manual city + weather-from-anywhere + off (US-054, US-057)
+- [ ] 62. Weather visuals, day/night, seasons (US-055)
+- [ ] 63. Pet weather reactions, weather unlocks, sound suggestions (US-056, US-030)
+- [ ] 64. Verify: reduced motion respected; nothing blocks buttons; cache hit rate by city
+
+## Phase 8 — PWA + notifications
+
+- [ ] 65. Installable PWA + share target (US-068, US-007)
+- [ ] 66. Offline cache + IndexedDB sync queue (US-069)
+- [ ] 67. Extension badge + lightweight pet in popup (US-058)
+- [ ] 68. Email (Resend) + web push in the pet's voice; quiet hours (US-059, US-060)
+- [ ] 69. Weekly digest card + email (US-061)
+- [ ] 70. Verify: go offline mid-pomodoro and journal, come back, everything syncs
+
+## Phase 9 — Integrations
+
+- [ ] 71. Confirm Are.na API endpoints, auth and limits
+- [ ] 72. Are.na connect, channel modes, queued import (US-008)
+- [ ] 73. Daily Are.na sync (US-009)
+- [ ] 74. Notion scheduled export (US-024)
+- [ ] 75. Obsidian zip download (US-025)
+
+## Phase 10 — Store + payments
+
+- [ ] 76. Catalog and store UI (US-066)
+- [ ] 77. Limited-edition pets (US-067)
+- [ ] 78. Sound packs (US-030)
+- [ ] 79. Plus / Pro model tiers (US-064)
+- [ ] 80. Choose payment provider; checkout + webhook + credit packs (US-065)
+- [ ] 81. Verify: buy a pack in test mode → credits arrive → buy an item → ledger is correct
+
+## Phase 11 — Launch prep
+
+- [ ] 82. Ask Cloudflare to raise Workers AI rate limits
+- [ ] 83. Load test a signup spike; check queue backlogs and AI Gateway caps
+- [ ] 84. Set real credit prices and free quota from measured AI costs
+- [ ] 85. Privacy policy update (AI providers, weather location, payments)
+- [ ] 86. Launch
 
 ---
 
-## User Story Coverage — v1.0 Summary
+## After launch
 
-> Full breakdown in [user-stories.md](user-stories.md). Status as of March 2026.
-
-| Area                        | Total  | ✅ Done | 🔶 Partial | ⬜ Not Started |
-| --------------------------- | ------ | ------- | ---------- | -------------- |
-| 01 Onboarding & Setup       | 3      | 3       | 0          | 0              |
-| 02 Capture                  | 6      | 6       | 0          | 0              |
-| 03 Analyze                  | 4      | 4       | 0          | 0              |
-| 04 Learn                    | 3      | 2       | 0          | 1              |
-| 05 Think — Creative Journal | 3      | 1       | 0          | 2              |
-| 06 Create                   | 3      | 2       | 0          | 1              |
-| 07 Publish                  | 4      | 4       | 0          | 0              |
-| 08 Figma Export             | 2      | 0       | 0          | 2              |
-| 09 Portfolio                | 3      | 1       | 1          | 1              |
-| 10 Identity                 | 1      | 0       | 1          | 0              |
-| 11 Reminders                | 3      | 2       | 1          | 0              |
-| **Total**                   | **35** | **25**  | **3**      | **6**          |
-
-### Not started (6)
-
-- US-015 Micro-lesson inline on any analysis point
-- US-018 AI reflection prompts in project journal
-- US-019 Public / private toggle on journal entries
-- US-021 Content draft outline generation
-- US-027 Export screenshot to Figma
-- US-028 Connect Figma account in settings _(Figma REST API cannot create frames — requires plugin, deferred)_
-
-### Partial — needs completing (3)
-
-- US-030 Portfolio visibility controls — project Public checkbox done; journal toggle, DNA toggle, full-private mode not yet
-- US-032 Creative DNA auto-generation — display field done; profile synthesis from vault not yet
-- US-035 Weekly digest — `/api/digest` route done; dashboard card + Monday cron not yet wired
+- [ ] Bears (first species drop)
+- [ ] Desktop app (Tauri or Electron)
+- [ ] General notes
+- [ ] Apple sign-in + iOS push
