@@ -10,7 +10,7 @@
 - **UI:** being redesigned. The v1 Zine look doesn't carry over; the new direction is still to be decided.
 - **Plan:** v2 uses Neon Postgres on Cloudflare; Notion is only an optional export.
 - **Hackathon:** entering Tatum × Walrus "Total Recall", Track 02 (Smart Agents for Real Life). Scope and checklist in the Breakdown; tasks H1–H18 in the todolist.
-- **Code:** not migrated yet. The repo still has the old v1 build (data in users' Notion, Vercel, publish + portfolio). **Now: hackathon Stage A.** Done: Cloudflare adapter switched, H1 Walrus live test, H10 Tatum client, Neon Postgres wired (Drizzle + `pg` via Hyperdrive, tested locally). Waiting on `wrangler login` for the real Hyperdrive config and other bindings. Next: MPP payment test, then Neon + schema, auth and removing v1 code. Order in the Breakdown's Hackathon section.
+- **Code:** v1 app code removed; the extension is still v1 and needs porting. **Now: hackathon Stage A.** Done: Cloudflare adapter, H1 Walrus live test, H10 Tatum client, Neon Postgres wired and migrated (25 tables), v1 code removed. Waiting on `wrangler login` (real Hyperdrive config, other bindings), payment answers (MPP test) and the sign-in choice (auth). Order in the Breakdown's Hackathon section.
 
 ## How the docs fit together
 

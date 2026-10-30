@@ -35,7 +35,7 @@
 - [ ] 4. Better Auth: magic link + Google (US-001)
 - [ ] 5. Extension signs in against the new API
 - [ ] 6. R2 uploads replace Uploadcare; signed URLs for private images
-- [ ] 7. Remove publish, portfolio, Figma, Creative DNA, Upstash and Notion-as-database code, plus their routes, nav links and landing-page copy
+- [x] 7. Remove publish, portfolio, Figma, Creative DNA, Upstash and Notion-as-database code, plus their routes, nav links and landing-page copy (30 Oct: 43 files removed; landing page is a v2 placeholder until the redesign; kept AI modules, metascraper, Notion client for export, privacy page, extension)
 - [ ] 8. Check `node-vibrant` and `metascraper` on Workers; swap them or move them into a queue consumer (30 Oct: metascraper works; node-vibrant fails, replacement to decide)
 - [ ] 9. Verify: sign in on web and extension, upload an image to R2, read/write Postgres from a Worker
 

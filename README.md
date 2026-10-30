@@ -10,7 +10,7 @@ The app is a complete digital experience: pomodoros with focus sounds, weather a
 
 The product was redesigned in October 2026 (v2). v2 stores data in **Neon Postgres** on **Cloudflare**; Notion is only an optional export.
 
-The code in this repo hasn't been migrated yet. It's the old v1 build, which stored data in users' Notion workspaces, ran on Vercel and had publish and portfolio features. Phase 0 of the build replaces all of that.
+The v1 app code (Notion as database, Vercel, publish and portfolio) has been removed. What's here now is the v2 foundation: Cloudflare Workers, Neon Postgres with the full schema, and the Walrus Memory and Tatum clients. The browser extension is still the v1 build and needs porting to the new API.
 
 | Doc | What it covers |
 | --- | --- |
@@ -23,11 +23,12 @@ The code in this repo hasn't been migrated yet. It's the old v1 build, which sto
 
 SvelteKit (Svelte 5) PWA · Manifest V3 extension · Cloudflare Workers, R2, KV, Queues, Workers AI, AI Gateway · Neon Postgres via Hyperdrive · Better Auth · Resend · Web Push · 3D pet designed in Spline · Walrus Memory (assistant memory) · Tatum (Sui RPC + Data API) · USDC on Sui via MPP
 
-## Developing (v1 code)
+## Developing
 
 ```sh
 npm install
-npm run dev          # web app
+npm run dev          # web app (Vite, with Workers bindings emulated)
+npm run dev:worker   # build, then run in the local Workers runtime
 npm run dev:ext      # extension build in watch mode
 ```
 
