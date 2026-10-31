@@ -20,7 +20,8 @@ import {
 	reserveCredits,
 	type Reservation
 } from '$lib/server/features/credits/service';
-import { normalizeAnalysis } from './normalize';
+import { remember } from '$lib/server/features/memory/service';
+import { normalizeAnalysis, type AnalysisData } from './normalize';
 import { ANALYSIS_SCHEMA, ANALYSIS_SYSTEM, analysisPrompt } from './prompt';
 
 /** Queue message for `createthings-analysis`. */
@@ -183,5 +184,27 @@ async function breakdownAndSave(
 		);
 		return { status: 'skipped', itemId: item.id, reason: 'already analysed' };
 	}
+
+	// The pet remembers what you want to make or learn. A failed save never undoes the analysis.
+	await remember(platform, item.userId, {
+		type: analysis.isLearningGoal ? 'learning_goal' : 'goal',
+		summary: goalSummary(title, analysis),
+		sourceType: 'item',
+		sourceId: item.id
+	}).catch((e) => console.error('[analysis] remember failed for', item.id, e));
+
 	return { status: 'done', itemId: item.id, model: result.model, skipped: result.skipped };
+}
+
+/** A short memory in our words, e.g. "Learning goal: Blender for 3D characters (about a week, medium)". */
+function goalSummary(title: string, analysis: AnalysisData): string {
+	const kind = analysis.isLearningGoal ? 'Learning goal' : 'Wants to make';
+	const size = analysis.size
+		? `about ${analysis.size === 'afternoon' ? 'an afternoon' : `a ${analysis.size}`}`
+		: null;
+	const detail = [size, analysis.difficulty].filter(Boolean).join(', ');
+	const skills = analysis.skills.length
+		? ` Skills: ${analysis.skills.slice(0, 4).join(', ')}.`
+		: '';
+	return `${kind}: ${title}${detail ? ` (${detail})` : ''}. ${analysis.summary}${skills}`;
 }

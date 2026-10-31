@@ -445,6 +445,10 @@ The pet is an accountability partner that **remembers**. It knows your goals, wh
 - **Postgres stays the source of truth** (items, steps, journal, cards, pet). Walrus holds only what the assistant has learned.
 - **Summaries, not raw text.** The hosted Walrus relayer can read what it receives, so journal entries and transcripts stay in Postgres; Walrus gets short summaries ("struggled with kerning, prefers short steps"), and `analyze` only ever runs on those summaries.
 - Saves go through a queue (Walrus rate limits) and never block the app
+- **How saving works:** a feature calls `remember()`, which writes a `memories` row (status `queued`) and puts its id on the `createthings-memory` queue. The consumer sends the summary to Walrus with `analyze` (one message at a time, so the relayer's rate limits hold), stores the job ids and marks the row `sent`. Failures before Walrus accepts the text are retried with backoff (5 tries, then the dead-letter queue); after acceptance it's never re-sent, because `analyze` has no idempotency key
+- **Network and cost:** Walrus Memory runs on **mainnet** (the hackathon needs mainnet memories). The hosted relayer's wallet pays storage, so it costs nothing beyond its rate limits and a 1 GB cap per account
+- **Namespaces:** one per user, so recall never mixes users: `createthings-<userId>` in production, `createthings-dev-<userId>` when running locally (`MEMORY_NAMESPACE_PREFIX` overrides)
+- **First source:** when an item's analysis finishes, its summary is remembered as a `goal` or `learning_goal`
 - **"What the pet knows about you"** in Settings: see every memory, delete one, or forget everything
 - Memory is part of the assistant: guide/actions stay free; recalls inside chat count toward the chat quota
 
@@ -937,6 +941,7 @@ MEMWAL_PRIVATE_KEY=           # delegate private key
 MEMWAL_PUBLIC_KEY=            # public delegate key = MEMWAL_AGENT_ID on the hackathon form
 MEMWAL_ACCOUNT_ID=            # 0x… memory account object on Sui
 MEMWAL_SERVER_URL=            # https://relayer.memory.walrus.xyz (mainnet)
+MEMORY_NAMESPACE_PREFIX=       # optional; default createthings-dev locally, createthings in production
 
 # Tatum
 TATUM_API_KEY=

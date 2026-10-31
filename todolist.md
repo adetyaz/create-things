@@ -9,7 +9,7 @@
 > Details: [Project Breakdown.md](Project%20Breakdown.md#hackathon-tatum--walrus-total-recall). Builds on Phases 0–4 plus pet chat (Phase 6, item 48).
 
 - [x] H1. Confirm the Walrus Memory SDK runs on Workers; health check against the mainnet relayer (30 Oct: health + mainnet save + recall pass under `wrangler dev`; `/api/dev/checks`)
-- [ ] H2. `memories` table + queue consumer that sends summaries to Walrus within its rate limit; summaries go through Walrus `analyze` to extract facts (US-071)
+- [x] H2. `memories` table + queue consumer that sends summaries to Walrus within its rate limit; summaries go through Walrus `analyze` to extract facts (US-071) (31 Oct: `features/memory`, `createthings-memory` queue + DLQ, per-user namespaces, analysis remembers goals; verified 31 Oct: a learning goal was sent to Walrus mainnet; analyze extracted 6 facts)
 - [ ] H3. Memory writes for every type in the Breakdown list; at least 10 on mainnet
 - [ ] H4. Recall wired into Pick for me, roadmaps, "I'm stuck"/"teach me" and pet chat; the pet cites the memory it used (US-071)
 - [ ] H5. Plan with time blocks: `plan_slots` with day, start time or habit anchor, place; drag to move; Today shows today's block; nudges at the block's time (US-073)
@@ -46,7 +46,7 @@
 - [ ] 11. AI Gateway set up with Workers AI primary and DeepInfra fallback
 - [ ] 12. Test which models return reliable structured JSON; pick defaults per task (model ids in `src/lib/server/analysis/model.ts`; analysis reports which model answered)
 - [x] 13. Analysis queue consumer: analysis + size + difficulty + learning-goal detection (US-010–012) (30 Oct: built — queue wrapper + internal route, metadata, Material palette, Workers AI vision → text → Groq, migration 0001; verified live under `npm run dev` with Gemini on 31 Oct; errors saved on the item; retry via `POST /api/items/[id]/analyze`; migrations 0002–0003; verified through the real queue under `npm run dev:worker` on 31 Oct: learning goal detected)
-- [ ] 14. Credit ledger, balances and daily free quota enforced on every AI call; refund on failure (US-062, US-063) (31 Oct: `features/credits`, wired into analysis; waiting on a live run)
+- [x] 14. Credit ledger, balances and daily free quota enforced on every AI call; refund on failure (US-062, US-063) (31 Oct: `features/credits`, wired into analysis; verified 31 Oct: an analysis took 2 from the free quota)
 - [ ] 15. Turnstile + per-user and per-IP rate limits (US-070)
 - [ ] 16. Verify: capture a URL, screenshot and note → analysis appears; quota decreases; a forced failure refunds
 

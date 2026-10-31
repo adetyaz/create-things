@@ -20,7 +20,10 @@
 		"binding": "AI"
 	},
 	"queues": {
-		"producers": [{ "binding": "ANALYSIS_QUEUE", "queue": "createthings-analysis" }],
+		"producers": [
+			{ "binding": "ANALYSIS_QUEUE", "queue": "createthings-analysis" },
+			{ "binding": "MEMORY_QUEUE", "queue": "createthings-memory" }
+		],
 		// Handled by queue() in scripts/worker-entry.js → /api/internal/queue/[queue]
 		"consumers": [
 			{
@@ -28,6 +31,14 @@
 				"max_batch_size": 5,
 				"max_retries": 3,
 				"dead_letter_queue": "createthings-analysis-dlq"
+			},
+			{
+				// One at a time, so the Walrus relayer's rate limits hold
+				"queue": "createthings-memory",
+				"max_batch_size": 1,
+				"max_concurrency": 1,
+				"max_retries": 5,
+				"dead_letter_queue": "createthings-memory-dlq"
 			}
 		]
 	},
@@ -39,13 +50,23 @@
 			"vars": { "LOCAL_DEV": "true" },
 			"hyperdrive": [{ "binding": "HYPERDRIVE", "id": "4f59b630d8b54bb0bfbff44e4ba34d46" }],
 			"queues": {
-				"producers": [{ "binding": "ANALYSIS_QUEUE", "queue": "createthings-analysis" }],
+				"producers": [
+					{ "binding": "ANALYSIS_QUEUE", "queue": "createthings-analysis" },
+					{ "binding": "MEMORY_QUEUE", "queue": "createthings-memory" }
+				],
 				"consumers": [
 					{
 						"queue": "createthings-analysis",
 						"max_batch_size": 5,
 						"max_retries": 3,
 						"dead_letter_queue": "createthings-analysis-dlq"
+					},
+					{
+						"queue": "createthings-memory",
+						"max_batch_size": 1,
+						"max_concurrency": 1,
+						"max_retries": 5,
+						"dead_letter_queue": "createthings-memory-dlq"
 					}
 				]
 			}
