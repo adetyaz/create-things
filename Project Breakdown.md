@@ -71,7 +71,7 @@ CAPTURE → SORT → PICK ONE → PLAN → START SMALL → LEARN → REMEMBER
 | Capture     | Save anything from the extension or PWA, or import Are.na channels            |
 | Sort        | Quick keep / let go triage turns the pile into a short Shortlist              |
 | Pick one    | The app suggests one item to focus on, based on time, energy and memory       |
-| Plan        | Steps go into time blocks: day, time, place, and what they follow ("after coffee") |
+| Plan        | Month → week → day: pick what matters this month, fill the week's blocks, rank tomorrow's top 3. Each block has a day, time, place, or what it follows ("after coffee") |
 | Start small | Each step is 15–30 minutes with a 2-minute version; the next step is always clear, with what to search and which tool to use |
 | Learn       | Pomodoro sessions in the project space, with a journal and AI help            |
 | Remember    | What you learn becomes review cards; the pet remembers how you work           |
@@ -100,6 +100,8 @@ Every feature is judged by these:
 13. **Showing up beats skipping.** Half a workout is better than no gym. Two minutes or two lines always counts.
 14. **The interface shows how you've been doing.** You can tell at a glance whether you've been showing up, without reading a number.
 15. **You can't buy your way out of showing up.** Everything paid is cosmetic or extra AI. Nothing paid replaces doing the work.
+16. **Plan in layers, act on one thing.** A month of 1–3 goals, a week of blocks, a day of up to 3 ranked tasks, and Today shows only the first. (James Clear: two lists, implementation intentions, the Ivy Lee method)
+17. **Learn the way brains learn.** Recall beats rereading, breaks are part of thinking, small chunks build into skill, and practice mixes old with new. (*Learning How to Learn*)
 
 ---
 
@@ -165,6 +167,20 @@ This is the heart of the product: a plan that pushes you, then bends when life g
 - **How a pick is made:** the candidates are the newest 20 Shortlist items (minus any "Not today" ones). The pet recalls the user's most relevant memories from Walrus, then the AI picks one with a reason, a first step that fits the time, a 2-minute start, and the memories it used (shown as citations). Costs 1 credit; if the AI fails or credits run out, a simple rule still picks (best fit for time and energy, then the item waiting longest), so the user is never blocked
 - **Every decision is remembered** (`pick_feedback`): starting, skipping for today and letting go all teach future picks
 
+**Plan in three layers: month → week → day** (James Clear; *Deep Work*)
+
+Each layer feeds the next, and each review is remembered, so the next plan learns from the last one. Every layer can be skipped; nothing breaks if you never plan a month.
+
+- **Month: two lists** (the Buffett story James Clear tells): "Which 1–3 matter this month?" Those become the month's goals and the only items Pick for me and the weekly plan draw from. Everything else on the Shortlist goes on the **not this month** list: parked until next month, never deleted.
+  - Offered the first time the app is opened in a new month
+  - Starts with a **monthly review** (a small version of James Clear's yearly review): what moved, what you learned, what to let go. Saved as memory (`lesson_learned`, `plan_change`)
+- **Week: fill the blocks** on a day you choose (default Sunday evening; if missed, the first time the app is opened that week)
+  - "How many blocks do you have this week?" plus when (days and times, or habit anchors)
+  - **The pet fills them** with the next roadmap steps from the month's goals; you adjust (drag, swap, remove). A blank week is where scattered people stall, so you never start from empty
+  - Each block is written as an **implementation intention**: "I will [step] at [time / after coffee] at [place]"
+  - The week's review is the weekly digest (§12)
+- **Day: Ivy Lee method.** In the daily shutdown you rank **up to 3** blocks for tomorrow (pre-filled from the week). Today shows only #1; the next appears when it's done
+
 **Plan: time blocks** (*Deep Work* time blocking, *Atomic Habits* implementation intentions)
 
 - Focus steps are placed into **blocks**: a day, a start time, and optionally a place ("Tue 8:00, desk")
@@ -181,7 +197,7 @@ This is the heart of the product: a plan that pushes you, then bends when life g
 **Rituals** (*Deep Work*)
 
 - **Start ritual:** starting a block runs the same steps every time: sounds, pet sleeps, distractions parked
-- **Daily shutdown:** at the end of the day (time set by the user) the pet runs a 1-minute wrap-up: what got done, what moves, what's first tomorrow. Finishing it is a snack for the pet.
+- **Daily shutdown:** at the end of the day (time set by the user) the pet runs a 1-minute wrap-up: what got done, what moves, and tomorrow's **top 3, ranked** (Ivy Lee). Finishing it is a snack for the pet.
 
 ### 6. Start Small: Roadmaps as Navigation (exists, changed)
 
@@ -201,6 +217,20 @@ A roadmap works like navigation: it always answers "what now?", including when s
 - Progress tracking per step and milestone
 - **How a roadmap is made:** Start creates the project and queues a roadmap job (`createthings-roadmap`). The AI gets the item's analysis plus the user's recalled memories (what they know, what tripped them up) and returns 3–5 milestones of 15–30 minute steps, each with a 2-minute version, search terms and tools, plus resources. Learning goals get the skill shape. Costs 5 credits; saved as a `plan` memory
 - **Re-planning:** when the last step of a milestone is completed, a re-plan job rewrites the not-yet-done steps of the later milestones from what's been done and remembered. Done steps are never changed
+
+**Learning the way brains learn** (*Learning How to Learn*, Barbara Oakley and Terrence Sejnowski)
+
+| Idea | How it shows up |
+| --- | --- |
+| **Chunking** | Skill roadmaps build chunks: understand it → practise it → use it somewhere new. Each milestone is one chunk |
+| **Recall beats rereading** | Each learning step ends with a quick recall: "Close the tab. What do you remember?" The answer drafts the knowledge cards |
+| **Illusion of competence** | Before a learning step is marked done, the pet offers a quick self-check or an explain-it-back. Encouraged, never required |
+| **Focused and diffuse thinking** | Breaks are part of learning. When stuck after a session, the pet first offers "walk away for 10 minutes", then a smaller step |
+| **Einstellung** (stuck on one approach) | "I'm stuck" can suggest a completely different angle, not only a smaller step |
+| **Interleaving** | Practice steps and review sessions mix in older topics instead of one topic at a time |
+| **Deliberate practice** | Re-plans lean into topics remembered as hard (`stuck_topic`, `review_weakness`) |
+| **Process over product** | Steps are framed as time on something ("25 minutes on chord shapes"), not "finish X", which takes the dread out of starting |
+| **Spaced repetition** | Knowledge review (§9) |
 
 **Help me choose (compare and contrast)**
 
@@ -252,6 +282,7 @@ A roadmap works like navigation: it always answers "what now?", including when s
 - **Knowledge cards** come from completed steps (AI drafts 1–3), journal entries and pomodoro notes (AI suggests, you approve), or are written by hand
 - **Card types:** question/answer, and **explain it back** (you write the idea in your own words; AI points out gaps)
 - **Spaced review:** 1, 3, 7, 14, 30, 60 days. **Got it** → next interval; **Shaky** → repeat; **Forgot** → back to 1 day
+- **Interleaved:** a review session mixes cards from different items and topics, not one deck at a time (*Learning How to Learn*)
 - Reviews due appear on Today, **capped at 5 per day** (adjustable)
 - Each card links to its source item, step or journal entry
 - **Knowledge library:** browse everything learned, by item or topic
@@ -631,6 +662,28 @@ Focus item started → its steps go into blocks
   → Every plan change is remembered (plan, plan_change)
 ```
 
+### Flow 12b: Plan the week
+
+```
+Weekly plan day (default Sunday evening) → pet: "How many blocks this week?"
+  → You give a number and when (days + times, or anchors like "after coffee")
+  → The pet fills the blocks with the next steps from this month's goals
+  → Each block reads as "I will [step] at [time] at [place]"
+  → You drag, swap or remove; nothing is saved until you OK it
+  → Saved as a plan memory
+```
+
+### Flow 12c: Plan the month
+
+```
+First open in a new month → pet: "New month. Quick look back?"
+  → Monthly review: what moved, what you learned, anything to let go (skippable)
+  → "Which 1–3 matter this month?" (picked from Focus and the Shortlist)
+  → Everything else goes on the not-this-month list (parked until next month, not deleted)
+  → Pick for me and the weekly plan only draw from the month's goals
+  → Saved to memory (lesson_learned, plan_change)
+```
+
 ### Flow 13: Fit a new idea in
 
 ```
@@ -679,7 +732,7 @@ A step needs a tool choice, or the user asks the pet ("Figma or Penpot?")
 Shutdown time (set by the user) → pet: "Wrap up today?"
   → What got done (from sessions and steps)
   → What moves (unfinished blocks offered new slots)
-  → What's first tomorrow (one block, with its 2-minute version)
+  → Tomorrow's top 3, ranked (Ivy Lee), pre-filled from the week's plan; #1 shows its 2-minute version
   → Snack for the pet; summary saved to memory (session_summary / plan_change)
 ```
 
@@ -813,11 +866,11 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | Table                | Columns                                                                 |
 | -------------------- | ----------------------------------------------------------------------- |
 | `users`, `sessions`, `accounts` | Managed by Better Auth                                       |
-| `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), shutdown_time, weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
-| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, saved_at, last_active_at |
+| `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), shutdown_time, weekly_plan_day + weekly_plan_time (default Sunday 18:00), weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
+| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, saved_at, last_active_at, parked_until (not this month, or parked by fit-it-in) |
 | `analyses`           | id, item_id, summary, technique, colors (palette + notes), typography, layout, mood[], style, components, for_developers, for_creators, brief, skills[] (feeds the roadmap), attribution, model |
 | `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress         |
-| `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, two_minute (smallest start), search_terms[], tools[], done_at |
+| `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, two_minute (smallest start), search_terms[], tools[], recall (learning steps: the recall question that ends the step), done_at |
 | `projects`           | id, user_id, item_id, title, status, content (editor JSON), started_at, completed_at |
 | `journal_entries`    | id, user_id, project_id, body, source (manual/pomodoro/check-in/voice), created_at |
 | `pomodoro_sessions`  | id, user_id, step_id, started_at, ended_at, completed, note             |
@@ -833,7 +886,8 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `arena_channels`     | id, user_id, slug, mode (triage/curated)                                |
 | `exports`            | user_id, target (notion), token (encrypted), last_run_at                |
 | `push_subscriptions` | id, user_id, endpoint, keys                                             |
-| `plan_slots`         | id, user_id, step_id, day, start_time, anchor (e.g. "after coffee"), place, position, missed_at (a Focus step placed in a time block) |
+| `plan_slots`         | id, user_id, step_id, day, start_time, anchor (e.g. "after coffee"), place, position (the day's rank: 1–3 is tomorrow's top 3), missed_at (a Focus step placed in a time block) |
+| `plan_periods`       | id, user_id, kind (month/week), starts_on, goal_item_ids[] (the month's 1–3), blocks_wanted (week), review (short summary), created_at (one row per month or week planned) |
 | `comparisons`        | id, user_id, item_id, step_id, question, goal (learning/building), options (JSON: gives, price, fit, sources), pick, reason, checked_at |
 | `memories`           | id, user_id, type, summary, source_type, source_id, status (queued/sent/failed), attempts, last_error, walrus_job_id, created_at, deleted_at (local copy + outbox for Walrus) |
 | `voice_captures`     | id, user_id, audio_key (R2), transcript, ideas (JSON), created_at       |
@@ -868,6 +922,10 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/push/*`                      | Subscribe / unsubscribe                         |
 | `/api/webhooks/payments`           | Add credits after confirmed payment             |
 | `/api/plan`                        | Place steps in time blocks, move them, reshuffle, daily shutdown |
+| `/api/plan/month`                  | GET the month's goals and not-this-month list; POST the review and the 1–3 picks; PATCH to bring one item back |
+| `/api/plan/week`                   | POST the blocks you have (day + time or anchor + place) → the pet's filled week to adjust (free, no AI); PUT to save it |
+| `/api/plan/day`                    | GET a day's blocks in rank order (default today) and the one Today shows |
+| `/api/plan/tomorrow`               | POST up to 3 step ids, most important first: tomorrow's top 3 (Ivy Lee) |
 | `/api/choose`                      | Help me choose: compare options for a step (web search) |
 | `/api/ideas/fit`                   | Suggest how a new idea fits the current plan    |
 | `/api/voice`                       | Upload a voice ramble → transcript → ideas      |

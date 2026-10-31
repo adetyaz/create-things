@@ -13,6 +13,9 @@
 - [ ] H3. Memory writes for every type in the Breakdown list; at least 10 on mainnet
 - [ ] H4. Recall wired into Pick for me, roadmaps, "I'm stuck"/"teach me" and pet chat; the pet cites the memory it used (US-071) (31 Oct: Pick for me done; roadmaps, stuck and chat come with those features)
 - [ ] H5. Plan with time blocks: `plan_slots` with day, start time or habit anchor, place; drag to move; Today shows today's block; nudges at the block's time (US-073)
+- [x] H5a. Weekly plan: blocks wanted (count + when) → the pet fills them from the month's goals as implementation intentions; adjust and save; `plan_periods` (US-085) (verified live 31 Oct: 4 blocks filled in roadmap order and saved; `plan` memory sent. Screen comes with the UI)
+- [x] H5b. Monthly plan: review + pick 1–3 goals; the rest parked until next month (`items.parked_until`); Pick for me and the weekly plan draw only from the goals (US-084) (verified live 31 Oct: 1 goal, 4 parked; `lesson_learned` + `plan_change` sent)
+- [x] H5c. Tomorrow's top 3, ranked (Ivy Lee); Today shows only #1 (US-086). The shutdown screen itself is #28b (verified live 31 Oct: reverse ranking applied; `GET /api/plan/day` returns #1 as `first`)
 - [ ] H6. Fit-it-in flow for new ideas: add as step / swap a block / park / 5-minute note; related item found with Walrus `embed`; stop and continue (US-072)
 - [ ] H6b. Reshuffle: missed blocks offered new slots, today rebuilt, never miss twice (2-minute version first after a missed day), busy-week reshuffle (US-079, US-073)
 - [ ] H7. Voice mode: record → Workers AI transcription → split + sort ideas → fit-it-in (US-074)
@@ -64,11 +67,12 @@
 
 - [x] 24. Roadmap prompt with ≤30-minute steps; project vs skill style; each step gets a 2-minute version, search terms and tools (US-017, US-018, US-081, US-082) (31 Oct: roadmap queue + job, recall-informed prompt, Start creates the project and queues it, `GET/POST /api/items/[id]/roadmap`, migration 0004; verified live 31 Oct: 4 milestones / 8 steps with 2-minute versions, search terms and tools; `plan` memory saved)
 - [x] 24b. Adaptive roadmap: re-plan what comes next when a topic or milestone is done (US-081) (31 Oct: `POST /api/steps/[id]/complete` queues a re-plan when a milestone finishes; verified live 31 Oct: finished milestone kept, the 3 untouched ones rewritten from memory; `plan_change` memory saved)
+- [x] 24c. Learning rules in skill roadmaps: chunk shape, a recall check ending each learning step, interleaved practice, process framing (US-087) (verified live 31 Oct on "Learn Jazz Piano Chords": 4 chunks, a recall question on every step, an interleave step. "Stuck offers a break first" comes with #48 (pet chat handles "I'm stuck"))
 - [ ] 25. Project space + journal ported to Postgres (US-021, US-022)
 - [ ] 26. Pomodoro timer, start from step, end-of-session note (US-026, US-027)
 - [ ] 27. Focus sounds: Web Audio noise, R2 loops, mixer, fades, starter set (US-028)
 - [ ] 28. Reflection prompts (US-023)
-- [ ] 28b. Start ritual for blocks and the daily shutdown wrap-up with shutdown time in settings (US-080)
+- [ ] 28b. Start ritual for blocks and the daily shutdown wrap-up with shutdown time in settings; ranks tomorrow's top 3 (H5c) (US-080)
 - [ ] 29. Check iPhone PWA background audio behaviour
 - [ ] 30. Verify: start a step, run a pomodoro with sounds, log a note, step completes
 

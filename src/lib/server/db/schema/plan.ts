@@ -7,11 +7,12 @@ import {
 	jsonb,
 	pgTable,
 	text,
+	time,
 	uniqueIndex,
 	uuid
 } from 'drizzle-orm/pg-core';
 import { id, userId, stamp, createdAt, at } from './columns';
-import { roadmapStyle, progress, projectStatus, journalSource } from './enums';
+import { roadmapStyle, progress, projectStatus, journalSource, planPeriodKind } from './enums';
 import { items } from './items';
 
 export const roadmaps = pgTable('roadmaps', {
@@ -42,11 +43,14 @@ export const roadmapSteps = pgTable(
 		/** What to type into a search engine for this step. */
 		searchTerms: text('search_terms').array(),
 		tools: text('tools').array(),
+		/** Learning steps end with a recall question ("close the tab: what do you remember?"). */
+		recall: text('recall'),
 		doneAt: at('done_at')
 	},
 	(t) => [index('roadmap_steps_roadmap_idx').on(t.roadmapId, t.position)]
 );
 
+/** A step placed in a time block. `position` is its rank within the day (1–3 = the day's top 3). */
 export const planSlots = pgTable(
 	'plan_slots',
 	{
@@ -56,12 +60,33 @@ export const planSlots = pgTable(
 			.notNull()
 			.references(() => roadmapSteps.id, { onDelete: 'cascade' }),
 		day: date('day').notNull(),
-		position: integer('position').notNull().default(0)
+		startTime: time('start_time'),
+		/** A habit to follow instead of a clock time, e.g. "after coffee". */
+		anchor: text('anchor'),
+		place: text('place'),
+		position: integer('position').notNull().default(0),
+		missedAt: at('missed_at')
 	},
 	(t) => [
 		uniqueIndex('plan_slots_step_idx').on(t.stepId),
 		index('plan_slots_user_day_idx').on(t.userId, t.day)
 	]
+);
+
+/** One row per month or week the user planned: the month's goals, the week's block count, the review. */
+export const planPeriods = pgTable(
+	'plan_periods',
+	{
+		id: id(),
+		userId: userId(),
+		kind: planPeriodKind('kind').notNull(),
+		startsOn: date('starts_on').notNull(),
+		goalItemIds: uuid('goal_item_ids').array(),
+		blocksWanted: integer('blocks_wanted'),
+		review: text('review'),
+		createdAt: createdAt()
+	},
+	(t) => [uniqueIndex('plan_periods_user_kind_start_idx').on(t.userId, t.kind, t.startsOn)]
 );
 
 export const projects = pgTable('projects', {

@@ -15,6 +15,11 @@ export const userSettings = pgTable('user_settings', {
 	quietStart: time('quiet_start').notNull().default('22:00'),
 	quietEnd: time('quiet_end').notNull().default('08:00'),
 	timezone: text('timezone').notNull().default('UTC'),
+	/** When the daily shutdown is offered. */
+	shutdownTime: time('shutdown_time').notNull().default('21:00'),
+	/** When the weekly plan is offered: 0 = Sunday … 6 = Saturday. */
+	weeklyPlanDay: integer('weekly_plan_day').notNull().default(0),
+	weeklyPlanTime: time('weekly_plan_time').notNull().default('18:00'),
 	weatherMode: text('weather_mode').notNull().default('auto'),
 	city: text('city'),
 	runawayDays: integer('runaway_days').notNull().default(30),
