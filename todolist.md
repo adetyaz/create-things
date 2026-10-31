@@ -68,6 +68,12 @@
 - [x] 24. Roadmap prompt with ≤30-minute steps; project vs skill style; each step gets a 2-minute version, search terms and tools (US-017, US-018, US-081, US-082) (31 Oct: roadmap queue + job, recall-informed prompt, Start creates the project and queues it, `GET/POST /api/items/[id]/roadmap`, migration 0004; verified live 31 Oct: 4 milestones / 8 steps with 2-minute versions, search terms and tools; `plan` memory saved)
 - [x] 24b. Adaptive roadmap: re-plan what comes next when a topic or milestone is done (US-081) (31 Oct: `POST /api/steps/[id]/complete` queues a re-plan when a milestone finishes; verified live 31 Oct: finished milestone kept, the 3 untouched ones rewritten from memory; `plan_change` memory saved)
 - [x] 24c. Learning rules in skill roadmaps: chunk shape, a recall check ending each learning step, interleaved practice, process framing (US-087) (verified live 31 Oct on "Learn Jazz Piano Chords": 4 chunks, a recall question on every step, an interleave step. "Stuck offers a break first" comes with #48 (pet chat handles "I'm stuck"))
+- [ ] 24d. Intents and practice kinds as registries (`features/intents`); `items.intent`, `practice_kind`, `goal`, `target_date` replace `is_learning_goal`; analysis guesses them (US-088)
+- [ ] 24e. Confirm card at Start and at month pick: intent, goal, date, each changeable; remembered (US-088)
+- [ ] 24f. Roadmap goal ("by the end you'll be able to…", 2–3 suggestions) and proving grounds after each learning milestone (US-090)
+- [ ] 24g. "I want to…" input, typed or spoken (US-089)
+- [ ] 24h. Follow a course: syllabus from a PDF or photos → ordered collection → course roadmap; class dates feed the weekly plan (US-091)
+- [ ] 24i. Try-it-out tasters: 2–3 sessions, then keep / park / let go (US-092)
 - [ ] 25. Project space + journal ported to Postgres (US-021, US-022)
 - [ ] 26. Pomodoro timer, start from step, end-of-session note (US-026, US-027)
 - [ ] 27. Focus sounds: Web Audio noise, R2 loops, mixer, fades, starter set (US-028)
@@ -137,6 +143,10 @@
 - [ ] 71. Confirm Are.na API endpoints, auth and limits
 - [ ] 72. Are.na connect, channel modes, queued import (US-008)
 - [ ] 73. Daily Are.na sync (US-009)
+- [ ] 73b. Sources as plug-in adapters (`features/sources/registry.ts`, `source_connections`); Are.na moved onto it
+- [ ] 73c. Suggested collections: saves grouped by meaning (Walrus `embed`), kept in one tap (US-093)
+- [ ] 73d. Build from a collection: thread, ideas, make one, learn what's behind it, keep growing; `expansion` memories (US-094)
+- [ ] 73e. Pinterest adapter on the library or MCP built for createthings (US-095)
 - [ ] 74. Notion scheduled export (US-024)
 - [ ] 75. Obsidian zip download (US-025)
 
@@ -161,6 +171,8 @@
 
 ## After launch
 
+- [ ] Recurring plan shape: tend something over time (US-096) and build a habit (US-097)
+- [ ] More intents, kinds and sources from the possible-later lists (Breakdown §3b), one registry entry each
 - [ ] Bears (first species drop)
 - [ ] Desktop app (Tauri or Electron)
 - [ ] General notes

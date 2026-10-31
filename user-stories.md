@@ -2,7 +2,7 @@
 
 **v2.0 · October 2026** · Source of truth: [Project Breakdown.md](Project%20Breakdown.md)
 
-87 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
+97 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
 
 ## Keys
 
@@ -77,6 +77,10 @@
 | US-007 | Capture from my phone                  | 8     | `[ ]`  |
 | US-008 | Connect Are.na channels                | 9     | `[ ]`  |
 | US-009 | Keep Are.na in sync                    | 9     | `[ ]`  |
+| US-089 | Say what I want in a sentence          | 3     | `[ ]`  |
+| US-093 | Have my saves grouped for me           | 9     | `[ ]`  |
+| US-094 | Build from a collection                | 9     | `[ ]`  |
+| US-095 | Connect Pinterest boards               | 9     | `[ ]`  |
 
 ### US-006 — Capture from the browser extension
 
@@ -113,6 +117,42 @@
 - AC-02 Already-imported block IDs are skipped
 - AC-03 Imports are queued so large channels don't slow the app
 
+### US-089 — Say what I want in a sentence
+
+> As someone with a goal but no link or picture, I want to just type or say "I want to…" so that anything I want to do can become a plan.
+
+- AC-01 Typed or spoken: "learn to tend a vegetable garden on my balcony", "pass the AWS cloud practitioner exam in December"
+- AC-02 It becomes an item like any capture, with intent, kind of practice, goal and date guessed (§3b)
+- AC-03 Works for any subject, not only creative ones
+
+### US-093 — Have my saves grouped for me
+
+> As someone who saves a lot and organises nothing, I want the app to notice what belongs together so that I get collections without doing any sorting.
+
+- AC-01 Similar saves are grouped by meaning, and the pet suggests a collection ("You've saved 9 riso posters. Keep them together?")
+- AC-02 One tap keeps it, one ignores it; nothing is ever required
+- AC-03 Are.na channels and Pinterest boards can arrive as ready-made collections
+- AC-04 I can edit a collection by hand if I want to, but never have to
+
+### US-094 — Build from a collection
+
+> As someone with a board full of inspiration, I want to turn the whole collection into ideas so that saving turns into making.
+
+- AC-01 Find the thread: what connects the collection, in a sentence or two
+- AC-02 Spark ideas: 3–5 ideas that combine items, each showing which items it came from
+- AC-03 Make one (becomes a Make item whose roadmap uses the collection as references) or learn what's behind it (the shared skills become a Learn goal)
+- AC-04 When new items arrive in the collection, the pet tells me which ideas they fit
+- AC-05 Accepted ideas are remembered (`expansion`); uses the free quota, then credits
+
+### US-095 — Connect Pinterest boards
+
+> As a Pinterest user, I want my boards to come in like Are.na channels so that what I've pinned can be built from.
+
+- AC-01 Connect Pinterest and choose boards; import only, nothing written back
+- AC-02 Each board can be triaged pin by pin or kept as a collection (US-094)
+- AC-03 Daily sync adds new pins and skips known ones
+- AC-04 Built on the Pinterest library or MCP made for createthings, plugged in as a source adapter
+
 ---
 
 ## 03 · Analyze
@@ -121,7 +161,8 @@
 | ------ | -------------------------------------- | ----- | ------ |
 | US-010 | See an analysis of what I saved        | 1     | `[~]`  |
 | US-011 | Know how big and hard something is     | 1     | `[ ]`  |
-| US-012 | Have learning goals recognised         | 1     | `[ ]`  |
+| US-012 | Have learning goals recognised         | 1     | `[~]`  |
+| US-088 | Confirm what I'm trying to do          | 3     | `[ ]`  |
 
 ### US-010 — See an analysis of what I saved
 
@@ -148,6 +189,17 @@
 - AC-01 Notes like "learn Blender" or "learn Spanish" are marked as learning goals
 - AC-02 Learning goals get skill roadmaps (US-018)
 - AC-03 The user can switch the type if it's wrong
+- AC-04 Generalised by US-088: learning is one of several intents
+
+### US-088 — Confirm what I'm trying to do
+
+> As someone who wants to do all sorts of things, I want the app to understand whether I'm learning, making, following a course, trying something out, tending something or building a habit so that the plan fits what I'm actually doing.
+
+- AC-01 The app guesses the intent, kind of practice and goal from what I saved; nothing is asked at capture
+- AC-02 When I Start something or pick it for the month, one card confirms it ("Looks like you want to learn jazz piano. Goal: play Autumn Leaves. Right?"), and intent, goal and date each change with one tap
+- AC-03 The plan follows the intent: roadmap, course roadmap, tasters, or (later) recurring care and habits
+- AC-04 Any intent can have a target date, and the plan works backwards from it
+- AC-05 New intents and kinds of practice can be added without changing the rest of the app
 
 ---
 
@@ -267,7 +319,12 @@
 | US-081 | Always know the next step              | 3     | `[ ]`  |
 | US-082 | Start with a 2-minute version          | 3     | `[ ]`  |
 | US-083 | Help me choose between tools           | 6     | `[ ]`  |
-| US-087 | Learn in a way that sticks             | 3     | `[ ]`  |
+| US-087 | Learn in a way that sticks             | 3     | `[~]`  |
+| US-090 | Work toward a real goal                | 3     | `[ ]`  |
+| US-091 | Follow my course                       | 3     | `[ ]`  |
+| US-092 | Try something before committing        | 3     | `[ ]`  |
+| US-096 | Tend something over time               | Later | `[ ]`  |
+| US-097 | Build a habit                          | Later | `[ ]`  |
 
 ### US-017 — Get steps small enough to start
 
@@ -339,6 +396,48 @@
 - AC-03 Before a learning step counts as done, the pet offers a quick self-check or explain-it-back; I can skip it
 - AC-04 When I'm stuck, the pet first suggests a short break away from it, then a smaller step or a different angle
 - AC-05 Practice steps and reviews mix in older topics, and re-plans lean into what I found hard
+
+### US-090 — Work toward a real goal
+
+> As a learner, I want a real target and real things to practise on so that what I learn turns into something I can actually do.
+
+- AC-01 Every roadmap opens with "By the end you'll be able to…"; the AI suggests 2–3 concrete goals and I pick one or write my own
+- AC-02 Learning roadmaps have a proving ground after each milestone: 1–3 real songs, labs or pieces that use only what I've learned so far, getting harder each time
+- AC-03 Each proving ground has search terms to find the chords, tabs or instructions; the app never copies sheet music or lyrics
+- AC-04 Re-plans keep the goal
+
+### US-091 — Follow my course
+
+> As someone taking a course or class, I want my plan to follow its curriculum so that the app supports my course instead of replacing it.
+
+- AC-01 Upload the syllabus as a PDF or one or more photos/screenshots
+- AC-02 The course's units become milestones in the course's order, with 2-minute versions, search terms, recall questions and proving grounds added
+- AC-03 Re-plans add support but never reorder or drop the course's units
+- AC-04 Class dates go into the plan: practice blocks before each class; an exam date becomes the target date
+
+### US-092 — Try something before committing
+
+> As someone curious about lots of things, I want to try something lightly so that I find out if I like it before it becomes a big plan.
+
+- AC-01 "Try it out" gives 2–3 short taster sessions instead of a full roadmap
+- AC-02 After the last one, the pet asks: keep it (becomes a full plan), park it, or let it go
+- AC-03 Letting go counts as progress, and what I thought is remembered
+
+### US-096 — Tend something over time
+
+> As someone growing or caring for something, I want recurring care tasks tied to real time so that I keep up with it.
+
+- AC-01 Recurring tasks ("water every 2 days", "feed the starter daily") instead of one-off steps
+- AC-02 Tasks shift with season, weather and place (uses the weather location)
+- AC-03 Quick check-ins log how it's going; the pet notices patterns
+
+### US-097 — Build a habit
+
+> As someone trying to make something stick, I want a small repeated habit with a floor so that showing up is easy.
+
+- AC-01 Set days and a habit anchor ("after coffee"), with a 2-minute floor that always counts
+- AC-02 No end date; progress shown as identity ("12 runs: you're a runner")
+- AC-03 Never miss twice applies (US-079)
 
 ---
 
