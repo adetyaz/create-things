@@ -12,7 +12,7 @@ export interface PlanShape {
 
 export const PLAN_SHAPES = {
 	roadmap: { label: 'Roadmap of small steps', available: true },
-	tasters: { label: '2–3 taster sessions, then decide', available: false, fallback: 'roadmap' },
+	tasters: { label: '2–3 taster sessions, then decide', available: true },
 	recurring: { label: 'Recurring care or habit', available: false, fallback: 'roadmap' }
 } as const satisfies Record<string, PlanShape>;
 

@@ -1,6 +1,7 @@
 import type { RecalledMemory } from '$lib/server/features/memory/recall';
 import { intentOf } from '$lib/server/features/intents/registry';
 import { practiceKindOf } from '$lib/server/features/intents/practice';
+import { resolveShape } from '$lib/server/features/plan/shapes';
 
 export const ROADMAP_SYSTEM = `You plan projects and learning as navigation for a scattered person: there must always be a clear next step, small enough to start today. Every step takes 15–30 minutes and is an action to DO, not a topic to study. Skip what they already know. Reply with one JSON object only.`;
 
@@ -24,7 +25,7 @@ const PROOF_SHAPE = `{ "title": "the real thing to do, named", "minutes": 20-45,
  * been learned so far. Names songs and pieces; never writes out sheet music or lyrics.
  */
 function provingGroundRules(c: { intent: string; practiceKind: string | null }): string | null {
-	if (!intentOf(c.intent).learning) return null;
+	if (!hasProvingGrounds(c.intent)) return null;
 	const kind = practiceKindOf(c.practiceKind);
 	return [
 		`End every milestone with a "provingGround" list of 1–3 items: ${kind ? kind.provingGround : 'real things to do'} that use ONLY what has been learned so far, a little harder each milestone, building toward the goal.`,
@@ -42,6 +43,15 @@ function courseLines(units: RoadmapContext['courseUnits']): string[] {
 				`${i + 1}. ${u.title}${u.unitDate ? ` (class ${u.unitDate})` : ''}${u.topics?.length ? `: ${u.topics.join(', ')}` : ''}`
 		)
 	];
+}
+
+/** Learning intents get proving grounds; tasters are already small tries, so they don't. */
+function hasProvingGrounds(intentId: string): boolean {
+	return intentOf(intentId).learning && !isTasters(intentId);
+}
+
+export function isTasters(intentId: string): boolean {
+	return resolveShape(intentOf(intentId).shape) === 'tasters';
 }
 
 function memoryLines(memories: RecalledMemory[]): string[] {
@@ -100,11 +110,13 @@ export function roadmapPrompt(c: RoadmapContext): string {
 		`  "goalOptions": ["By the end you'll be able to …", "…", "…"],`,
 		'  "skills": ["skills this builds"],',
 		'  "resources": [{ "title": "...", "url": "only if you are sure it exists, else omit" }],',
-		`  "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ]${intent.learning ? `, "provingGround": [ ${PROOF_SHAPE} ]` : ''} } ]`,
+		`  "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ]${hasProvingGrounds(c.intent) ? `, "provingGround": [ ${PROOF_SHAPE} ]` : ''} } ]`,
 		'}',
-		c.courseUnits?.length
-			? `${c.courseUnits.length} milestones, one per unit, ${c.courseUnits.length > 8 ? '2-3' : '2-5'} steps each.`
-			: '3-5 milestones, 2-5 steps each.'
+		isTasters(c.intent)
+			? 'Exactly 1 milestone titled "Taster sessions" with 2-3 steps of 20-45 minutes each.'
+			: c.courseUnits?.length
+				? `${c.courseUnits.length} milestones, one per unit, ${c.courseUnits.length > 8 ? '2-3' : '2-5'} steps each.`
+				: '3-5 milestones, 2-5 steps each.'
 	]
 		.filter((line) => line !== false && line !== null)
 		.join('\n');
@@ -121,7 +133,7 @@ export function replanPrompt(c: {
 	remainingMilestones: string[];
 	memories: RecalledMemory[];
 }): string {
-	const learning = intentOf(c.intent).learning;
+	const learning = hasProvingGrounds(c.intent);
 	return [
 		`Re-plan the rest of the roadmap for: "${c.title}"`,
 		c.goal ? `Their goal (keep it): ${c.goal}. Everything ahead builds toward it.` : '',

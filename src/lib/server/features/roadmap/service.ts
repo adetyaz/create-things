@@ -7,6 +7,7 @@ import { withDb } from '$lib/server/db';
 import { items, projects, roadmaps, roadmapSteps } from '$lib/server/db/schema';
 import { enqueue, type EnqueueResult } from '$lib/server/jobs';
 import { milestonesAhead } from './job';
+import { isTasters } from './prompt';
 
 type Platform = App.Platform | undefined;
 type Step = typeof roadmapSteps.$inferSelect;
@@ -121,8 +122,20 @@ export async function startPlanning(
 }
 
 export type CompleteResult =
-	| { status: 'done'; roadmap: RoadmapView; milestoneDone: boolean; replanning: boolean }
+	| {
+			status: 'done';
+			roadmap: RoadmapView;
+			milestoneDone: boolean;
+			replanning: boolean;
+			/** After the last taster session: keep it, park it or let it go (POST /api/items/[id]/tasters). */
+			decide: TasterDecision | null;
+	  }
 	| { status: 'not_found' };
+
+export interface TasterDecision {
+	message: string;
+	choices: ('keep' | 'park' | 'let_go')[];
+}
 
 /**
  * Marks a step done (again is fine), updates progress, and re-plans the milestones ahead when this
@@ -136,7 +149,13 @@ export async function completeStep(
 	const result = await withDb(platform, (db) =>
 		db.transaction(async (tx) => {
 			const [found] = await tx
-				.select({ step: roadmapSteps, roadmap: roadmaps, itemId: items.id })
+				.select({
+					step: roadmapSteps,
+					roadmap: roadmaps,
+					itemId: items.id,
+					title: items.title,
+					intent: items.intent
+				})
 				.from(roadmapSteps)
 				.innerJoin(roadmaps, eq(roadmaps.id, roadmapSteps.roadmapId))
 				.innerJoin(items, eq(items.id, roadmaps.itemId))
@@ -168,7 +187,14 @@ export async function completeStep(
 				.every((s) => s.doneAt);
 			// Only the step that finishes a milestone triggers a re-plan, not a repeat tap.
 			const replan = !wasDone && milestoneDone && milestonesAhead(steps).length > 0;
-			return { itemId: found.itemId, view: view(roadmap, steps), milestoneDone, replan };
+			const decide =
+				!wasDone && progress === 'complete' && isTasters(found.intent)
+					? {
+							message: `That's your taster sessions for ${found.title} done. Keep going with it, park it for later, or let it go?`,
+							choices: ['keep', 'park', 'let_go'] as TasterDecision['choices']
+						}
+					: null;
+			return { itemId: found.itemId, view: view(roadmap, steps), milestoneDone, replan, decide };
 		})
 	);
 	if (!result) return { status: 'not_found' };
@@ -182,7 +208,8 @@ export async function completeStep(
 		status: 'done',
 		roadmap: result.view,
 		milestoneDone: result.milestoneDone,
-		replanning: result.replan
+		replanning: result.replan,
+		decide: result.decide
 	};
 }
 
