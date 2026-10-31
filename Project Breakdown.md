@@ -199,6 +199,8 @@ A roadmap works like navigation: it always answers "what now?", including when s
 - **Adaptive, not fixed:** when a topic or milestone is done, the roadmap re-plans what comes next from what you now know, what you keep forgetting and your goals
 - **"I'm stuck"** gives a smaller step or a short explanation. **"Teach me this"** gives a short lesson tied to the item. Both are asked through the pet (see Pet assistant).
 - Progress tracking per step and milestone
+- **How a roadmap is made:** Start creates the project and queues a roadmap job (`createthings-roadmap`). The AI gets the item's analysis plus the user's recalled memories (what they know, what tripped them up) and returns 3–5 milestones of 15–30 minute steps, each with a 2-minute version, search terms and tools, plus resources. Learning goals get the skill shape. Costs 5 credits; saved as a `plan` memory
+- **Re-planning:** when the last step of a milestone is completed, a re-plan job rewrites the not-yet-done steps of the later milestones from what's been done and remembered. Done steps are never changed
 
 **Help me choose (compare and contrast)**
 
@@ -851,8 +853,8 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/triage`                      | Keep (→ Shortlist) / let go (→ Archived) / later |
 | `/api/focus/pick`                  | Suggest one Shortlist item from time, energy and recalled memories; cites the memories used |
 | `/api/focus`, `/api/focus/decide`, `/api/focus/pause` | Current Focus items; Start / Not today / Let it go; pause back to the Shortlist |
-| `/api/roadmap`                     | Generate project or skill roadmap               |
-| `/api/steps/[id]`                  | Complete a step                                 |
+| `/api/items/[id]/roadmap`          | Read the roadmap (GET) or regenerate it (POST); also generated on Start |
+| `/api/steps/[id]/complete`         | Complete a step; finishing a milestone re-plans the rest |
 | `/api/projects`, `/api/journal`    | Project content + journal                       |
 | `/api/pomodoro`                    | Start / finish sessions                         |
 | `/api/knowledge/*`                 | Draft, review, explain-it-back                  |

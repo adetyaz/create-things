@@ -22,7 +22,8 @@
 	"queues": {
 		"producers": [
 			{ "binding": "ANALYSIS_QUEUE", "queue": "createthings-analysis" },
-			{ "binding": "MEMORY_QUEUE", "queue": "createthings-memory" }
+			{ "binding": "MEMORY_QUEUE", "queue": "createthings-memory" },
+			{ "binding": "ROADMAP_QUEUE", "queue": "createthings-roadmap" }
 		],
 		// Handled by queue() in scripts/worker-entry.js → /api/internal/queue/[queue]
 		"consumers": [
@@ -31,6 +32,12 @@
 				"max_batch_size": 5,
 				"max_retries": 3,
 				"dead_letter_queue": "createthings-analysis-dlq"
+			},
+			{
+				"queue": "createthings-roadmap",
+				"max_batch_size": 2,
+				"max_retries": 3,
+				"dead_letter_queue": "createthings-roadmap-dlq"
 			},
 			{
 				// One at a time, so the Walrus relayer's rate limits hold
@@ -52,7 +59,8 @@
 			"queues": {
 				"producers": [
 					{ "binding": "ANALYSIS_QUEUE", "queue": "createthings-analysis" },
-					{ "binding": "MEMORY_QUEUE", "queue": "createthings-memory" }
+					{ "binding": "MEMORY_QUEUE", "queue": "createthings-memory" },
+					{ "binding": "ROADMAP_QUEUE", "queue": "createthings-roadmap" }
 				],
 				"consumers": [
 					{
@@ -60,6 +68,12 @@
 						"max_batch_size": 5,
 						"max_retries": 3,
 						"dead_letter_queue": "createthings-analysis-dlq"
+					},
+					{
+						"queue": "createthings-roadmap",
+						"max_batch_size": 2,
+						"max_retries": 3,
+						"dead_letter_queue": "createthings-roadmap-dlq"
 					},
 					{
 						"queue": "createthings-memory",

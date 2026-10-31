@@ -14,6 +14,7 @@ export interface Bindings {
 	AI?: WorkersAi;
 	ANALYSIS_QUEUE?: QueueProducer;
 	MEMORY_QUEUE?: QueueProducer;
+	ROADMAP_QUEUE?: QueueProducer;
 	/** "true" in the `local` Wrangler environment. */
 	LOCAL_DEV?: string;
 	/** Set only by scripts/worker-entry.js when it hands a queue message to the app. */

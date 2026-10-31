@@ -37,6 +37,11 @@ export const roadmapSteps = pgTable(
 		position: integer('position').notNull(),
 		title: text('title').notNull(),
 		minutes: integer('minutes').notNull(),
+		/** The smallest possible start, under 2 minutes. */
+		twoMinute: text('two_minute'),
+		/** What to type into a search engine for this step. */
+		searchTerms: text('search_terms').array(),
+		tools: text('tools').array(),
 		doneAt: at('done_at')
 	},
 	(t) => [index('roadmap_steps_roadmap_idx').on(t.roadmapId, t.position)]

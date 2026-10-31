@@ -6,6 +6,7 @@ import { and, count, eq, inArray } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
 import { items, userSettings } from '$lib/server/db/schema';
 import { remember, type NewMemory } from '$lib/server/features/memory/service';
+import { startPlanning } from '$lib/server/features/roadmap/service';
 
 type Platform = App.Platform | undefined;
 type Item = typeof items.$inferSelect;
@@ -78,6 +79,8 @@ export async function decide(
 	}
 	const updated = await setStatus(platform, item.id, 'focus');
 	note(platform, userId, item, `Started working on "${item.title}".`);
+	// Starting makes the project and plans its roadmap in the background.
+	await startPlanning(platform, userId, updated);
 	return { status: 'started', item: updated };
 }
 
