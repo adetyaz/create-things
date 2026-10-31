@@ -275,6 +275,13 @@ Each layer feeds the next, and each review is remembered, so the next plan learn
 - **Never miss twice:** after a missed day, the next day starts with the step's **2-minute version** as the top priority, and the pet says so
 - **New idea or plan mid-week:** goes through fit-it-in (§13): add as a step, swap a block, park it, or a 5-minute note
 - **Busy week:** "Only 2 blocks free this week? Here's what moves."
+- **How reshuffle works:** a block is **missed** once its day has passed and its step isn't done. Misses are found whenever the plan is read, so no background job is needed. The pet gets the missed blocks, each with a suggested new slot (the first day from today with fewer than 3 blocks, keeping the time, anchor and place). After a missed day it also gets the **never-miss-twice** pick: yesterday's top missed step, offered as today's #1 with its 2-minute version. Nothing moves until you OK it; you can also drop a block (its step goes back to unplanned). **Busy week:** give the blocks you really have; missed steps come first, then the week's order, and whatever doesn't fit moves to next week. Free: no AI call
+- **How fit-it-in works:** the new item and each Focus item and month goal are embedded with Walrus `embed` and compared; the closest match (if close enough) is the related item. The offers are built from your plan, so they cost nothing:
+  - **Add as a step:** goes into the related roadmap right after its current step
+  - **Swap a block:** the idea takes the related item's last planned block this week; that block's step goes back to unplanned
+  - **Park it until a day:** the day after the related item's last planned block this week, else next Monday
+  - **5-minute note:** nothing in the plan changes; the idea waits on the Shortlist
+  - Remembered as `idea_merged`, `idea_parked` or `plan_change`. If `embed` fails, the offers still come, with the goals listed to choose from
 
 **Rituals** (*Deep Work*)
 
@@ -1018,6 +1025,10 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/plan/week`                   | POST the blocks you have (day + time or anchor + place) → the pet's filled week to adjust (free, no AI); PUT to save it |
 | `/api/plan/day`                    | GET a day's blocks in rank order (default today) and the one Today shows |
 | `/api/plan/tomorrow`               | POST up to 3 step ids, most important first: tomorrow's top 3 (Ivy Lee) |
+| `/api/plan/slots/[id]`             | PATCH to move a block (day, time or anchor, place); DELETE to unplan it |
+| `/api/plan/reshuffle`              | GET missed blocks with suggested slots and the never-miss-twice pick; POST the moves you OK |
+| `/api/plan/busy`                   | POST the blocks you really have this week → what stays and what moves; PUT to apply |
+| `/api/plan/fit`                    | POST { itemId } → the related item and the fit-it-in offers; PUT { itemId, choice } to apply one |
 | `/api/choose`                      | Help me choose: compare options for a step (web search) |
 | `/api/ideas/fit`                   | Suggest how a new idea fits the current plan    |
 | `/api/voice`                       | Upload a voice ramble → transcript → ideas      |

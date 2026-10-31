@@ -140,28 +140,13 @@ export async function saveWeek(
 		const days = [...new Set(input.blocks.map((b) => b.day))];
 		const weekOf = weekStart([...days].sort()[0]);
 		const ordered = [...input.blocks].sort(byTime);
-		const positionIn = new Map<string, number>();
 
 		await db.transaction(async (tx) => {
 			await tx
 				.delete(planSlots)
 				.where(and(eq(planSlots.userId, userId), inArray(planSlots.day, days)));
 			await tx.delete(planSlots).where(inArray(planSlots.stepId, stepIds));
-			await tx.insert(planSlots).values(
-				ordered.map((b) => {
-					const position = (positionIn.get(b.day) ?? 0) + 1;
-					positionIn.set(b.day, position);
-					return {
-						userId,
-						stepId: b.stepId,
-						day: b.day,
-						startTime: b.startTime ?? null,
-						anchor: b.anchor ?? null,
-						place: b.place ?? null,
-						position
-					};
-				})
-			);
+			await tx.insert(planSlots).values(slotRows(userId, input.blocks));
 			await tx
 				.delete(planPeriods)
 				.where(
@@ -193,8 +178,26 @@ export async function saveWeek(
 	return { status: 'saved', weekOf: saved.weekOf, blocks: input.blocks.length };
 }
 
+/** Rows for `plan_slots`, ranked within each day by time (anchored blocks after timed ones). */
+export function slotRows(userId: string, blocks: (BlockRequest & { stepId: string })[]) {
+	const positionIn = new Map<string, number>();
+	return [...blocks].sort(byTime).map((b) => {
+		const position = (positionIn.get(b.day) ?? 0) + 1;
+		positionIn.set(b.day, position);
+		return {
+			userId,
+			stepId: b.stepId,
+			day: b.day,
+			startTime: b.startTime ?? null,
+			anchor: b.anchor ?? null,
+			place: b.place ?? null,
+			position
+		};
+	});
+}
+
 /** "Sun 1 Nov". */
-function dayLabel(day: string): string {
+export function dayLabel(day: string): string {
 	const month = new Date(`${day}T00:00:00Z`).toLocaleString('en-GB', {
 		month: 'short',
 		timeZone: 'UTC'

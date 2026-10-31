@@ -4,12 +4,13 @@
  */
 import { and, asc, eq, inArray, notInArray } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
-import { items, planSlots, roadmaps, roadmapSteps } from '$lib/server/db/schema';
-import { ownedSteps, timezoneOf } from './context';
+import { planSlots } from '$lib/server/db/schema';
+import { markMissed, ownedSteps, slotsWithSteps, timezoneOf } from './context';
 import { addDays, today } from './dates';
 import { intention } from './fill';
 
 type Platform = App.Platform | undefined;
+export type SlotRow = Awaited<ReturnType<typeof slotsWithSteps>>[number];
 
 export interface DayBlock {
 	slotId: string;
@@ -40,35 +41,34 @@ export interface DayView {
 /** A day's blocks in rank order. `day` defaults to today in the user's timezone. */
 export async function getDay(platform: Platform, userId: string, day?: string): Promise<DayView> {
 	return withDb(platform, async (db) => {
-		const date = day ?? today(await timezoneOf(db, userId));
-		const rows = await db
-			.select({ slot: planSlots, step: roadmapSteps, itemId: items.id, itemTitle: items.title })
-			.from(planSlots)
-			.innerJoin(roadmapSteps, eq(roadmapSteps.id, planSlots.stepId))
-			.innerJoin(roadmaps, eq(roadmaps.id, roadmapSteps.roadmapId))
-			.innerJoin(items, eq(items.id, roadmaps.itemId))
-			.where(and(eq(planSlots.userId, userId), eq(planSlots.day, date)))
-			.orderBy(asc(planSlots.position));
-		const blocks: DayBlock[] = rows.map(({ slot, step, itemId, itemTitle }) => ({
-			slotId: slot.id,
-			position: slot.position,
-			startTime: slot.startTime?.slice(0, 5) ?? null,
-			anchor: slot.anchor,
-			place: slot.place,
-			missed: Boolean(slot.missedAt),
-			intention: intention(slot, step.title),
-			step: {
-				id: step.id,
-				title: step.title,
-				minutes: step.minutes,
-				twoMinute: step.twoMinute,
-				recall: step.recall,
-				done: Boolean(step.doneAt)
-			},
-			item: { id: itemId, title: itemTitle }
-		}));
+		const now = today(await timezoneOf(db, userId));
+		const date = day ?? now;
+		await markMissed(db, userId, now);
+		const rows = await slotsWithSteps(db, userId, eq(planSlots.day, date));
+		const blocks = rows.map(toBlock);
 		return { day: date, blocks, first: blocks.find((b) => !b.step.done && !b.missed) ?? null };
 	});
+}
+
+export function toBlock({ slot, step, itemId, itemTitle }: SlotRow): DayBlock {
+	return {
+		slotId: slot.id,
+		position: slot.position,
+		startTime: slot.startTime?.slice(0, 5) ?? null,
+		anchor: slot.anchor,
+		place: slot.place,
+		missed: Boolean(slot.missedAt),
+		intention: intention(slot, step.title),
+		step: {
+			id: step.id,
+			title: step.title,
+			minutes: step.minutes,
+			twoMinute: step.twoMinute,
+			recall: step.recall,
+			done: Boolean(step.doneAt)
+		},
+		item: { id: itemId, title: itemTitle }
+	};
 }
 
 export type RankResult = { status: 'ranked'; tomorrow: DayView } | { status: 'invalid' };

@@ -45,6 +45,45 @@ export const rankTomorrowInput = z.object({
 		.refine((ids) => new Set(ids).size === ids.length, 'Each step once')
 });
 
+/** Body of PATCH /api/plan/slots/[id]. A time replaces an anchor and vice versa. */
+export const moveInput = z
+	.object({
+		day: z.iso.date().optional(),
+		startTime: clock.nullable().optional(),
+		anchor: label.nullable().optional(),
+		place: label.nullable().optional()
+	})
+	.refine((m) => Object.keys(m).length > 0, 'Nothing to change')
+	.refine((m) => !(m.startTime && m.anchor), 'A block has a time or an anchor, not both');
+
+/** Body of POST /api/plan/reshuffle: the moves the user OK'd. */
+export const reshuffleInput = z.object({
+	moves: z
+		.array(block.extend({ slotId: uuid }))
+		.max(30)
+		.default([]),
+	/** Blocks to unplan; their steps stay in the roadmap. */
+	drop: z.array(uuid).max(30).default([]),
+	/** Never miss twice: this block becomes today's #1. */
+	firstToday: uuid.optional()
+});
+
+/** Body of POST /api/plan/fit. */
+export const fitInput = z.object({ itemId: uuid });
+
+/** Body of PUT /api/plan/fit. */
+export const applyFitInput = z.object({
+	itemId: uuid,
+	choice: z.enum(['add_step', 'swap', 'park', 'note']),
+	/** The item to add the idea to (add_step, swap); defaults to the related item found. */
+	relatedItemId: uuid.optional(),
+	/** park: defaults to the suggested day. */
+	parkUntil: z.iso.date().optional()
+});
+
 export type BlockInput = z.infer<typeof block>;
 export type PlanMonthInput = z.infer<typeof planMonthInput>;
 export type SaveWeekInput = z.infer<typeof saveWeekInput>;
+export type MoveInput = z.infer<typeof moveInput>;
+export type ReshuffleInput = z.infer<typeof reshuffleInput>;
+export type ApplyFitInput = z.infer<typeof applyFitInput>;
