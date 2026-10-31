@@ -1,11 +1,10 @@
-import { env } from '$env/dynamic/private';
+import { optionalEnv } from '$lib/server/platform/env';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 
 /** Hyperdrive on Workers (it pools connections); DATABASE_URL anywhere without the binding. */
 function connectionString(platform?: App.Platform): string {
-	const hyperdrive = platform?.env?.HYPERDRIVE as { connectionString?: string } | undefined;
-	const url = hyperdrive?.connectionString ?? env.DATABASE_URL;
+	const url = platform?.env?.HYPERDRIVE?.connectionString ?? optionalEnv('DATABASE_URL');
 	if (!url) throw new Error('No database: bind HYPERDRIVE or set DATABASE_URL');
 	return url;
 }

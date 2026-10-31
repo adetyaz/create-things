@@ -738,6 +738,34 @@ Shutdown time (set by the user) → pet: "Wrap up today?"
 - Structured JSON output is tested per model before it's used for roadmaps and cards
 - OpenCode Zen's free models can't be used: they only work inside OpenCode
 
+### Code layout and module rules
+
+```
+src/lib/
+├─ shared/            Browser-safe code and types (the PWA and extension may import these)
+├─ components/        UI components
+└─ server/
+   ├─ platform/       env.ts (runtime secrets; fails with the key name), bindings.ts (typed Cloudflare
+   │                  bindings), http.ts (zod validation, id params), user.ts (dev user until auth)
+   ├─ db/             index.ts (withDb: one client per request via Hyperdrive) + schema/ (one file per domain)
+   ├─ ai/             generateJson with the provider fallback chain; providers/ (Workers AI, Gemini, Groq)
+   ├─ jobs/           queues.ts (queue names + bindings), registry.ts (queue → handler), enqueue()
+   ├─ integrations/   External services: walrus/, tatum/, notion/, scraper/ (arena/ and web search later)
+   └─ features/       One folder per product feature: service.ts (logic + DB), input.ts (zod), helpers.
+                      Now: items/, analysis/. Later: plan/, pet/, memory/, payments/ and so on
+src/routes/api/       Thin: validate input → call a feature service → return JSON
+```
+
+**Rules**
+
+1. **Routes only translate HTTP.** No SQL or business logic in `+server.ts`; call a feature service.
+2. **Features own their logic** and may use `db`, `ai`, `jobs`, `integrations` and `platform`. A feature may call another feature's service, never its tables directly.
+3. **`ai`, `jobs`, `integrations` and `platform` never import features**, except `jobs/registry.ts`, which maps queues to feature handlers.
+4. **Env and bindings only through `platform/`.** Nothing else imports `$env` or reads `platform.env` untyped.
+5. **Every request body is validated with zod** (`features/*/input.ts` + `platform/http.ts`).
+6. **A new queue** is one entry in `jobs/queues.ts` and one in `jobs/registry.ts`, plus its binding in `wrangler.jsonc` (top level and `env.local`).
+7. **Schema changes** go in the matching `db/schema/<domain>.ts`, then `npm run db:generate`.
+
 ### Queues inside SvelteKit
 
 SvelteKit's Cloudflare adapter only builds a `fetch()` worker. After `vite build`, `scripts/wrap-worker.mjs` swaps in `scripts/worker-entry.js`, which adds `queue()`: each message is handed in-process to `POST /api/internal/queue/[queue]` with a flag only the queue handler sets, so all job code lives in SvelteKit (`$lib`, `$env`). A failed job is retried with backoff, then dead-lettered (`createthings-analysis` → `createthings-analysis-dlq`, 3 retries). Under `npm run dev` there is no consumer, so jobs run inline in the dev server instead.

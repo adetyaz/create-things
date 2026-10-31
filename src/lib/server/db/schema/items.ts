@@ -1,0 +1,60 @@
+/** Captured items and their analyses. */
+import { sql } from 'drizzle-orm';
+import { boolean, index, jsonb, pgTable, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { id, userId, stamp, createdAt, at } from './columns';
+import { itemStatus, captureType, itemSize, difficulty } from './enums';
+
+export const items = pgTable(
+	'items',
+	{
+		id: id(),
+		userId: userId(),
+		title: text('title').notNull(),
+		sourceUrl: text('source_url'),
+		author: text('author'),
+		platform: text('platform'),
+		captureType: captureType('capture_type').notNull(),
+		imageKey: text('image_key'),
+		note: text('note'),
+		status: itemStatus('status').notNull().default('inbox'),
+		size: itemSize('size'),
+		difficulty: difficulty('difficulty'),
+		isLearningGoal: boolean('is_learning_goal').notNull().default(false),
+		arenaBlockId: text('arena_block_id'),
+		/** False when the title was made up from the URL or note, so analysis may replace it. */
+		titleFromUser: boolean('title_from_user').notNull().default(false),
+		/** Why the last analysis attempt failed; cleared when one succeeds. */
+		analysisError: text('analysis_error'),
+		savedAt: stamp('saved_at'),
+		lastActiveAt: at('last_active_at')
+	},
+	(t) => [
+		index('items_user_status_idx').on(t.userId, t.status),
+		uniqueIndex('items_user_arena_block_idx')
+			.on(t.userId, t.arenaBlockId)
+			.where(sql`${t.arenaBlockId} is not null`)
+	]
+);
+
+export const analyses = pgTable('analyses', {
+	id: id(),
+	itemId: uuid('item_id')
+		.notNull()
+		.references(() => items.id, { onDelete: 'cascade' }),
+	summary: text('summary'),
+	technique: text('technique'),
+	/** `{ palette, notes }`: the extracted palette plus the model's description of color use. */
+	colors: jsonb('colors'),
+	typography: text('typography'),
+	layout: text('layout'),
+	mood: text('mood').array(),
+	style: text('style'),
+	components: text('components'),
+	forDevelopers: text('for_developers'),
+	forCreators: text('for_creators'),
+	brief: text('brief'),
+	skills: text('skills').array(),
+	attribution: text('attribution'),
+	model: text('model'),
+	createdAt: createdAt()
+});

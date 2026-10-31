@@ -1,11 +1,11 @@
 import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { dev } from '$app/environment';
-import { env } from '$env/dynamic/private';
+import { optionalEnv } from '$lib/server/platform/env';
 import { eq, sql } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
 import { items } from '$lib/server/db/schema';
-import { memoryClient } from '$lib/server/memory/walrus';
-import { getExchangeRate, suiClient } from '$lib/server/tatum';
+import { memoryClient } from '$lib/server/integrations/walrus/client';
+import { getExchangeRate, suiClient } from '$lib/server/integrations/tatum';
 
 const CHECKS_NAMESPACE = 'createthings-checks';
 
@@ -15,7 +15,7 @@ const CHECKS_NAMESPACE = 'createthings-checks';
  * or under `wrangler dev` with DEV_CHECKS=1. Add `?write=1` to save and recall one memory on mainnet.
  */
 export const GET: RequestHandler = async ({ url, platform }) => {
-	if (!dev && env.DEV_CHECKS !== '1') error(404);
+	if (!dev && optionalEnv('DEV_CHECKS') !== '1') error(404);
 
 	const results: Record<string, unknown> = {};
 	const check = async (name: string, run: () => Promise<unknown>) => {
@@ -94,9 +94,10 @@ export const GET: RequestHandler = async ({ url, platform }) => {
 
 	await check('tatum.sui.testnet.chain', () => suiClient('testnet').getChainIdentifier());
 	await check('tatum.sui.mainnet.chain', () => suiClient('mainnet').getChainIdentifier());
-	if (env.MEMWAL_ACCOUNT_ID) {
+	const memoryAccount = optionalEnv('MEMWAL_ACCOUNT_ID');
+	if (memoryAccount) {
 		await check('tatum.sui.mainnet.memoryAccount', () =>
-			suiClient('mainnet').getObject({ objectId: env.MEMWAL_ACCOUNT_ID! })
+			suiClient('mainnet').getObject({ objectId: memoryAccount })
 		);
 	}
 	await check('tatum.rate.SUI_USD', () => getExchangeRate('SUI', 'USD'));
@@ -104,11 +105,11 @@ export const GET: RequestHandler = async ({ url, platform }) => {
 	// Analysis libraries on Workers: metadata scraping and color palettes.
 	if (url.searchParams.get('libs') === '1') {
 		await check('lib.metascraper', async () => {
-			const { scrapeMetadata } = await import('$lib/server/scraper/metadata');
+			const { scrapeMetadata } = await import('$lib/server/integrations/scraper/metadata');
 			return scrapeMetadata('https://github.com/MystenLabs/walrus-memory');
 		});
 		const palette = async (url: string) => {
-			const { extractColors } = await import('$lib/server/colors/extract');
+			const { extractColors } = await import('$lib/server/features/analysis/colors/extract');
 			return (await extractColors(url)) ?? 'none (format not decoded on the server)';
 		};
 		await check('lib.palette.png', () =>
