@@ -27,6 +27,15 @@ describe('normalizeAnalysis', () => {
 		expect(result.targetDate).toBe('2026-12-12');
 	});
 
+	it('moves a target date that has passed to the next year', () => {
+		expect(normalizeAnalysis({ targetDate: '2025-03-01' }, '2026-10-31').targetDate).toBe(
+			'2027-03-01'
+		);
+		expect(normalizeAnalysis({ targetDate: '2026-12-12' }, '2026-10-31').targetDate).toBe(
+			'2026-12-12'
+		);
+	});
+
 	it('drops values outside the allowed sets instead of guessing', () => {
 		const result = normalizeAnalysis({
 			size: 'two days',

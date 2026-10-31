@@ -30,7 +30,7 @@ export interface AnalysisData {
 	targetDate: string | null;
 }
 
-export function normalizeAnalysis(raw: Record<string, unknown>): AnalysisData {
+export function normalizeAnalysis(raw: Record<string, unknown>, today?: string): AnalysisData {
 	return {
 		title: text(raw.title) || null,
 		summary: text(raw.summary),
@@ -50,7 +50,7 @@ export function normalizeAnalysis(raw: Record<string, unknown>): AnalysisData {
 		intent: oneOfIds(raw.intent, isIntentId) ?? DEFAULT_INTENT,
 		practiceKind: oneOfIds(raw.practiceKind, isPracticeKindId),
 		goal: text(raw.goal) || null,
-		targetDate: isoDate(raw.targetDate)
+		targetDate: notInPast(isoDate(raw.targetDate), today)
 	};
 }
 
@@ -85,4 +85,16 @@ function oneOfIds<T extends string>(value: unknown, is: (v: unknown) => v is T):
 function isoDate(value: unknown): string | null {
 	const v = text(value);
 	return /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v)) ? v : null;
+}
+
+/**
+ * A target date that has already passed was almost always written without a year ("my trip in
+ * March"): move it to the next year it's still ahead in.
+ */
+function notInPast(date: string | null, today?: string): string | null {
+	if (!date || !today || date >= today) return date;
+	let year = Number(date.slice(0, 4));
+	let next = date;
+	while (next < today) next = `${++year}${date.slice(4)}`;
+	return next;
 }

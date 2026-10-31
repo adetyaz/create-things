@@ -12,14 +12,14 @@
 - [x] H2. `memories` table + queue consumer that sends summaries to Walrus within its rate limit; summaries go through Walrus `analyze` to extract facts (US-071) (31 Oct: `features/memory`, `createthings-memory` queue + DLQ, per-user namespaces, analysis remembers goals; verified 31 Oct: a learning goal was sent to Walrus mainnet; analyze extracted 6 facts)
 - [ ] H3. Memory writes for every type in the Breakdown list; at least 10 on mainnet
 - [ ] H4. Recall wired into Pick for me, roadmaps, "I'm stuck"/"teach me" and pet chat; the pet cites the memory it used (US-071) (31 Oct: Pick for me done; roadmaps, stuck and chat come with those features)
-- [ ] H5. Plan with time blocks: `plan_slots` with day, start time or habit anchor, place; drag to move; Today shows today's block; nudges at the block's time (US-073) (31 Oct: server side done and verified live: move/unplan a block, misses found on read. Dragging is UI; nudges come with email and push, #68)
+- [x] H5. Plan with time blocks: `plan_slots` with day, start time or habit anchor, place; drag to move; Today shows today's block; nudges at the block's time (US-073) (31 Oct: server side done and verified live: move/unplan a block, misses found on read. Dragging blocks moves to #17 with the screens; nudges move to #68 with email and push)
 - [x] H5a. Weekly plan: blocks wanted (count + when) → the pet fills them from the month's goals as implementation intentions; adjust and save; `plan_periods` (US-085) (verified live 31 Oct: 4 blocks filled in roadmap order and saved; `plan` memory sent. Screen comes with the UI)
 - [x] H5b. Monthly plan: review + pick 1–3 goals; the rest parked until next month (`items.parked_until`); Pick for me and the weekly plan draw only from the goals (US-084) (verified live 31 Oct: 1 goal, 4 parked; `lesson_learned` + `plan_change` sent)
 - [x] H5d. Year, half-year and quarter plans as a period registry (`features/plan/periods.ts`); each feeds the one below; reviews (yearly integrity report); `plan_periods.kind` becomes a text registry id (US-099) (verified live 31 Oct: 2026 planned with themes, intention, goals and a 2025 review; H2 and Q4 picked from the period above; Q4 goal due 2026-12-31; month suggests the quarter's goal; migration 0011)
 - [x] H5c. Tomorrow's top 3, ranked (Ivy Lee); Today shows only #1 (US-086). The shutdown screen itself is #28b (verified live 31 Oct: reverse ranking applied; `GET /api/plan/day` returns #1 as `first`)
 - [x] H6. Fit-it-in flow for new ideas: add as step / swap a block / park / 5-minute note; related item found with Walrus `embed`; stop and continue (US-072) (31 Oct: verified live: related idea 0.44 → add as a step, unrelated 0.18 → park; `idea_merged`/`idea_parked` sent. Stop and continue verified live: starting again says "You'd done 1 of 9 steps; next up: …")
 - [x] H6b. Reshuffle: missed blocks offered new slots, today rebuilt, never miss twice (2-minute version first after a missed day), busy-week reshuffle (US-079, US-073) (verified live 31 Oct: missed blocks offered new slots, never miss twice put yesterday's step first today, busy week kept 1 and moved 1; `plan_change` sent)
-- [ ] H7. Voice mode: record → Workers AI transcription → split + sort ideas → fit-it-in (US-074)
+- [ ] H7. Voice mode: record → Workers AI transcription → split + sort ideas → fit-it-in (US-074); also spoken "I want to…" (from 24g, US-089)
 - [ ] H8. Next-thing suggestions that carry knowledge forward (US-075)
 - [ ] H9. "What your pet knows": list, delete, forget all (US-076)
 - [x] H10. Tatum client (server-only): Sui RPC + Data API (30 Oct: `src/lib/server/tatum`, gRPC over fetch; mainnet + testnet + SUI/USD pass under `wrangler dev`)
@@ -34,14 +34,14 @@
 
 ## Phase 0 — Platform move
 
-- [ ] 1. Switch to `@sveltejs/adapter-cloudflare`; add `wrangler.toml` with R2, KV, Queues, Hyperdrive, Workers AI bindings
+- [ ] 1. Switch to `@sveltejs/adapter-cloudflare`; add `wrangler.toml` with R2, KV, Queues, Hyperdrive, Workers AI bindings (31 Oct: adapter-cloudflare 7.2.9 with `wrangler.jsonc`: Hyperdrive, Workers AI, three queues + DLQs, `env.local`. Left: R2 and KV bindings, which come with #6)
 - [ ] 2. Neon project + Hyperdrive config; confirm ORM (Drizzle) works through Hyperdrive (30 Oct: Neon project linked via `neon.ts`, Drizzle + `pg` read/write pass through local Hyperdrive emulation. Left: real Hyperdrive config, needs `wrangler login`)
 - [x] 3. Database schema + migrations for the tables in the Data Model section (30 Oct: 25 tables in `src/lib/server/db/schema.ts`; `drizzle/0000_init.sql` applied to Neon `production`; typed insert/read through Hyperdrive verified. Foreign keys to Better Auth users come with #4)
 - [ ] 4. Better Auth: Google + magic links, optional 2FA (US-001). Built near the end (hackathon Stage E); until then `src/lib/server/user.ts` returns one dev user
 - [ ] 5. Extension signs in against the new API
 - [ ] 6. R2 uploads replace Uploadcare; signed URLs for private images
 - [x] 7. Remove publish, portfolio, Figma, Creative DNA, Upstash and Notion-as-database code, plus their routes, nav links and landing-page copy (30 Oct: 43 files removed; landing page is a v2 placeholder until the redesign; kept AI modules, metascraper, Notion client for export, privacy page, extension)
-- [ ] 8. Check `node-vibrant` and `metascraper` on Workers; swap them or move them into a queue consumer (30 Oct: metascraper works; node-vibrant fails, replacement to decide)
+- [x] 8. Check `node-vibrant` and `metascraper` on Workers; swap them or move them into a queue consumer (30 Oct: metascraper works; node-vibrant fails, replacement to decide) (done 30 Oct: replaced by Material Color Utilities + `jpeg-js`/`fast-png`; palettes verified in every analysis since)
 - [ ] 9. Verify: sign in on web and extension, upload an image to R2, read/write Postgres from a Worker
 
 ## Phase 1 — Capture + AI foundation
@@ -56,7 +56,7 @@
 
 ## Phase 2 — Choosing
 
-- [ ] 17. Today screen as home (US-014)
+- [ ] 17. Today screen as home (US-014); plan screen: drag blocks to move them (`PATCH /api/plan/slots/[id]`, from H5)
 - [ ] 18. Onboarding brain dump (US-002)
 - [ ] 19. Triage screen + API (US-013) (31 Oct: `POST /api/triage` built and verified; screen waits for the UI redesign)
 - [ ] 20. Pick for me + API (US-015) (31 Oct: `POST /api/focus/pick` + decide built, memory-informed with citations; verified: picked the jazz-piano learning goal, Start moved it to Focus, decision remembered on Walrus. Left: Start should also create the project page and roadmap (Phase 3))
@@ -70,10 +70,10 @@
 - [x] 24b. Adaptive roadmap: re-plan what comes next when a topic or milestone is done (US-081) (31 Oct: `POST /api/steps/[id]/complete` queues a re-plan when a milestone finishes; verified live 31 Oct: finished milestone kept, the 3 untouched ones rewritten from memory; `plan_change` memory saved)
 - [x] 24c. Learning rules in skill roadmaps: chunk shape, a recall check ending each learning step, interleaved practice, process framing (US-087) (verified live 31 Oct on "Learn Jazz Piano Chords": 4 chunks, a recall question on every step, an interleave step. "Stuck offers a break first" comes with #48 (pet chat handles "I'm stuck"))
 - [x] 24d. Intents and practice kinds as registries (`features/intents`); `items.intent`, `practice_kind`, `goal`, `target_date` replace `is_learning_goal`; analysis guesses them (US-088) (verified live 31 Oct: 6 different notes all got the right intent and practice kind, the AWS exam date was read, and the garden roadmap followed the tend shape; migrations 0006 + 0007)
-- [ ] 24e. Confirm card at Start and at month pick: intent, goal, date, each changeable; remembered (US-088) (31 Oct: verified live: Start on an unconfirmed item shows the card and waits; confirming plans the roadmap toward the confirmed goal; remembered. Not yet seen: a correction memory, and cards from a month pick)
+- [x] 24e. Confirm card at Start and at month pick: intent, goal, date, each changeable; remembered (US-088) (31 Oct: verified live: Start on an unconfirmed item shows the card and waits; confirming plans the roadmap toward the confirmed goal; remembered. Verified live 31 Oct: a correction is remembered as one ("corrected: it's learn a skill, not build a habit"), and a month pick returns cards for unconfirmed goals)
 - [x] 24f. Roadmap goal ("by the end you'll be able to…", 2–3 suggestions) and proving grounds after each learning milestone (US-090) (31 Oct: verified live: 3 goal options per roadmap, proving grounds per milestone for jazz (Autumn Leaves → Blue Bossa) and AWS (quiz → S3 lab → IAM lab → timed practice exam). Switching the goal verified live: Blue Bossa kept exactly as the goal and the plan rebuilt toward it)
-- [ ] 24g. "I want to…" input, typed or spoken (US-089) (31 Oct: typed works as a note capture, verified live with 6 sentences in check-intents; spoken comes with voice, H7)
-- [ ] 24h. Follow a course: syllabus from a PDF or photos → course units in order → course roadmap; class dates feed the weekly plan (US-091) (31 Oct: verified live: sample syllabus read into units with dates (practice: body), the showcase as target date, one milestone per unit with matching titles, a real song as the Week 4 proving ground. Not yet seen: the week proposal marking blocks before a class)
+- [x] 24g. "I want to…" input, typed or spoken (US-089) (31 Oct: typed works as a note capture, verified live with 6 sentences in check-intents; spoken moves to H7 with voice)
+- [x] 24h. Follow a course: syllabus from a PDF or photos → course units in order → course roadmap; class dates feed the weekly plan (US-091) (31 Oct: verified live: sample syllabus read into units with dates (practice: body), the showcase as target date, one milestone per unit with matching titles, a real song as the Week 4 proving ground. Verified live 31 Oct: the week proposal lists the classes and marks the block before a class)
 - [x] 24i. Try-it-out tasters: 2–3 sessions, then keep / park / let go (US-092) (verified live 31 Oct: pottery got one milestone of taster sessions, finishing them asked keep / park / let go, keep made it a learning goal with a full wheel-throwing roadmap)
 - [ ] 25. Project space + journal ported to Postgres (US-021, US-022)
 - [ ] 26. Pomodoro timer, start from step, end-of-session note (US-026, US-027)
@@ -136,7 +136,7 @@
 - [ ] 65. Installable PWA + share target (US-068, US-007)
 - [ ] 66. Offline cache + IndexedDB sync queue (US-069)
 - [ ] 67. Extension badge + lightweight pet in popup (US-058)
-- [ ] 68. Email (Resend) + web push in the pet's voice; quiet hours (US-059, US-060)
+- [ ] 68. Email (Resend) + web push in the pet's voice; quiet hours (US-059, US-060); nudges at a block's time or habit anchor (from H5)
 - [ ] 69. Weekly digest card + email: focused hours first, identity language (US-061)
 - [ ] 70. Verify: go offline mid-pomodoro and journal, come back, everything syncs
 
