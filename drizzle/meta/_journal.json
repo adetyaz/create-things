@@ -29,6 +29,13 @@
       "when": 1793445540815,
       "tag": "0003_item_analysis_error",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793456339045,
+      "tag": "0004_roadmap_step_details",
+      "breakpoints": true
     }
   ]
 }

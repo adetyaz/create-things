@@ -1,0 +1,71 @@
+import type { RecalledMemory } from '$lib/server/features/memory/recall';
+
+export const ROADMAP_SYSTEM = `You plan projects and learning as navigation for a scattered person: there must always be a clear next step, small enough to start today. Every step takes 15–30 minutes and is an action to DO, not a topic to study. Skip what they already know. Reply with one JSON object only.`;
+
+const STEP_SHAPE = `{ "title": "imperative, specific action", "minutes": 15-30, "twoMinute": "the tiniest way to start, under 2 minutes", "searchTerms": ["2-3 exact things to type into a search engine"], "tools": ["0-3 tools or apps needed"] }`;
+
+function memoryLines(memories: RecalledMemory[]): string[] {
+	if (memories.length === 0) return ['(nothing yet)'];
+	return memories.map((m) => `- ${m.text}`);
+}
+
+export interface RoadmapContext {
+	title: string;
+	isLearningGoal: boolean;
+	summary: string | null;
+	brief: string | null;
+	skills: string[];
+	size: string | null;
+	difficulty: string | null;
+	memories: RecalledMemory[];
+}
+
+export function roadmapPrompt(c: RoadmapContext): string {
+	return [
+		`Make a roadmap for: "${c.title}"`,
+		c.isLearningGoal
+			? 'This is a LEARNING GOAL: use the skill shape (basics → practice → a small project of their own).'
+			: 'This is a THING TO MAKE: use the project shape (set up → build the core → polish → share or finish).',
+		c.summary && `What it is: ${c.summary}`,
+		c.brief && `Starting brief: ${c.brief}`,
+		c.skills.length > 0 && `Skills it needs: ${c.skills.join(', ')}`,
+		c.size && `Expected size: ${c.size}${c.difficulty ? `, ${c.difficulty}` : ''}`,
+		'',
+		'What you remember about them (skip what they know, design around what tripped them up):',
+		...memoryLines(c.memories),
+		'',
+		'Return:',
+		'{',
+		`  "style": "${c.isLearningGoal ? 'skill' : 'project'}",`,
+		'  "skills": ["skills this builds"],',
+		'  "resources": [{ "title": "...", "url": "only if you are sure it exists, else omit" }],',
+		`  "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ] } ]`,
+		'}',
+		'3-5 milestones, 2-5 steps each.'
+	]
+		.filter((line) => line !== false && line !== null)
+		.join('\n');
+}
+
+export function replanPrompt(c: {
+	title: string;
+	done: { milestone: string; title: string }[];
+	remainingMilestones: string[];
+	memories: RecalledMemory[];
+}): string {
+	return [
+		`Re-plan the rest of the roadmap for: "${c.title}"`,
+		'',
+		'Steps they have finished:',
+		...c.done.map((d) => `- [${d.milestone}] ${d.title}`),
+		'',
+		`Milestones still ahead: ${c.remainingMilestones.join(' → ')}`,
+		'',
+		'What you remember about them:',
+		...memoryLines(c.memories),
+		'',
+		'Rewrite ONLY the milestones still ahead, building on what they have done and remember (shorten what they already know, add support where they struggled). You may rename or merge them.',
+		'Return:',
+		`{ "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ] } ] }`
+	].join('\n');
+}

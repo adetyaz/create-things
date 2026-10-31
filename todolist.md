@@ -62,8 +62,8 @@
 
 ## Phase 3 — Starting + Pomodoro
 
-- [ ] 24. Roadmap prompt with ≤30-minute steps; project vs skill style; each step gets a 2-minute version, search terms and tools (US-017, US-018, US-081, US-082)
-- [ ] 24b. Adaptive roadmap: re-plan what comes next when a topic or milestone is done (US-081)
+- [x] 24. Roadmap prompt with ≤30-minute steps; project vs skill style; each step gets a 2-minute version, search terms and tools (US-017, US-018, US-081, US-082) (31 Oct: roadmap queue + job, recall-informed prompt, Start creates the project and queues it, `GET/POST /api/items/[id]/roadmap`, migration 0004; verified live 31 Oct: 4 milestones / 8 steps with 2-minute versions, search terms and tools; `plan` memory saved)
+- [x] 24b. Adaptive roadmap: re-plan what comes next when a topic or milestone is done (US-081) (31 Oct: `POST /api/steps/[id]/complete` queues a re-plan when a milestone finishes; verified live 31 Oct: finished milestone kept, the 3 untouched ones rewritten from memory; `plan_change` memory saved)
 - [ ] 25. Project space + journal ported to Postgres (US-021, US-022)
 - [ ] 26. Pomodoro timer, start from step, end-of-session note (US-026, US-027)
 - [ ] 27. Focus sounds: Web Audio noise, R2 loops, mixer, fades, starter set (US-028)
