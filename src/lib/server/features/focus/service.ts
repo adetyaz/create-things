@@ -7,6 +7,7 @@ import { withDb } from '$lib/server/db';
 import { items, userSettings } from '$lib/server/db/schema';
 import { remember, type NewMemory } from '$lib/server/features/memory/service';
 import { getRoadmap, startPlanning } from '$lib/server/features/roadmap/service';
+import { understandingOf, type Understanding } from '$lib/server/features/intents/understanding';
 
 type Platform = App.Platform | undefined;
 type Item = typeof items.$inferSelect;
@@ -24,7 +25,13 @@ export interface ResumePoint {
 }
 
 export type DecideResult =
-	| { status: 'started'; item: Item; resumeAt: ResumePoint | null }
+	| {
+			status: 'started';
+			item: Item;
+			resumeAt: ResumePoint | null;
+			/** Shown when the item isn't confirmed yet; confirming plans its roadmap. */
+			confirm: Understanding | null;
+	  }
 	| { status: 'skipped' | 'let_go'; item: Item }
 	| { status: 'at_limit'; limit: number; focus: Item[] }
 	| { status: 'not_found' };
@@ -91,8 +98,14 @@ export async function decide(
 	const updated = await setStatus(platform, item.id, 'focus');
 	note(platform, userId, item, `Started working on "${item.title}".`);
 	// Starting makes the project and plans its roadmap in the background.
-	await startPlanning(platform, userId, updated);
-	return { status: 'started', item: updated, resumeAt: await resumePoint(platform, userId, item) };
+	const confirmed = Boolean(updated.intentConfirmedAt);
+	await startPlanning(platform, userId, updated, { roadmap: confirmed });
+	return {
+		status: 'started',
+		item: updated,
+		resumeAt: await resumePoint(platform, userId, item),
+		confirm: confirmed ? null : understandingOf(updated)
+	};
 }
 
 /** The next unfinished step of an item that already has progress; null for a fresh start. */

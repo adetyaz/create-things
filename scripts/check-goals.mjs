@@ -19,7 +19,8 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 async function freshRoadmap(itemId, after) {
 	for (let i = 0; i < 36; i++) {
 		await wait(5000);
-		const { roadmap } = await call('GET', `/api/items/${itemId}/roadmap`);
+		const { roadmap, planError } = await call('GET', `/api/items/${itemId}/roadmap`);
+		if (planError) throw new Error(`Planning failed: ${planError}`);
 		if (roadmap && roadmap.roadmap.createdAt !== after) return roadmap;
 	}
 	throw new Error('No new roadmap appeared. Check the dev server log for [roadmap] errors.');

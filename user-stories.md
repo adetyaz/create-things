@@ -2,7 +2,7 @@
 
 **v2.0 · October 2026** · Source of truth: [Project Breakdown.md](Project%20Breakdown.md)
 
-97 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
+98 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
 
 ## Keys
 
@@ -556,6 +556,7 @@
 | US-033 | Review cards on a schedule             | 5     | `[ ]`  |
 | US-034 | Explain it back in my own words        | 5     | `[ ]`  |
 | US-035 | Browse everything I've learned         | 5     | `[ ]`  |
+| US-098 | Practise with quizzes and flashcards   | 5     | `[ ]`  |
 
 ### US-031 — Turn completed steps into cards
 
@@ -597,6 +598,16 @@
 
 - AC-01 Library grouped by item or topic, with search
 - AC-02 Each card links to its source item, step or journal entry
+
+### US-098 — Practise with quizzes and flashcards
+
+> As a learner, I want to test myself on what I've learned so that I find what I don't really know before it matters.
+
+- AC-01 The recall question of every finished learning step becomes a flashcard automatically
+- AC-02 A 5–10 question practice quiz is offered at the end of a milestone and in the days before a target date
+- AC-03 Questions mix in older milestones, and each answer is explained right away
+- AC-04 Wrong answers become flashcards and are remembered, so my plan and lessons focus on them
+- AC-05 Uses the free quota, then credits; the cost is shown before it runs
 
 ---
 

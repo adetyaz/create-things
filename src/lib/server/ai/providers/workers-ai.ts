@@ -1,7 +1,7 @@
 import type { WorkersAi } from '$lib/server/platform/bindings';
 import { base64 } from '../json';
 import { MODELS } from '../models';
-import type { JsonRequest } from '../types';
+import { DEFAULT_MAX_TOKENS, type JsonRequest } from '../types';
 
 /** Workers AI replies as `{ response }`; the response may already be parsed JSON. */
 function unwrap(reply: unknown): unknown {
@@ -25,7 +25,7 @@ export async function workersAiVision(ai: WorkersAi, request: JsonRequest): Prom
 					]
 				}
 			],
-			max_tokens: 1500
+			max_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS
 		})
 	);
 }
@@ -37,7 +37,7 @@ export async function workersAiText(ai: WorkersAi, request: JsonRequest): Promis
 				{ role: 'system', content: request.system },
 				{ role: 'user', content: request.prompt }
 			],
-			max_tokens: 1500,
+			max_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
 			...(request.schema
 				? { response_format: { type: 'json_schema', json_schema: request.schema } }
 				: {})
