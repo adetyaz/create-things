@@ -48,7 +48,8 @@ describe('normalizeRoadmap', () => {
 			twoMinute: 'Find middle C',
 			searchTerms: ['Cmaj7 voicing'],
 			tools: ['Piano'],
-			recall: 'Which notes make Cmaj7?'
+			recall: 'Which notes make Cmaj7?',
+			kind: 'step'
 		});
 		expect(roadmap.milestones[0].steps[1].recall).toBeNull();
 		expect(roadmap.milestones[0].steps[1].minutes).toBe(25);
@@ -56,6 +57,39 @@ describe('normalizeRoadmap', () => {
 
 	it('falls back to the given style and copes with nothing usable', () => {
 		const roadmap = normalizeRoadmap({ milestones: 'nope' }, 'project');
-		expect(roadmap).toEqual({ style: 'project', skills: [], resources: [], milestones: [] });
+		expect(roadmap).toEqual({
+			style: 'project',
+			goalOptions: [],
+			skills: [],
+			resources: [],
+			milestones: []
+		});
+	});
+
+	it('keeps goal options and closes milestones with proving grounds', () => {
+		const roadmap = normalizeRoadmap(
+			{
+				goalOptions: ["By the end you'll be able to play Autumn Leaves", '', 'Comp a blues'],
+				milestones: [
+					{
+						title: 'Milestone 1: Shell voicings',
+						steps: [{ title: 'Learn 3-7 shells' }],
+						provingGround: [{ title: 'Play Autumn Leaves (A section)', minutes: 40 }, {}]
+					},
+					{ title: 'Only proofs', provingGround: [{ title: 'Play a song' }] }
+				]
+			},
+			'skill'
+		);
+		expect(roadmap.goalOptions).toEqual([
+			"By the end you'll be able to play Autumn Leaves",
+			'Comp a blues'
+		]);
+		expect(roadmap.milestones).toHaveLength(1);
+		expect(roadmap.milestones[0].title).toBe('Shell voicings');
+		expect(roadmap.milestones[0].steps.map((s) => [s.kind, s.title, s.minutes])).toEqual([
+			['step', 'Learn 3-7 shells', 25],
+			['proof', 'Play Autumn Leaves (A section)', 40]
+		]);
 	});
 });

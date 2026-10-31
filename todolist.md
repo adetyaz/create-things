@@ -70,7 +70,7 @@
 - [x] 24c. Learning rules in skill roadmaps: chunk shape, a recall check ending each learning step, interleaved practice, process framing (US-087) (verified live 31 Oct on "Learn Jazz Piano Chords": 4 chunks, a recall question on every step, an interleave step. "Stuck offers a break first" comes with #48 (pet chat handles "I'm stuck"))
 - [x] 24d. Intents and practice kinds as registries (`features/intents`); `items.intent`, `practice_kind`, `goal`, `target_date` replace `is_learning_goal`; analysis guesses them (US-088) (verified live 31 Oct: 6 different notes all got the right intent and practice kind, the AWS exam date was read, and the garden roadmap followed the tend shape; migrations 0006 + 0007)
 - [ ] 24e. Confirm card at Start and at month pick: intent, goal, date, each changeable; remembered (US-088)
-- [ ] 24f. Roadmap goal ("by the end you'll be able to…", 2–3 suggestions) and proving grounds after each learning milestone (US-090)
+- [ ] 24f. Roadmap goal ("by the end you'll be able to…", 2–3 suggestions) and proving grounds after each learning milestone (US-090) (31 Oct: verified live: 3 goal options per roadmap, proving grounds per milestone for jazz (Autumn Leaves → Blue Bossa) and AWS (quiz → S3 lab → IAM lab → timed practice exam). Switching the goal queued fine; the re-made plan not yet seen)
 - [ ] 24g. "I want to…" input, typed or spoken (US-089)
 - [ ] 24h. Follow a course: syllabus from a PDF or photos → ordered collection → course roadmap; class dates feed the weekly plan (US-091)
 - [ ] 24i. Try-it-out tasters: 2–3 sessions, then keep / park / let go (US-092)

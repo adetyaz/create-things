@@ -7,6 +7,8 @@ export interface PlannedStep {
 	searchTerms: string[];
 	tools: string[];
 	recall: string | null;
+	/** 'proof' for a proving ground at the end of a milestone. */
+	kind: 'step' | 'proof';
 }
 
 export interface PlannedMilestone {
@@ -21,6 +23,8 @@ export interface Resource {
 
 export interface PlannedRoadmap {
 	style: 'project' | 'skill';
+	/** "By the end you'll be able to…" options, best first. */
+	goalOptions: string[];
 	skills: string[];
 	resources: Resource[];
 	milestones: PlannedMilestone[];
@@ -28,6 +32,7 @@ export interface PlannedRoadmap {
 
 const MAX_MILESTONES = 6;
 const MAX_STEPS = 6;
+const MAX_PROOFS = 3;
 
 export function normalizeRoadmap(
 	raw: Record<string, unknown>,
@@ -38,17 +43,24 @@ export function normalizeRoadmap(
 		.map((m) => {
 			const milestone = (m ?? {}) as Record<string, unknown>;
 			return {
-				title: text(milestone.title),
-				steps: list(milestone.steps)
-					.slice(0, MAX_STEPS)
-					.map(step)
-					.filter((s) => s.title)
+				// Models sometimes number them ("Milestone 1: Basics"); the order already says that.
+				title: text(milestone.title).replace(/^(milestone|step|phase)\s*\d+\s*[:.–-]\s*/i, ''),
+				steps: [
+					...list(milestone.steps)
+						.slice(0, MAX_STEPS)
+						.map((s) => step(s, 'step')),
+					// Proving grounds close the milestone: real things that use what it taught.
+					...list(milestone.provingGround)
+						.slice(0, MAX_PROOFS)
+						.map((s) => step(s, 'proof'))
+				].filter((s) => s.title)
 			};
 		})
-		.filter((m) => m.title && m.steps.length > 0);
+		.filter((m) => m.title && m.steps.some((s) => s.kind === 'step'));
 
 	return {
 		style: raw.style === 'skill' || raw.style === 'project' ? raw.style : fallbackStyle,
+		goalOptions: [...new Set(list(raw.goalOptions).map(text).filter(Boolean))].slice(0, 3),
 		skills: list(raw.skills).map(text).filter(Boolean).slice(0, 10),
 		resources: list(raw.resources)
 			.map((r) => {
@@ -63,7 +75,7 @@ export function normalizeRoadmap(
 	};
 }
 
-function step(value: unknown): PlannedStep {
+function step(value: unknown, kind: PlannedStep['kind']): PlannedStep {
 	const s = (value ?? {}) as Record<string, unknown>;
 	const minutes = Number(s.minutes);
 	return {
@@ -73,7 +85,8 @@ function step(value: unknown): PlannedStep {
 		twoMinute: text(s.twoMinute) || null,
 		searchTerms: list(s.searchTerms).map(text).filter(Boolean).slice(0, 4),
 		tools: list(s.tools).map(text).filter(Boolean).slice(0, 4),
-		recall: text(s.recall) || null
+		recall: text(s.recall) || null,
+		kind
 	};
 }
 

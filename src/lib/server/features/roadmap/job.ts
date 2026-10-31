@@ -22,6 +22,8 @@ type Step = typeof roadmapSteps.$inferSelect;
 export interface RoadmapJob {
 	itemId: string;
 	mode: 'generate' | 'replan';
+	/** A goal the user chose: kept exactly instead of the model's first option. */
+	goal?: string;
 }
 
 export type RoadmapOutcome =
@@ -32,7 +34,7 @@ export async function runRoadmapJob(platform: Platform, job: RoadmapJob): Promis
 	try {
 		return job.mode === 'replan'
 			? await replan(platform, job.itemId)
-			: await generate(platform, job.itemId);
+			: await generate(platform, job.itemId, job.goal);
 	} catch (e) {
 		// Not thrown, so the queue doesn't retry: it would fail the same way until credits return.
 		if (e instanceof OutOfCreditsError) {
@@ -42,7 +44,11 @@ export async function runRoadmapJob(platform: Platform, job: RoadmapJob): Promis
 	}
 }
 
-async function generate(platform: Platform, itemId: string): Promise<RoadmapOutcome> {
+async function generate(
+	platform: Platform,
+	itemId: string,
+	chosenGoal?: string
+): Promise<RoadmapOutcome> {
 	const found = await withDb(platform, async (db) => {
 		const [item] = await db.select().from(items).where(eq(items.id, itemId));
 		if (!item) return null;
@@ -74,7 +80,8 @@ async function generate(platform: Platform, itemId: string): Promise<RoadmapOutc
 					title: item.title,
 					intent: item.intent,
 					practiceKind: item.practiceKind,
-					goal: item.goal,
+					goal: chosenGoal ?? item.goal,
+					goalChosen: Boolean(chosenGoal),
 					targetDate: item.targetDate,
 					summary: analysis?.summary ?? item.note,
 					brief: analysis?.brief ?? null,
@@ -92,6 +99,11 @@ async function generate(platform: Platform, itemId: string): Promise<RoadmapOutc
 		{ ref: `roadmap:${item.id}` }
 	);
 
+	const goal = chosenGoal ?? plan.goalOptions[0] ?? item.goal;
+	const goalOptions = [
+		...new Set([...(chosenGoal ? [chosenGoal] : []), ...plan.goalOptions])
+	].slice(0, 3);
+
 	// One roadmap per item: a new one replaces the old (its steps go with it).
 	await withDb(platform, (db) =>
 		db.transaction(async (tx) => {
@@ -101,6 +113,8 @@ async function generate(platform: Platform, itemId: string): Promise<RoadmapOutc
 				.values({
 					itemId: item.id,
 					style: plan.style,
+					goal,
+					goalOptions,
 					skills: plan.skills,
 					resources: plan.resources
 				})
@@ -111,7 +125,7 @@ async function generate(platform: Platform, itemId: string): Promise<RoadmapOutc
 
 	await remember(platform, item.userId, {
 		type: 'plan',
-		summary: `Plan for "${shortTitle(item.title)}": ${plan.milestones.map((m) => m.title).join(' → ')}. First step: ${plan.milestones[0].steps[0].title}.`,
+		summary: `Plan for "${shortTitle(item.title)}"${goal ? ` (goal: ${goal})` : ''}: ${plan.milestones.map((m) => m.title).join(' → ')}. First step: ${plan.milestones[0].steps[0].title}.`,
 		sourceType: 'item',
 		sourceId: item.id
 	}).catch((e) => console.error('[roadmap] remember failed for', item.id, e));
@@ -163,6 +177,9 @@ async function replan(platform: Platform, itemId: string): Promise<RoadmapOutcom
 				system: ROADMAP_SYSTEM,
 				prompt: replanPrompt({
 					title: item.title,
+					intent: item.intent,
+					practiceKind: item.practiceKind,
+					goal: roadmap.goal,
 					done: done.map((s) => ({ milestone: s.milestone, title: s.title })),
 					remainingMilestones: ahead,
 					memories
@@ -226,7 +243,8 @@ function stepRows(roadmapId: string, milestones: PlannedMilestone[], start: numb
 			twoMinute: s.twoMinute,
 			searchTerms: s.searchTerms,
 			tools: s.tools,
-			recall: s.recall
+			recall: s.recall,
+			kind: s.kind
 		}))
 	);
 }
