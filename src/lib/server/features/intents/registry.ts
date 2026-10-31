@@ -71,7 +71,7 @@ export const INTENTS = {
 		shape: 'tasters',
 		roadmapStyle: 'skill',
 		roadmapShape:
-			'Keep it light: the first milestone is 2–3 short taster sessions, the last step is deciding whether to keep going.',
+			'Plan only taster sessions: 2–3 short sessions, each trying a different side of it, with the cheapest way to try it (a drop-in class, a starter kit, a video).',
 		learning: true,
 		goalHint: 'a clear decision after the tasters: keep it, park it or let it go'
 	},

@@ -226,6 +226,12 @@ Possible later sources: YouTube or Spotify playlists, browser bookmark folders, 
 - Changing a confirmed item later re-plans it: a fresh roadmap if nothing is done yet, otherwise the milestones ahead
 - Remembered either way; a correction ("this is a habit, not a learning goal") is remembered as one, so future guesses improve
 
+**Trying something out (tasters)**
+
+- A "try it out" item gets **2–3 taster sessions** instead of a full roadmap, each trying a different side of it (pottery: hand-building at home, a drop-in wheel class, glazing), with the cheapest way to try it (a drop-in class, a starter kit, a video) and no proving grounds
+- After the last session the pet asks: **keep it** (it becomes a full plan as a learning goal, or another intent you choose), **park it** (back on the Shortlist until a day, default next month) or **let it go** (archived; letting go counts as progress)
+- **How it works:** the `tasters` plan shape makes the roadmap job plan one milestone of 2–3 sessions. Finishing the last one returns the decision in the step-complete reply; `POST /api/items/[id]/tasters` applies it. Keeping it plans a fresh roadmap (5 credits). What you decided, and why, is remembered
+
 **Following a course**
 
 - Upload the syllabus as a PDF or one or more photos/screenshots
@@ -1033,6 +1039,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/triage`                      | Keep (→ Shortlist) / let go (→ Archived) / later |
 | `/api/focus/pick`                  | Suggest one Shortlist item from time, energy and recalled memories; cites the memories used |
 | `/api/focus`, `/api/focus/decide`, `/api/focus/pause` | Current Focus items; Start / Not today / Let it go; pause back to the Shortlist |
+| `/api/items/[id]/tasters`          | POST { choice: keep / park / let_go, intent?, until?, note? } after the taster sessions |
 | `/api/courses`                     | POST a syllabus (PDF or up to 10 photos, base64) → a course item with its units in order |
 | `/api/items/[id]/understanding`    | GET the confirm card (intent, kind of practice, goal, date, and the choices); PUT to confirm or change it |
 | `/api/items/[id]/roadmap` (PATCH)   | Choose or write the goal: re-plans toward it (a fresh roadmap if nothing is done yet, else the milestones ahead) |

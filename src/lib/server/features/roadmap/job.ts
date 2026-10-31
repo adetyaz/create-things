@@ -14,7 +14,7 @@ import { recallMemories } from '$lib/server/features/memory/recall';
 import { intentOf } from '$lib/server/features/intents/registry';
 import { unitsOf } from '$lib/server/features/courses/service';
 import { alignToUnits, normalizeRoadmap, type PlannedMilestone } from './normalize';
-import { ROADMAP_SYSTEM, replanPrompt, roadmapPrompt } from './prompt';
+import { isTasters, ROADMAP_SYSTEM, replanPrompt, roadmapPrompt } from './prompt';
 
 type Platform = App.Platform | undefined;
 type Step = typeof roadmapSteps.$inferSelect;
@@ -126,7 +126,9 @@ async function generate(
 							courseUnits.map((u) => u.title)
 						)
 					}
-				: raw;
+				: isTasters(item.intent)
+					? { ...raw, milestones: tasterSessions(raw.milestones) }
+					: raw;
 			// Thrown inside withCredits, so an unusable answer is refunded and retried.
 			if (plan.milestones.length === 0) throw new Error('The model returned no usable milestones');
 			return { plan, model: result.model };
@@ -293,6 +295,12 @@ function stepRows(roadmapId: string, milestones: PlannedMilestone[], start: numb
 function shortTitle(title: string): string {
 	const name = title.split(/: | \| | — /)[0].trim();
 	return name.length > 80 ? `${name.slice(0, 77)}...` : name;
+}
+
+/** Tasters are one milestone of 2–3 sessions, whatever shape the model replied in. */
+function tasterSessions(milestones: PlannedMilestone[]): PlannedMilestone[] {
+	const sessions = milestones.flatMap((m) => m.steps.filter((s) => s.kind === 'step')).slice(0, 3);
+	return sessions.length ? [{ title: 'Taster sessions', steps: sessions }] : [];
 }
 
 function countSteps(milestones: PlannedMilestone[]): number {

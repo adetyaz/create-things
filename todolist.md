@@ -74,7 +74,7 @@
 - [x] 24f. Roadmap goal ("by the end you'll be able to…", 2–3 suggestions) and proving grounds after each learning milestone (US-090) (31 Oct: verified live: 3 goal options per roadmap, proving grounds per milestone for jazz (Autumn Leaves → Blue Bossa) and AWS (quiz → S3 lab → IAM lab → timed practice exam). Switching the goal verified live: Blue Bossa kept exactly as the goal and the plan rebuilt toward it)
 - [ ] 24g. "I want to…" input, typed or spoken (US-089) (31 Oct: typed works as a note capture, verified live with 6 sentences in check-intents; spoken comes with voice, H7)
 - [ ] 24h. Follow a course: syllabus from a PDF or photos → course units in order → course roadmap; class dates feed the weekly plan (US-091) (31 Oct: verified live: sample syllabus read into units with dates (practice: body), the showcase as target date, one milestone per unit with matching titles, a real song as the Week 4 proving ground. Not yet seen: the week proposal marking blocks before a class)
-- [ ] 24i. Try-it-out tasters: 2–3 sessions, then keep / park / let go (US-092)
+- [x] 24i. Try-it-out tasters: 2–3 sessions, then keep / park / let go (US-092) (verified live 31 Oct: pottery got one milestone of taster sessions, finishing them asked keep / park / let go, keep made it a learning goal with a full wheel-throwing roadmap)
 - [ ] 25. Project space + journal ported to Postgres (US-021, US-022)
 - [ ] 26. Pomodoro timer, start from step, end-of-session note (US-026, US-027)
 - [ ] 27. Focus sounds: Web Audio noise, R2 loops, mixer, fades, starter set (US-028)
