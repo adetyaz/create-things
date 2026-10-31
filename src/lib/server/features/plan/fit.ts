@@ -26,7 +26,7 @@ import {
 	roadmaps,
 	roadmapSteps
 } from '$lib/server/db/schema';
-import { embedTexts } from '$lib/server/features/memory/embed';
+import { embedItems } from '$lib/server/features/memory/embed';
 import { remember } from '$lib/server/features/memory/service';
 import { slotsWithSteps, timezoneOf } from './context';
 import { addDays, monthStart, today, weekStart, weekdayName } from './dates';
@@ -79,18 +79,23 @@ export async function proposeFit(
 
 	const describe = (id: string, title: string, note?: string | null) =>
 		[title, summaryOf.get(id) ?? note ?? ''].join('. ');
+	// Cached per item, so only new or changed text is embedded (cost rule 4).
 	const vectors = goals.length
-		? await embedTexts(userId, [
-				describe(item.id, item.title, item.note),
-				...goals.map((g) => describe(g.id, g.title))
+		? await embedItems(platform, userId, [
+				{ id: item.id, text: describe(item.id, item.title, item.note) },
+				...goals.map((g) => ({ id: g.id, text: describe(g.id, g.title) }))
 			])
 		: null;
+	const idea = vectors?.get(item.id);
 	const candidates = goals
-		.map((g, i) => ({
-			id: g.id,
-			title: g.title,
-			score: vectors ? Math.round(cosine(vectors[0], vectors[i + 1]) * 100) / 100 : null
-		}))
+		.map((g) => {
+			const goal = vectors?.get(g.id);
+			return {
+				id: g.id,
+				title: g.title,
+				score: idea && goal ? Math.round(cosine(idea, goal) * 100) / 100 : null
+			};
+		})
 		.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 	const best = candidates[0];
 	const related =

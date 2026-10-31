@@ -20,6 +20,8 @@ export const userSettings = pgTable('user_settings', {
 	/** When the weekly plan is offered: 0 = Sunday … 6 = Saturday. */
 	weeklyPlanDay: integer('weekly_plan_day').notNull().default(0),
 	weeklyPlanTime: time('weekly_plan_time').notNull().default('18:00'),
+	/** Bumped when memories are deleted: recall only reads the current Walrus namespace. */
+	memoryNamespaceVersion: integer('memory_namespace_version').notNull().default(0),
 	weatherMode: text('weather_mode').notNull().default('auto'),
 	city: text('city'),
 	runawayDays: integer('runaway_days').notNull().default(30),

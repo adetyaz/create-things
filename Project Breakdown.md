@@ -608,8 +608,38 @@ The pet is an accountability partner that **remembers**. It knows your goals, wh
 - **Network and cost:** Walrus Memory runs on **mainnet** (the hackathon needs mainnet memories). The hosted relayer's wallet pays storage, so it costs nothing beyond its rate limits and a 1 GB cap per account
 - **Namespaces:** one per user, so recall never mixes users: `createthings-<userId>` in production, `createthings-dev-<userId>` when running locally (`MEMORY_NAMESPACE_PREFIX` overrides)
 - **First source:** when an item's analysis finishes, its summary is remembered as a `goal` or `learning_goal`
-- **"What the pet knows about you"** in Settings: see every memory, delete one, or forget everything
+- **"What the pet knows about you"** in Settings: see every memory (grouped in plain words: your goals, plans and changes, what you learned, how you work), delete one, or forget everything
+- **⚠ Walrus memories can't be erased (important).** Walrus storage is append-only and the Walrus Memory SDK has no delete or forget call (checked 31 Oct 2026, `@mysten-incubation/memwal` 0.1.12). Memories are SEAL-encrypted blobs that stay on Walrus until their paid storage period ends. So deleting works by **no longer reading** them:
+  - Each user has a **namespace version**. Recall, pet chat, roadmaps and picks only read the current namespace (`createthings-<userId>-v<n>`)
+  - **Forget everything:** every memory is marked deleted in Postgres and the user moves to a fresh namespace. The pet stops using all of it at once
+  - **Delete one:** it's marked deleted and the Walrus blob ids of its facts are looked up from its stored job ids (reads only). Recall then **leaves those facts out**. Nothing is re-sent and nothing new is stored, so it costs no storage and no rate limit
+  - The old encrypted data is never read again and disappears when its storage ends. **The app says this plainly** ("removed from what your pet uses; the encrypted copy on Walrus expires on its own"), never just "deleted"
+  - Each memory records the namespace it was sent to (`memories.namespace`) and, once deleted, its facts' blob ids (`memories.blob_ids`). If a future SDK adds deletion, those can be erased properly
 - Memory is part of the assistant: guide/actions stay free; recalls inside chat count toward the chat quota
+
+#### Cost rules for Walrus and Tatum (and why)
+
+Checked 31 Oct 2026 against the Walrus Memory relayer docs, the `@mysten-incubation/memwal` 0.1.12 SDK and Tatum's plan docs. These rules exist because the limits below are shared by the whole app, not per user.
+
+**Why: the limits**
+
+- **Walrus relayer rate limit, per account:** 60 points a minute and 500 points an hour. Points per call: `analyze` 10, `remember` 5, `restore` 3, `recall` 1 (bulk, embed and status lookups aren't published). Source: [docs.wal.app/walrus-memory/relayer/overview](https://docs.wal.app/walrus-memory/relayer/overview)
+- **The whole app uses one Walrus account** (the server's delegate key), so those 500 points an hour are shared by every user: about 50 `analyze` calls an hour for everyone
+- **Storage:** 1 GB per account; every stored fact is a separate encrypted blob, and `analyze` can split one summary into several facts (one test summary became 6 blobs)
+- **No delete:** the relayer has no documented delete endpoint, so anything stored stays until its storage ends (see "Walrus memories can't be erased" above)
+- **Tatum free plan:** 3 requests a second and a monthly credit cap (Tatum's pages disagree: 100K on [docs.tatum.io/docs/plans-limits](https://docs.tatum.io/docs/plans-limits), 1M on [tatum.io/price](https://tatum.io/price); the dashboard is authoritative). Per-call credit costs for Sui aren't published
+
+**The rules**
+
+1. **Small events go in a daily digest.** Starts, skips and pauses (`pick_feedback`, small `plan_change`s) are kept in Postgres and sent as one memory per day: a day's digest goes out with the user's first memory on a later day (a scheduled daily job can replace that later). *Why:* they're frequent and low-value one by one; dozens of `analyze` calls per user become one `remember` a day
+2. **`remember` for one-fact memories, `analyze` for rich ones.** Plans, plan changes, parked and merged ideas use `remember` (5 points, one blob). Goals, learning goals, reviews, lessons and session summaries keep `analyze` (10 points), which splits them into searchable facts. *Why:* half the cost and fewer blobs, while Walrus's own AI still runs where it adds value (a hackathon judging point)
+3. **`dedupe: true` and an idempotency key on every `remember`.** *Why:* identical text reuses the existing blob, and a retried send can't store a duplicate
+4. **Embeddings are cached in Postgres** (per item, keyed by a hash of its text). *Why:* fit-it-in otherwise re-embeds every goal for each new idea
+5. **Batch lookups:** blob ids for a delete come from one bulk status call. *Why:* one request instead of one per fact
+6. **Recall uses a distance cutoff** (`maxDistance` 0.8, the SDK's suggested start). *Why:* fewer, more relevant memories in prompts means shorter AI calls
+7. **Deleting never re-sends** (filter from recall instead). *Why:* re-sending ~80 memories would cost ~800 points, more than an hour's allowance for the whole app
+8. **Tatum (when payments and receipts are built):** cache the SUI/USD rate for 10 minutes and memory receipts per user; confirm a payment by looking up its transaction with backoff that stops once found, never by tight polling; stay under 3 requests a second. *Why:* the free plan's per-second and monthly caps
+9. **Test scripts state their cost** (credits, AI calls, Walrus writes) and reuse existing items
 
 ### 14. On-chain Proof + Payments (Tatum on Sui)
 
@@ -933,7 +963,8 @@ src/lib/
 └─ server/
    ├─ platform/       env.ts (runtime secrets; fails with the key name), bindings.ts (typed Cloudflare
    │                  bindings), http.ts (zod validation, id params), user.ts (dev user until auth)
-   ├─ db/             index.ts (withDb: one client per request via Hyperdrive) + schema/ (one file per domain)
+   ├─ db/             index.ts (withDb: one client per request via Hyperdrive; one shared pool under
+   │                  `vite dev`, where each new Neon connection costs ~2.6 s) + schema/ (one file per domain)
    ├─ ai/             generateJson with the provider fallback chain; providers/ (Workers AI, Gemini, Groq)
    ├─ jobs/           queues.ts (queue names + bindings), registry.ts (queue → handler), enqueue()
    ├─ integrations/   External services: walrus/, tatum/, notion/, scraper/ (arena/ and web search later)
@@ -994,7 +1025,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | Table                | Columns                                                                 |
 | -------------------- | ----------------------------------------------------------------------- |
 | `users`, `sessions`, `accounts` | Managed by Better Auth                                       |
-| `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), shutdown_time, weekly_plan_day + weekly_plan_time (default Sunday 18:00), weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
+| `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), shutdown_time, weekly_plan_day + weekly_plan_time (default Sunday 18:00), memory_namespace_version (bumped when memories are deleted, see §13), weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
 | `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, plan_error (why the last roadmap job failed), saved_at, last_active_at, parked_until (not this month, or parked by fit-it-in), intent + practice_kind (registry ids, §3b; replaces is_learning_goal), intent_confirmed_at, goal, target_date |
 | `analyses`           | id, item_id, summary, technique, colors (palette + notes), typography, layout, mood[], style, components, for_developers, for_creators, brief, skills[] (feeds the roadmap), attribution, model |
 | `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress, goal ("by the end you'll be able to…"), goal_options (the 2–3 suggested) |
@@ -1021,7 +1052,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `plan_slots`         | id, user_id, step_id, day, start_time, anchor (e.g. "after coffee"), place, position (the day's rank: 1–3 is tomorrow's top 3), missed_at (a Focus step placed in a time block) |
 | `plan_periods`       | id, user_id, kind (registry id: year, half, quarter, month, week), starts_on, goal_item_ids[] (the period's 1–3), blocks_wanted (week), review (short summary), themes[] + intention (year: themes and who they want to become), created_at (one row per month or week planned) |
 | `comparisons`        | id, user_id, item_id, step_id, question, goal (learning/building), options (JSON: gives, price, fit, sources), pick, reason, checked_at |
-| `memories`           | id, user_id, type, summary, source_type, source_id, status (queued/sent/failed), attempts, last_error, walrus_job_id, created_at, deleted_at (local copy + outbox for Walrus) |
+| `memories`           | id, user_id, type, summary, source_type, source_id, status (queued/sent/failed), attempts, last_error, walrus_job_id, namespace (where it was sent), blob_ids (its facts, looked up on delete), created_at, deleted_at (local copy + outbox for Walrus) |
 | `voice_captures`     | id, user_id, audio_key (R2), transcript, ideas (JSON), created_at       |
 | `sui_payments`       | id, user_id, tx_digest, amount, coin (usdc/sui), purpose (credits/request), confirmed_at |
 | `notifications`      | id, user_id, kind, channel, sent_at                                     |
@@ -1070,7 +1101,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/choose`                      | Help me choose: compare options for a step (web search) |
 | `/api/ideas/fit`                   | Suggest how a new idea fits the current plan    |
 | `/api/voice`                       | Upload a voice ramble → transcript → ideas      |
-| `/api/memory/*`                    | List, delete one, forget all; receipts from Sui |
+| `/api/memories`                    | GET what the pet knows, grouped; `DELETE /api/memories/[id]` removes one (its facts are left out of recall); `POST /api/memories/forget { confirm: true }` forgets all. Receipts from Sui come with H11 |
 | `/api/pay/sui/*`                   | MPP payment, confirmation via Tatum             |
 | Queue consumers                    | analysis, arena-import, notion-export, notify   |
 | Crons                              | digest (weekly), notifications (hourly), arena sync (daily) |

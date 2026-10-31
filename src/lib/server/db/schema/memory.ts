@@ -17,6 +17,14 @@ export const memories = pgTable(
 		attempts: integer('attempts').notNull().default(0),
 		lastError: text('last_error'),
 		walrusJobId: text('walrus_job_id'),
+		/** The Walrus namespace it was sent to; deleting moves the user to a new one (Breakdown §13). */
+		namespace: text('namespace'),
+		/** Walrus blob ids of its facts, looked up on delete so recall can leave them out. */
+		blobIds: text('blob_ids').array(),
+		/** analyze, remember or digest (Breakdown §13 cost rules). */
+		delivery: text('delivery').notNull().default('analyze'),
+		/** For a small event: the daily digest memory it was sent in. */
+		digestId: uuid('digest_id'),
 		createdAt: createdAt(),
 		deletedAt: at('deleted_at')
 	},

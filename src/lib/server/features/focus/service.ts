@@ -179,7 +179,9 @@ function note(
 		type,
 		summary,
 		sourceType: 'item',
-		sourceId: item.id
+		sourceId: item.id,
+		// Starts, skips and pauses are small, frequent events: they go out in the daily digest.
+		delivery: 'digest'
 	}).catch((e) => console.error('[focus] remember failed', e));
 	platform?.ctx?.waitUntil(save);
 }

@@ -1036,6 +1036,7 @@
 
 - AC-01 Settings → "What your pet knows": every memory, newest first, with its status
 - AC-02 Delete one, or forget everything (with a confirm)
+- AC-04 Walrus can't erase data, so the app says honestly what deleting does: the pet stops using it at once, and the encrypted copy on Walrus expires on its own (Breakdown §13)
 - AC-03 Memory receipts: the Sui account, memory count and last change, read through Tatum, with an explorer link
 
 ---

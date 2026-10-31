@@ -26,6 +26,10 @@ export const items = pgTable(
 		analysisError: text('analysis_error'),
 		/** Why the last roadmap job failed; cleared when one succeeds. */
 		planError: text('plan_error'),
+		/** Walrus `embed` vector, cached so fit-it-in doesn't re-embed (cost rule 4). */
+		embedding: jsonb('embedding'),
+		/** Hash of the text that was embedded; a different hash means embed again. */
+		embeddingKey: text('embedding_key'),
 		savedAt: stamp('saved_at'),
 		lastActiveAt: at('last_active_at'),
 		/** Out of Pick for me and plans until this day: not this month, or parked by fit-it-in. */

@@ -87,6 +87,7 @@ async function generate(
 	const { item, analysis } = found;
 
 	const memories = await recallMemories(
+		platform,
 		item.userId,
 		`Plan for "${item.title}": what I already know, what tripped me up, how I like to work`
 	);
@@ -202,6 +203,7 @@ async function replan(platform: Platform, itemId: string): Promise<RoadmapOutcom
 	const isCourse = (await unitsOf(platform, item.id)).length > 0;
 
 	const memories = await recallMemories(
+		platform,
 		item.userId,
 		`Progress on "${item.title}": what was easy, what was hard, what I learned`
 	);
