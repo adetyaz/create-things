@@ -162,6 +162,8 @@ This is the heart of the product: a plan that pushes you, then bends when life g
   - **Start** · **Not today** (next suggestion) · **Let it go**
 - **Focus limit:** default 1, up to 3. Adding a new Focus item means pausing or finishing one.
 - **Pause** returns an item to the Shortlist with its progress kept
+- **How a pick is made:** the candidates are the newest 20 Shortlist items (minus any "Not today" ones). The pet recalls the user's most relevant memories from Walrus, then the AI picks one with a reason, a first step that fits the time, a 2-minute start, and the memories it used (shown as citations). Costs 1 credit; if the AI fails or credits run out, a simple rule still picks (best fit for time and energy, then the item waiting longest), so the user is never blocked
+- **Every decision is remembered** (`pick_feedback`): starting, skipping for today and letting go all teach future picks
 
 **Plan: time blocks** (*Deep Work* time blocking, *Atomic Habits* implementation intentions)
 
@@ -476,7 +478,7 @@ One currency for everything. **Credits never expire.**
 **AI usage** (the main reason to buy)
 
 - Each action has a base cost, multiplied by model tier: **Basic** 1× · **Plus** 3× · **Pro** 10×
-- Example base costs (numbers to set once hosting costs are known): pet chat 1, analysis 2, "I'm stuck"/"teach me" 1, card drafting 1, explain-it-back 1, roadmap 5
+- Example base costs (numbers to set once hosting costs are known): pet chat 1, Pick for me 1, analysis 2, "I'm stuck"/"teach me" 1, card drafting 1, explain-it-back 1, roadmap 5
 - Checked and deducted server-side before each call, refunded on failure: the free quota is used first, then bought credits. Both are reserved atomically in Postgres (`ai_usage_daily`, `credit_balances`), and every bought-credit change is a row in the append-only `credit_ledger`
 - Running out never blocks capture: the item is saved and its analysis records "out of credits"; the user can retry it later
 - When credits run out, nothing already created is locked
@@ -844,8 +846,9 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/items`, `/api/items/[id]`    | Capture (queues analysis), list, read with analysis |
 | `/api/items/[id]/analyze`         | Retry the analysis of an item still in the inbox |
 | `/api/internal/queue/[queue]`      | Queue messages land here (internal only)        |
-| `/api/triage`                      | Keep / let go / later                           |
-| `/api/focus/pick`                  | Suggest one Shortlist item                      |
+| `/api/triage`                      | Keep (→ Shortlist) / let go (→ Archived) / later |
+| `/api/focus/pick`                  | Suggest one Shortlist item from time, energy and recalled memories; cites the memories used |
+| `/api/focus`, `/api/focus/decide`, `/api/focus/pause` | Current Focus items; Start / Not today / Let it go; pause back to the Shortlist |
 | `/api/roadmap`                     | Generate project or skill roadmap               |
 | `/api/steps/[id]`                  | Complete a step                                 |
 | `/api/projects`, `/api/journal`    | Project content + journal                       |

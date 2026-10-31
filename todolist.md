@@ -11,7 +11,7 @@
 - [x] H1. Confirm the Walrus Memory SDK runs on Workers; health check against the mainnet relayer (30 Oct: health + mainnet save + recall pass under `wrangler dev`; `/api/dev/checks`)
 - [x] H2. `memories` table + queue consumer that sends summaries to Walrus within its rate limit; summaries go through Walrus `analyze` to extract facts (US-071) (31 Oct: `features/memory`, `createthings-memory` queue + DLQ, per-user namespaces, analysis remembers goals; verified 31 Oct: a learning goal was sent to Walrus mainnet; analyze extracted 6 facts)
 - [ ] H3. Memory writes for every type in the Breakdown list; at least 10 on mainnet
-- [ ] H4. Recall wired into Pick for me, roadmaps, "I'm stuck"/"teach me" and pet chat; the pet cites the memory it used (US-071)
+- [ ] H4. Recall wired into Pick for me, roadmaps, "I'm stuck"/"teach me" and pet chat; the pet cites the memory it used (US-071) (31 Oct: Pick for me done; roadmaps, stuck and chat come with those features)
 - [ ] H5. Plan with time blocks: `plan_slots` with day, start time or habit anchor, place; drag to move; Today shows today's block; nudges at the block's time (US-073)
 - [ ] H6. Fit-it-in flow for new ideas: add as step / swap a block / park / 5-minute note; related item found with Walrus `embed`; stop and continue (US-072)
 - [ ] H6b. Reshuffle: missed blocks offered new slots, today rebuilt, never miss twice (2-minute version first after a missed day), busy-week reshuffle (US-079, US-073)
@@ -54,9 +54,9 @@
 
 - [ ] 17. Today screen as home (US-014)
 - [ ] 18. Onboarding brain dump (US-002)
-- [ ] 19. Triage screen + API (US-013)
-- [ ] 20. Pick for me + API (US-015)
-- [ ] 21. Focus limit + pause (US-016)
+- [ ] 19. Triage screen + API (US-013) (31 Oct: `POST /api/triage` built and verified; screen waits for the UI redesign)
+- [ ] 20. Pick for me + API (US-015) (31 Oct: `POST /api/focus/pick` + decide built, memory-informed with citations; verified: picked the jazz-piano learning goal, Start moved it to Focus, decision remembered on Walrus. Left: Start should also create the project page and roadmap (Phase 3))
+- [ ] 21. Focus limit + pause (US-016) (31 Oct: enforced on Start, `POST /api/focus/pause`; limit verified (second Start → at_limit); pause not yet run)
 - [ ] 22. Settings page rebuilt for v2 (US-005)
 - [ ] 23. Verify: from 15 captures, triage to a Shortlist, get a suggestion, start it
 
