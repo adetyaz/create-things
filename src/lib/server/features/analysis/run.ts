@@ -21,6 +21,7 @@ import {
 	type Reservation
 } from '$lib/server/features/credits/service';
 import { remember } from '$lib/server/features/memory/service';
+import { intentOf } from '$lib/server/features/intents/registry';
 import { normalizeAnalysis, type AnalysisData } from './normalize';
 import { ANALYSIS_SCHEMA, ANALYSIS_SYSTEM, analysisPrompt } from './prompt';
 
@@ -147,7 +148,10 @@ async function breakdownAndSave(
 					author: item.author ?? (meta?.author || null),
 					size: analysis.size,
 					difficulty: analysis.difficulty,
-					isLearningGoal: analysis.isLearningGoal,
+					intent: analysis.intent,
+					practiceKind: analysis.practiceKind,
+					goal: analysis.goal,
+					targetDate: analysis.targetDate,
 					analysisError: null,
 					lastActiveAt: new Date()
 				})
@@ -187,7 +191,7 @@ async function breakdownAndSave(
 
 	// The pet remembers what you want to make or learn. A failed save never undoes the analysis.
 	await remember(platform, item.userId, {
-		type: analysis.isLearningGoal ? 'learning_goal' : 'goal',
+		type: intentOf(analysis.intent).memoryType,
 		summary: goalSummary(title, analysis),
 		sourceType: 'item',
 		sourceId: item.id
@@ -198,13 +202,14 @@ async function breakdownAndSave(
 
 /** A short memory in our words, e.g. "Learning goal: Blender for 3D characters (about a week, medium)". */
 function goalSummary(title: string, analysis: AnalysisData): string {
-	const kind = analysis.isLearningGoal ? 'Learning goal' : 'Wants to make';
+	const kind = intentOf(analysis.intent).summaryLabel;
 	const size = analysis.size
 		? `about ${analysis.size === 'afternoon' ? 'an afternoon' : `a ${analysis.size}`}`
 		: null;
 	const detail = [size, analysis.difficulty].filter(Boolean).join(', ');
+	const goal = analysis.goal ? ` Goal: ${analysis.goal}` : '';
 	const skills = analysis.skills.length
 		? ` Skills: ${analysis.skills.slice(0, 4).join(', ')}.`
 		: '';
-	return `${kind}: ${title}${detail ? ` (${detail})` : ''}. ${analysis.summary}${skills}`;
+	return `${kind}: ${title}${detail ? ` (${detail})` : ''}. ${analysis.summary}${goal}${skills}`;
 }

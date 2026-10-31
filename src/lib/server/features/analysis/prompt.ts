@@ -1,4 +1,6 @@
 /** Prompt for the v2 analysis: what the capture is, and how big a thing it would be to start. */
+import { INTENTS, INTENT_IDS } from '$lib/server/features/intents/registry';
+import { PRACTICE_KINDS, PRACTICE_KIND_IDS } from '$lib/server/features/intents/practice';
 
 export const ANALYSIS_SYSTEM = `You analyze things a person saved because they want to make, recreate or learn something. They are easily overwhelmed, so be concrete: name real fonts, techniques, tools and skills. Reply with one JSON object only, no prose.`;
 
@@ -49,8 +51,15 @@ export function analysisPrompt(input: AnalysisInput): string {
 		'  "skills": ["3-6 skills needed, foundational first"],',
 		'  "size": "afternoon | weekend | week | month — how long a first version takes for someone with some experience",',
 		'  "difficulty": "easy | medium | hard",',
-		'  "isLearningGoal": true if this is mainly about learning a skill ("learn Blender") rather than making or recreating a specific thing',
+		`  "intent": one of ${INTENT_IDS.join(' | ')}: what they are trying to do,`,
+		`  "practiceKind": one of ${PRACTICE_KIND_IDS.join(' | ')}, or "" if unclear,`,
+		'  "goal": "one sentence: what they could do or have at the end, concrete",',
+		'  "targetDate": "YYYY-MM-DD only if a date or deadline is stated, else empty string"',
 		'}',
+		'Intents:',
+		...INTENT_IDS.map((id) => `- ${id}: ${INTENTS[id].description}`),
+		'Kinds of practice:',
+		...PRACTICE_KIND_IDS.map((id) => `- ${id}: ${PRACTICE_KINDS[id].examples}`),
 		'For a plain idea note with no visual, use empty strings for colors, typography and layout.'
 	);
 	return lines.join('\n');
@@ -75,7 +84,10 @@ export const ANALYSIS_SCHEMA = {
 		skills: { type: 'array', items: { type: 'string' } },
 		size: { type: 'string', enum: ['afternoon', 'weekend', 'week', 'month'] },
 		difficulty: { type: 'string', enum: ['easy', 'medium', 'hard'] },
-		isLearningGoal: { type: 'boolean' }
+		intent: { type: 'string', enum: INTENT_IDS },
+		practiceKind: { type: 'string' },
+		goal: { type: 'string' },
+		targetDate: { type: 'string' }
 	},
-	required: ['title', 'summary', 'size', 'difficulty', 'isLearningGoal']
+	required: ['title', 'summary', 'size', 'difficulty', 'intent']
 } as const;

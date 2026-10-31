@@ -7,6 +7,7 @@ import { generateJson } from '$lib/server/ai';
 import { withDb } from '$lib/server/db';
 import { analyses, items } from '$lib/server/db/schema';
 import { withCredits } from '$lib/server/features/credits/service';
+import { intentOf } from '$lib/server/features/intents/registry';
 import { recallMemories, type RecalledMemory } from '$lib/server/features/memory/recall';
 import { heuristicPick, type Candidate } from './heuristic';
 import type { PickInput } from './input';
@@ -87,7 +88,7 @@ export async function pickForMe(
 							summary: summaryOf.get(i.id) ?? null,
 							size: i.size,
 							difficulty: i.difficulty,
-							isLearningGoal: i.isLearningGoal,
+							intent: intentOf(i.intent).label,
 							daysWaiting: Math.floor((now - i.savedAt.getTime()) / DAY_MS)
 						}))
 					})

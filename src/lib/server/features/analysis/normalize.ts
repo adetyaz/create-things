@@ -1,4 +1,6 @@
 /** Turns a model's JSON reply into a clean, typed analysis. Models drift; this never throws on shape. */
+import { DEFAULT_INTENT, isIntentId, type IntentId } from '$lib/server/features/intents/registry';
+import { isPracticeKindId, type PracticeKindId } from '$lib/server/features/intents/practice';
 
 export const SIZES = ['afternoon', 'weekend', 'week', 'month'] as const;
 export const DIFFICULTIES = ['easy', 'medium', 'hard'] as const;
@@ -22,7 +24,10 @@ export interface AnalysisData {
 	skills: string[];
 	size: ItemSize | null;
 	difficulty: Difficulty | null;
-	isLearningGoal: boolean;
+	intent: IntentId;
+	practiceKind: PracticeKindId | null;
+	goal: string | null;
+	targetDate: string | null;
 }
 
 export function normalizeAnalysis(raw: Record<string, unknown>): AnalysisData {
@@ -42,7 +47,10 @@ export function normalizeAnalysis(raw: Record<string, unknown>): AnalysisData {
 		skills: list(raw.skills).slice(0, 8),
 		size: oneOf(raw.size, SIZES),
 		difficulty: oneOf(raw.difficulty, DIFFICULTIES),
-		isLearningGoal: raw.isLearningGoal === true || raw.isLearningGoal === 'true'
+		intent: oneOfIds(raw.intent, isIntentId) ?? DEFAULT_INTENT,
+		practiceKind: oneOfIds(raw.practiceKind, isPracticeKindId),
+		goal: text(raw.goal) || null,
+		targetDate: isoDate(raw.targetDate)
 	};
 }
 
@@ -65,4 +73,16 @@ function list(value: unknown): string[] {
 function oneOf<T extends string>(value: unknown, allowed: readonly T[]): T | null {
 	const v = text(value).toLowerCase();
 	return (allowed as readonly string[]).includes(v) ? (v as T) : null;
+}
+
+function oneOfIds<T extends string>(value: unknown, is: (v: unknown) => v is T): T | null {
+	const v = text(value)
+		.toLowerCase()
+		.replace(/[\s-]+/g, '_');
+	return is(v) ? v : null;
+}
+
+function isoDate(value: unknown): string | null {
+	const v = text(value);
+	return /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v)) ? v : null;
 }
