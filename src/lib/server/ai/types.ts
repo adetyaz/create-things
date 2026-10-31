@@ -4,7 +4,12 @@ export interface JsonRequest {
 	/** JSON schema for models with structured output. */
 	schema?: Record<string, unknown>;
 	image?: { bytes: Uint8Array; mime: string };
+	/** Longest reply allowed, in tokens. Long structured replies (roadmaps) need more. */
+	maxTokens?: number;
 }
+
+/** Enough for an analysis; roadmaps ask for more. */
+export const DEFAULT_MAX_TOKENS = 1500;
 
 export interface JsonResult {
 	data: Record<string, unknown>;

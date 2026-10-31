@@ -2,16 +2,25 @@ import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { uuidParam, validate } from '$lib/server/platform/http';
 import { currentUserId } from '$lib/server/platform/user';
 import { setGoalInput } from '$lib/server/features/roadmap/input';
-import { getRoadmap, requestRoadmap, setGoal } from '$lib/server/features/roadmap/service';
+import {
+	getRoadmap,
+	planErrorOf,
+	requestRoadmap,
+	setGoal
+} from '$lib/server/features/roadmap/service';
 
-/** GET /api/items/[id]/roadmap: milestones, steps and the current step, or `roadmap: null`. */
+/**
+ * GET /api/items/[id]/roadmap: milestones, steps and the current step, or `roadmap: null`, plus
+ * `planError` when the last planning job failed.
+ */
 export const GET: RequestHandler = async (event) => {
-	const roadmap = await getRoadmap(
-		event.platform,
-		currentUserId(event),
-		uuidParam(event.params.id)
-	);
-	return json({ roadmap });
+	const userId = currentUserId(event);
+	const itemId = uuidParam(event.params.id);
+	const [roadmap, planError] = await Promise.all([
+		getRoadmap(event.platform, userId, itemId),
+		planErrorOf(event.platform, userId, itemId)
+	]);
+	return json({ roadmap, planError });
 };
 
 /** POST /api/items/[id]/roadmap: plan (or re-plan from scratch) this item's roadmap. */

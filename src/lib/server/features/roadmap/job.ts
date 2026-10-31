@@ -18,6 +18,9 @@ import { ROADMAP_SYSTEM, replanPrompt, roadmapPrompt } from './prompt';
 type Platform = App.Platform | undefined;
 type Step = typeof roadmapSteps.$inferSelect;
 
+/** Goal options, 3–5 milestones and proving grounds run well past an analysis-sized reply. */
+const ROADMAP_MAX_TOKENS = 6000;
+
 /** Queue message for `createthings-roadmap`. */
 export interface RoadmapJob {
 	itemId: string;
@@ -30,18 +33,37 @@ export type RoadmapOutcome =
 	| { status: 'done'; itemId: string; mode: RoadmapJob['mode']; model: string; steps: number }
 	| { status: 'skipped'; itemId: string; reason: string };
 
+/**
+ * Runs the job. A failure is saved on the item (so GET /api/items/[id]/roadmap shows it) and
+ * rethrown so the queue retries; each new attempt clears it first.
+ */
 export async function runRoadmapJob(platform: Platform, job: RoadmapJob): Promise<RoadmapOutcome> {
+	// A new attempt starts clean, so an old failure doesn't show while this one runs.
+	await setPlanError(platform, job.itemId, null);
 	try {
-		return job.mode === 'replan'
-			? await replan(platform, job.itemId)
-			: await generate(platform, job.itemId, job.goal);
+		const outcome =
+			job.mode === 'replan'
+				? await replan(platform, job.itemId)
+				: await generate(platform, job.itemId, job.goal);
+		return outcome;
 	} catch (e) {
+		const message = e instanceof Error ? e.message : String(e);
+		await setPlanError(platform, job.itemId, `${job.mode}: ${message}`);
 		// Not thrown, so the queue doesn't retry: it would fail the same way until credits return.
 		if (e instanceof OutOfCreditsError) {
 			return { status: 'skipped', itemId: job.itemId, reason: 'out of credits' };
 		}
 		throw e;
 	}
+}
+
+function setPlanError(platform: Platform, itemId: string, error: string | null) {
+	return withDb(platform, (db) =>
+		db
+			.update(items)
+			.set({ planError: error?.slice(0, 2000) ?? null })
+			.where(eq(items.id, itemId))
+	).catch((e) => console.error('[roadmap] could not save the plan error', e));
 }
 
 async function generate(
@@ -76,6 +98,7 @@ async function generate(
 		async () => {
 			const result = await generateJson(platform, {
 				system: ROADMAP_SYSTEM,
+				maxTokens: ROADMAP_MAX_TOKENS,
 				prompt: roadmapPrompt({
 					title: item.title,
 					intent: item.intent,
@@ -175,6 +198,7 @@ async function replan(platform: Platform, itemId: string): Promise<RoadmapOutcom
 		async () => {
 			const result = await generateJson(platform, {
 				system: ROADMAP_SYSTEM,
+				maxTokens: ROADMAP_MAX_TOKENS,
 				prompt: replanPrompt({
 					title: item.title,
 					intent: item.intent,

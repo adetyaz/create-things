@@ -3,7 +3,7 @@ import { optionalEnv, requiredEnv } from '$lib/server/platform/env';
 import type { Bindings } from '$lib/server/platform/bindings';
 import { base64 } from '../json';
 import { MODELS } from '../models';
-import { MAX_VISION_BYTES, type JsonRequest } from '../types';
+import { DEFAULT_MAX_TOKENS, MAX_VISION_BYTES, type JsonRequest } from '../types';
 
 /**
  * Gemini's free tier may train on prompts, so it runs locally (`vite dev`, or `LOCAL_DEV` from the
@@ -38,14 +38,23 @@ export async function gemini(request: JsonRequest): Promise<unknown> {
 			generationConfig: {
 				responseMimeType: 'application/json',
 				temperature: 0.3,
-				maxOutputTokens: 1500
+				maxOutputTokens: request.maxTokens ?? DEFAULT_MAX_TOKENS
 			}
 		}),
-		signal: AbortSignal.timeout(30_000)
+		// Long replies take longer to write.
+		signal: AbortSignal.timeout(
+			(request.maxTokens ?? DEFAULT_MAX_TOKENS) > DEFAULT_MAX_TOKENS ? 90_000 : 30_000
+		)
 	});
 	if (!res.ok) throw new Error(`HTTP ${res.status}`);
 	const body = (await res.json()) as {
-		candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+		candidates?: Array<{
+			content?: { parts?: Array<{ text?: string }> };
+			finishReason?: string;
+		}>;
 	};
-	return body.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('');
+	const candidate = body.candidates?.[0];
+	// A reply cut off at the token limit is broken JSON; say so instead of a parse error.
+	if (candidate?.finishReason === 'MAX_TOKENS') throw new Error('reply cut off at the token limit');
+	return candidate?.content?.parts?.map((p) => p.text ?? '').join('');
 }

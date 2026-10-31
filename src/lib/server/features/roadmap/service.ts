@@ -84,13 +84,16 @@ export async function requestRoadmap(
 }
 
 /**
- * Called when an item is started: makes its project (once) and queues its roadmap if it has none.
+ * Called when an item is started: makes its project (once) and queues its roadmap if it has none
+ * (unless told not to, while the confirm card is waiting).
  * Failures are logged, never thrown, so starting always works.
  */
 export async function startPlanning(
 	platform: Platform,
 	userId: string,
-	item: { id: string; title: string }
+	item: { id: string; title: string },
+	/** False until the user confirms what the item is (the confirm card plans it then). */
+	options: { roadmap?: boolean } = {}
 ): Promise<void> {
 	try {
 		const hasRoadmap = await withDb(platform, async (db) => {
@@ -109,7 +112,9 @@ export async function startPlanning(
 				.limit(1);
 			return Boolean(roadmap);
 		});
-		if (!hasRoadmap) await enqueue(platform, 'roadmap', { itemId: item.id, mode: 'generate' });
+		if (!hasRoadmap && options.roadmap !== false) {
+			await enqueue(platform, 'roadmap', { itemId: item.id, mode: 'generate' });
+		}
 	} catch (e) {
 		console.error('[roadmap] start planning failed for', item.id, e);
 	}
@@ -203,4 +208,19 @@ export async function setGoal(
 	const mode = current.doneSteps === 0 ? 'generate' : 'replan';
 	const delivery = await enqueue(platform, 'roadmap', { itemId, mode, goal });
 	return { status: 'replanning', mode, goal, delivery };
+}
+
+/** Why the item's last planning job failed, or null. */
+export async function planErrorOf(
+	platform: Platform,
+	userId: string,
+	itemId: string
+): Promise<string | null> {
+	const [row] = await withDb(platform, (db) =>
+		db
+			.select({ planError: items.planError })
+			.from(items)
+			.where(and(eq(items.id, itemId), eq(items.userId, userId)))
+	);
+	return row?.planError ?? null;
 }

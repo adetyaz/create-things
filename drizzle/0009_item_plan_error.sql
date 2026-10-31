@@ -1,0 +1,1 @@
+ALTER TABLE "items" ADD COLUMN "plan_error" text;

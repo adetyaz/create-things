@@ -24,6 +24,8 @@ export const items = pgTable(
 		titleFromUser: boolean('title_from_user').notNull().default(false),
 		/** Why the last analysis attempt failed; cleared when one succeeds. */
 		analysisError: text('analysis_error'),
+		/** Why the last roadmap job failed; cleared when one succeeds. */
+		planError: text('plan_error'),
 		savedAt: stamp('saved_at'),
 		lastActiveAt: at('last_active_at'),
 		/** Out of Pick for me and plans until this day: not this month, or parked by fit-it-in. */

@@ -1,6 +1,6 @@
 import { optionalEnv, requiredEnv } from '$lib/server/platform/env';
 import { MODELS } from '../models';
-import type { JsonRequest } from '../types';
+import { DEFAULT_MAX_TOKENS, type JsonRequest } from '../types';
 
 export function groqAvailable(): boolean {
 	return !!optionalEnv('GROQ_API_KEY');
@@ -20,10 +20,13 @@ export async function groq(request: JsonRequest): Promise<unknown> {
 				{ role: 'user', content: request.prompt }
 			],
 			temperature: 0.3,
-			max_tokens: 1500,
+			max_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
 			response_format: { type: 'json_object' }
 		}),
-		signal: AbortSignal.timeout(30_000)
+		// Long replies take longer to write.
+		signal: AbortSignal.timeout(
+			(request.maxTokens ?? DEFAULT_MAX_TOKENS) > DEFAULT_MAX_TOKENS ? 90_000 : 30_000
+		)
 	});
 	if (!res.ok) throw new Error(`HTTP ${res.status}`);
 	const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };

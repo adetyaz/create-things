@@ -2,10 +2,11 @@
  * Month: two lists (the Buffett story James Clear tells). The user picks 1–3 goals; everything else
  * waiting is parked until next month, never deleted. Starts with a short, skippable review.
  */
-import { and, eq, gt, inArray, notInArray } from 'drizzle-orm';
+import { and, eq, gt, inArray, isNull, notInArray } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
 import { items, planPeriods } from '$lib/server/db/schema';
 import { remember } from '$lib/server/features/memory/service';
+import { understandingOf, type Understanding } from '$lib/server/features/intents/understanding';
 import { timezoneOf } from './context';
 import { addDays, monthName, monthStart, nextMonthStart, today } from './dates';
 import type { PlanMonthInput } from './input';
@@ -70,7 +71,13 @@ export async function getMonth(platform: Platform, userId: string): Promise<Mont
 }
 
 export type PlanMonthResult =
-	| { status: 'planned'; month: MonthView; parked: number }
+	| {
+			status: 'planned';
+			month: MonthView;
+			parked: number;
+			/** Confirm cards for goals the user hasn't confirmed yet. */
+			toConfirm: Understanding[];
+	  }
 	| { status: 'invalid' };
 
 /** Saves this month's goals (replacing any earlier pick this month) and parks everything else. */
@@ -146,7 +153,18 @@ export async function planMonth(
 		);
 	}
 
-	return { status: 'planned', month: await getMonth(platform, userId), parked };
+	const unconfirmed = await withDb(platform, (db) =>
+		db
+			.select()
+			.from(items)
+			.where(and(inArray(items.id, input.goalItemIds), isNull(items.intentConfirmedAt)))
+	);
+	return {
+		status: 'planned',
+		month: await getMonth(platform, userId),
+		parked,
+		toConfirm: unconfirmed.map(understandingOf)
+	};
 }
 
 /** Brings an item back from the not-this-month list. */

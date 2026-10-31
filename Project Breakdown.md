@@ -222,6 +222,10 @@ Possible later sources: YouTube or Spotify playlists, browser bookmark folders, 
 
 **Confirm card.** When you Start something or pick it for the month, one card shows what the app understood: *"Looks like you want to **learn** jazz piano. Goal: play Autumn Leaves with drop-2 voicings. Right?"* Intent, goal and date can each be changed with one tap. The choice is remembered.
 
+- **How it works:** Start on an item that isn't confirmed yet moves it into Focus and makes its project, and returns the card instead of planning straight away. Confirming (as is, or changed) plans the roadmap toward the confirmed intent and goal, so nothing is planned twice. Items already confirmed plan at Start as before. Picking month goals returns cards for any that aren't confirmed
+- Changing a confirmed item later re-plans it: a fresh roadmap if nothing is done yet, otherwise the milestones ahead
+- Remembered either way; a correction ("this is a habit, not a learning goal") is remembered as one, so future guesses improve
+
 **Following a course**
 
 - Upload the syllabus as a PDF or one or more photos/screenshots
@@ -375,6 +379,12 @@ A roadmap works like navigation: it always answers "what now?", including when s
 - **Card types:** question/answer, and **explain it back** (you write the idea in your own words; AI points out gaps)
 - **Spaced review:** 1, 3, 7, 14, 30, 60 days. **Got it** → next interval; **Shaky** → repeat; **Forgot** → back to 1 day
 - **Interleaved:** a review session mixes cards from different items and topics, not one deck at a time (*Learning How to Learn*)
+- **Flashcards from recall questions:** every learning step's recall question becomes a flashcard automatically when the step is done, so practice starts without writing cards
+- **Practice quizzes:** a 5–10 question quiz (multiple choice, short answer, "which comes next") made from a milestone's steps and recall questions:
+  - offered at the end of a milestone, as an in-app proving ground for knowledge goals, and in the days before a target date (exam prep)
+  - questions mix older milestones in (interleaving); answers are explained right away
+  - wrong answers become flashcards and are remembered as `review_weakness`, so re-plans and "teach me" lean into them
+  - uses the free quota, then credits
 - Reviews due appear on Today, **capped at 5 per day** (adjustable)
 - Each card links to its source item, step or journal entry
 - **Knowledge library:** browse everything learned, by item or topic
@@ -964,7 +974,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | -------------------- | ----------------------------------------------------------------------- |
 | `users`, `sessions`, `accounts` | Managed by Better Auth                                       |
 | `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), shutdown_time, weekly_plan_day + weekly_plan_time (default Sunday 18:00), weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
-| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, saved_at, last_active_at, parked_until (not this month, or parked by fit-it-in), intent + practice_kind (registry ids, §3b; replaces is_learning_goal), intent_confirmed_at, goal, target_date |
+| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, plan_error (why the last roadmap job failed), saved_at, last_active_at, parked_until (not this month, or parked by fit-it-in), intent + practice_kind (registry ids, §3b; replaces is_learning_goal), intent_confirmed_at, goal, target_date |
 | `analyses`           | id, item_id, summary, technique, colors (palette + notes), typography, layout, mood[], style, components, for_developers, for_creators, brief, skills[] (feeds the roadmap), attribution, model |
 | `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress, goal ("by the end you'll be able to…"), goal_options (the 2–3 suggested), collection_id (when following a course) |
 | `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, two_minute (smallest start), search_terms[], tools[], recall (learning steps: the recall question that ends the step), kind (step / proof: a proving ground), done_at |
@@ -1007,6 +1017,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/triage`                      | Keep (→ Shortlist) / let go (→ Archived) / later |
 | `/api/focus/pick`                  | Suggest one Shortlist item from time, energy and recalled memories; cites the memories used |
 | `/api/focus`, `/api/focus/decide`, `/api/focus/pause` | Current Focus items; Start / Not today / Let it go; pause back to the Shortlist |
+| `/api/items/[id]/understanding`    | GET the confirm card (intent, kind of practice, goal, date, and the choices); PUT to confirm or change it |
 | `/api/items/[id]/roadmap` (PATCH)   | Choose or write the goal: re-plans toward it (a fresh roadmap if nothing is done yet, else the milestones ahead) |
 | `/api/items/[id]/roadmap`          | Read the roadmap (GET) or regenerate it (POST); also generated on Start |
 | `/api/steps/[id]/complete`         | Complete a step; finishing a milestone re-plans the rest |

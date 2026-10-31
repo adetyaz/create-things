@@ -69,8 +69,8 @@
 - [x] 24b. Adaptive roadmap: re-plan what comes next when a topic or milestone is done (US-081) (31 Oct: `POST /api/steps/[id]/complete` queues a re-plan when a milestone finishes; verified live 31 Oct: finished milestone kept, the 3 untouched ones rewritten from memory; `plan_change` memory saved)
 - [x] 24c. Learning rules in skill roadmaps: chunk shape, a recall check ending each learning step, interleaved practice, process framing (US-087) (verified live 31 Oct on "Learn Jazz Piano Chords": 4 chunks, a recall question on every step, an interleave step. "Stuck offers a break first" comes with #48 (pet chat handles "I'm stuck"))
 - [x] 24d. Intents and practice kinds as registries (`features/intents`); `items.intent`, `practice_kind`, `goal`, `target_date` replace `is_learning_goal`; analysis guesses them (US-088) (verified live 31 Oct: 6 different notes all got the right intent and practice kind, the AWS exam date was read, and the garden roadmap followed the tend shape; migrations 0006 + 0007)
-- [ ] 24e. Confirm card at Start and at month pick: intent, goal, date, each changeable; remembered (US-088)
-- [ ] 24f. Roadmap goal ("by the end you'll be able to…", 2–3 suggestions) and proving grounds after each learning milestone (US-090) (31 Oct: verified live: 3 goal options per roadmap, proving grounds per milestone for jazz (Autumn Leaves → Blue Bossa) and AWS (quiz → S3 lab → IAM lab → timed practice exam). Switching the goal queued fine; the re-made plan not yet seen)
+- [ ] 24e. Confirm card at Start and at month pick: intent, goal, date, each changeable; remembered (US-088) (31 Oct: verified live: Start on an unconfirmed item shows the card and waits; confirming plans the roadmap toward the confirmed goal; remembered. Not yet seen: a correction memory, and cards from a month pick)
+- [x] 24f. Roadmap goal ("by the end you'll be able to…", 2–3 suggestions) and proving grounds after each learning milestone (US-090) (31 Oct: verified live: 3 goal options per roadmap, proving grounds per milestone for jazz (Autumn Leaves → Blue Bossa) and AWS (quiz → S3 lab → IAM lab → timed practice exam). Switching the goal verified live: Blue Bossa kept exactly as the goal and the plan rebuilt toward it)
 - [ ] 24g. "I want to…" input, typed or spoken (US-089)
 - [ ] 24h. Follow a course: syllabus from a PDF or photos → ordered collection → course roadmap; class dates feed the weekly plan (US-091)
 - [ ] 24i. Try-it-out tasters: 2–3 sessions, then keep / park / let go (US-092)
@@ -101,6 +101,7 @@
 - [ ] 42. Spaced review with intervals, ratings and daily cap (US-033)
 - [ ] 43. Explain-it-back checking (US-034)
 - [ ] 44. Knowledge library (US-035)
+- [ ] 44b. Flashcards from recall questions when a learning step is done; practice quizzes per milestone and before a target date; wrong answers → cards + `review_weakness` memories (US-098)
 - [ ] 45. Verify: card created → due tomorrow → each rating sets the right next date
 
 ## Phase 6 — Pet, full version

@@ -13,7 +13,8 @@ const LEARNING_RULES = [
 	'- Frame steps as time on something ("25 minutes on chord shapes"), not "finish X".',
 	'- Every step that teaches something gets a "recall" question to answer with the tab closed.',
 	'- Practice steps in later milestones mix in skills from earlier ones (interleaving).',
-	'- Spend extra practice on anything the memories say was hard.'
+	'- Spend extra practice on anything the memories say was hard.',
+	'Follow these rules quietly: never put their names (chunk, interleaving, recall) in step titles.'
 ].join('\n');
 
 const PROOF_SHAPE = `{ "title": "the real thing to do, named", "minutes": 20-45, "twoMinute": "...", "searchTerms": ["how to find it: chords, tabs, lab guide"], "tools": [] }`;
