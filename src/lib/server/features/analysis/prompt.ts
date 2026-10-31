@@ -15,6 +15,8 @@ export interface AnalysisInput {
 	/** Formatted palette, when one was extracted. */
 	palette?: string | null;
 	hasImage: boolean;
+	/** YYYY-MM-DD, so dates without a year ("my trip in March") land in the future. */
+	today: string;
 }
 
 export function analysisPrompt(input: AnalysisInput): string {
@@ -23,7 +25,8 @@ export function analysisPrompt(input: AnalysisInput): string {
 			? 'Analyze the attached image and the details below.'
 			: 'There is no image. Analyze from the details below and infer what you reasonably can.',
 		'',
-		`Capture type: ${input.captureType}`
+		`Capture type: ${input.captureType}`,
+		`Today is ${input.today}. A date without a year means its next occurrence.`
 	];
 	if (input.title) lines.push(`Title: ${input.title}`);
 	if (input.sourceUrl) lines.push(`Source URL: ${input.sourceUrl}`);

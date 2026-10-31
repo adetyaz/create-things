@@ -129,12 +129,13 @@ async function breakdownAndSave(
 			description: meta?.description ?? null,
 			author: meta?.author ?? null,
 			palette: palette ? formatPalette(palette) : null,
-			hasImage: image !== null
+			hasImage: image !== null,
+			today: new Date().toISOString().slice(0, 10)
 		}),
 		schema: ANALYSIS_SCHEMA,
 		image: image ?? undefined
 	});
-	const analysis = normalizeAnalysis(result.data);
+	const analysis = normalizeAnalysis(result.data, new Date().toISOString().slice(0, 10));
 
 	// 5. Save the analysis and mark the item Ready, together.
 	const title = item.titleFromUser ? item.title : meta?.title || analysis.title || item.title;
