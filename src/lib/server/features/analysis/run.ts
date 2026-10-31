@@ -14,6 +14,12 @@ import {
 	type Palette
 } from './colors/extract';
 import { generateJson } from '$lib/server/ai';
+import {
+	OutOfCreditsError,
+	refundCredits,
+	reserveCredits,
+	type Reservation
+} from '$lib/server/features/credits/service';
 import { normalizeAnalysis } from './normalize';
 import { ANALYSIS_SCHEMA, ANALYSIS_SYSTEM, analysisPrompt } from './prompt';
 
@@ -76,7 +82,41 @@ async function analyze(
 		if (image && !palette) palette = paletteFromImageBytes(image.bytes);
 	}
 
-	// 3. AI breakdown, with fallbacks across models.
+	// 3. Pay for the AI call from today's free quota or bought credits.
+	let charge: Reservation;
+	try {
+		charge = await reserveCredits(platform, item.userId, 'analysis', {
+			ref: `analysis:${item.id}`
+		});
+	} catch (e) {
+		if (!(e instanceof OutOfCreditsError)) throw e;
+		await withDb(platform, (db) =>
+			db.update(items).set({ analysisError: e.message }).where(eq(items.id, item.id))
+		);
+		// Not thrown, so the queue doesn't retry: it would fail the same way until credits return.
+		return { status: 'skipped', itemId: item.id, reason: 'out of credits' };
+	}
+
+	try {
+		return await breakdownAndSave(platform, item, meta, image, palette, charge);
+	} catch (e) {
+		await refundCredits(platform, charge).catch((refundError) =>
+			console.error('[analysis] refund failed', charge, refundError)
+		);
+		throw e;
+	}
+}
+
+/** Steps 4–5: the AI breakdown, then saving it and marking the item Ready. */
+async function breakdownAndSave(
+	platform: App.Platform | undefined,
+	item: typeof items.$inferSelect,
+	meta: UrlMetadata | null,
+	image: FetchedImage | null,
+	palette: Palette | null,
+	charge: Reservation
+): Promise<AnalysisOutcome> {
+	// 4. AI breakdown, with fallbacks across models.
 	const result = await generateJson(platform, {
 		system: ANALYSIS_SYSTEM,
 		prompt: analysisPrompt({
@@ -94,9 +134,9 @@ async function analyze(
 	});
 	const analysis = normalizeAnalysis(result.data);
 
-	// 4. Save the analysis and mark the item Ready, together.
+	// 5. Save the analysis and mark the item Ready, together.
 	const title = item.titleFromUser ? item.title : meta?.title || analysis.title || item.title;
-	await withDb(platform, (db) =>
+	const saved = await withDb(platform, (db) =>
 		db.transaction(async (tx) => {
 			const updated = await tx
 				.update(items)
@@ -113,7 +153,7 @@ async function analyze(
 				// Only from inbox, so a duplicate delivery can't analyse an item twice.
 				.where(and(eq(items.id, item.id), eq(items.status, 'inbox')))
 				.returning({ id: items.id });
-			if (updated.length === 0) return;
+			if (updated.length === 0) return false;
 
 			await tx.insert(analyses).values({
 				itemId: item.id,
@@ -132,8 +172,16 @@ async function analyze(
 				attribution: meta?.author || null,
 				model: result.model
 			});
+			return true;
 		})
 	);
 
+	if (!saved) {
+		// A duplicate delivery got here first; don't charge twice for one analysis.
+		await refundCredits(platform, charge).catch((refundError) =>
+			console.error('[analysis] refund failed', charge, refundError)
+		);
+		return { status: 'skipped', itemId: item.id, reason: 'already analysed' };
+	}
 	return { status: 'done', itemId: item.id, model: result.model, skipped: result.skipped };
 }

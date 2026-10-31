@@ -46,7 +46,7 @@
 - [ ] 11. AI Gateway set up with Workers AI primary and DeepInfra fallback
 - [ ] 12. Test which models return reliable structured JSON; pick defaults per task (model ids in `src/lib/server/analysis/model.ts`; analysis reports which model answered)
 - [x] 13. Analysis queue consumer: analysis + size + difficulty + learning-goal detection (US-010–012) (30 Oct: built — queue wrapper + internal route, metadata, Material palette, Workers AI vision → text → Groq, migration 0001; verified live under `npm run dev` with Gemini on 31 Oct; errors saved on the item; retry via `POST /api/items/[id]/analyze`; migrations 0002–0003; verified through the real queue under `npm run dev:worker` on 31 Oct: learning goal detected)
-- [ ] 14. Credit ledger, balances and daily free quota enforced on every AI call; refund on failure (US-062, US-063)
+- [ ] 14. Credit ledger, balances and daily free quota enforced on every AI call; refund on failure (US-062, US-063) (31 Oct: `features/credits`, wired into analysis; waiting on a live run)
 - [ ] 15. Turnstile + per-user and per-IP rate limits (US-070)
 - [ ] 16. Verify: capture a URL, screenshot and note → analysis appears; quota decreases; a forced failure refunds
 

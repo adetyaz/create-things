@@ -463,7 +463,7 @@ The chain stays invisible unless you go looking.
 ### Free for everyone
 
 - Capture, triage, Focus, Today, roadmaps viewing, journal, reviewing cards, pomodoro, starter sounds, the pet (feeding, the journal check, levels 1–2), body sliders, weather
-- A **daily free AI quota** on Basic models (resets every day)
+- A **daily free AI quota** on Basic models: 20 credits a day by default in production, 1,000 when running locally so testing on free AI isn't blocked (`FREE_DAILY_CREDITS` overrides both), resetting at 00:00 UTC (the user's own timezone later). Unused free credits don't carry over
 
 ### Credits
 
@@ -473,7 +473,8 @@ One currency for everything. **Credits never expire.**
 
 - Each action has a base cost, multiplied by model tier: **Basic** 1× · **Plus** 3× · **Pro** 10×
 - Example base costs (numbers to set once hosting costs are known): pet chat 1, analysis 2, "I'm stuck"/"teach me" 1, card drafting 1, explain-it-back 1, roadmap 5
-- Checked and deducted server-side before each call, refunded on failure
+- Checked and deducted server-side before each call, refunded on failure: the free quota is used first, then bought credits. Both are reserved atomically in Postgres (`ai_usage_daily`, `credit_balances`), and every bought-credit change is a row in the append-only `credit_ledger`
+- Running out never blocks capture: the item is saved and its analysis records "out of credits"; the user can retry it later
 - When credits run out, nothing already created is locked
 
 **Pet and experience**
@@ -849,7 +850,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/pet/*`                       | State, feed, rename, sliders, equip, revive, rest mode |
 | `/api/assistant`                   | Pet chat (stuck, teach me, questions)           |
 | `/api/store/*`                     | Catalog, buy with credits                       |
-| `/api/credits/*`                   | Balance, history, checkout                      |
+| `/api/credits/*`                   | Balance and today's free usage (`GET /api/credits`); history and checkout later |
 | `/api/weather`                     | City weather (KV cached)                        |
 | `/api/arena/*`                     | Connect, channels, import, sync                 |
 | `/api/export/*`                    | Notion connect + run, Obsidian zip              |
