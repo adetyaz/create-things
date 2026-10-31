@@ -5,11 +5,13 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"build": "vite build && node scripts/wrap-worker.mjs",
 		"build:ext": "vite build --config extension/vite.config.ts",
 		"dev:ext": "vite build --config extension/vite.config.ts --watch",
 		"preview": "vite preview",
-		"dev:worker": "vite build && node scripts/dev-worker.mjs",
+		"dev:worker": "npm run build && node scripts/dev-worker.mjs",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -54,6 +56,7 @@
 		"wrangler": "^4.156.0"
 	},
 	"dependencies": {
+		"@material/material-color-utilities": "^0.4.0",
 		"@mysten-incubation/memwal": "^0.1.12",
 		"@mysten/seal": "^1.5.2",
 		"@mysten/sui": "^2.38.0",
@@ -63,13 +66,14 @@
 		"@protobuf-ts/runtime": "^2.11.1",
 		"@protobuf-ts/runtime-rpc": "^2.11.1",
 		"drizzle-orm": "^0.45.4",
+		"fast-png": "^8.0.0",
+		"jpeg-js": "^0.4.4",
 		"metascraper": "^5.50.0",
 		"metascraper-author": "^5.50.0",
 		"metascraper-description": "^5.50.0",
 		"metascraper-image": "^5.50.0",
 		"metascraper-title": "^5.50.0",
 		"metascraper-url": "^5.50.0",
-		"node-vibrant": "^4.0.4",
 		"pg": "^8.23.1"
 	}
 }

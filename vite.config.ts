@@ -11,6 +11,8 @@ process.env.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE ??=
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	// Its main entry has an extensionless import that Node's loader rejects; bundling resolves it.
+	ssr: { noExternal: ['@material/material-color-utilities'] },
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
@@ -33,6 +35,8 @@ export default defineConfig({
 				test: {
 					name: 'server',
 					environment: 'node',
+					// Its main entry has an extensionless import Node's loader rejects; Vite resolves it.
+					server: { deps: { inline: ['@material/material-color-utilities'] } },
 					include: ['src/**/*.{test,spec}.{js,ts}'],
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
 				}

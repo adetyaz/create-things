@@ -10,12 +10,47 @@
 	},
 	"hyperdrive": [
 		{
+			// createthings-db → Neon production (DATABASE_URL_UNPOOLED).
+			// Locally, `npm run dev` / `npm run dev:worker` point this binding straight at Neon instead.
 			"binding": "HYPERDRIVE",
-			// Placeholder until the Hyperdrive config is created (`wrangler hyperdrive create`, needs `wrangler login`).
-			// Locally, `npm run dev:worker` points this binding at DATABASE_URL_UNPOOLED from .env.
-			"id": "00000000000000000000000000000000"
+			"id": "4f59b630d8b54bb0bfbff44e4ba34d46"
 		}
-	]
-	// Other bindings (Queues, KV, R2, Workers AI) are added as each resource is created.
+	],
+	"ai": {
+		"binding": "AI"
+	},
+	"queues": {
+		"producers": [{ "binding": "ANALYSIS_QUEUE", "queue": "createthings-analysis" }],
+		// Handled by queue() in scripts/worker-entry.js → /api/internal/queue/[queue]
+		"consumers": [
+			{
+				"queue": "createthings-analysis",
+				"max_batch_size": 5,
+				"max_retries": 3,
+				"dead_letter_queue": "createthings-analysis-dlq"
+			}
+		]
+	},
+	"env": {
+		// Local development (`npm run dev`, `npm run dev:worker`): same bindings minus Workers AI,
+		// which only runs on Cloudflare and would open a remote session. Analysis uses Gemini, then Groq.
+		// Hyperdrive, queues and ai aren't inherited by environments, so they're repeated here.
+		"local": {
+			"vars": { "LOCAL_DEV": "true" },
+			"hyperdrive": [{ "binding": "HYPERDRIVE", "id": "4f59b630d8b54bb0bfbff44e4ba34d46" }],
+			"queues": {
+				"producers": [{ "binding": "ANALYSIS_QUEUE", "queue": "createthings-analysis" }],
+				"consumers": [
+					{
+						"queue": "createthings-analysis",
+						"max_batch_size": 5,
+						"max_retries": 3,
+						"dead_letter_queue": "createthings-analysis-dlq"
+					}
+				]
+			}
+		}
+	}
+	// Other bindings (KV, R2) are added as each resource is created.
 	// Secrets: `.env` locally (passed with --env-file), `wrangler secret put` in production.
 }

@@ -8,6 +8,27 @@
       "when": 1793384876549,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793398894890,
+      "tag": "0001_analysis_summary_skills",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793445513614,
+      "tag": "0002_rename_timestamp_columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793445540815,
+      "tag": "0003_item_analysis_error",
+      "breakpoints": true
     }
   ]
 }

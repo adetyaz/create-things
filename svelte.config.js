@@ -3,7 +3,8 @@ import adapter from '@sveltejs/adapter-cloudflare';
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
-		adapter: adapter()
+		// `npm run dev` emulates bindings from the `local` environment (no Workers AI, no remote session).
+		adapter: adapter({ platformProxy: { environment: 'local' } })
 	},
 	vitePlugin: {
 		dynamicCompileOptions: ({ filename }) =>

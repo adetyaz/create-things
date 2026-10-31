@@ -15,7 +15,7 @@ The v1 app code (Notion as database, Vercel, publish and portfolio) has been rem
 | Doc | What it covers |
 | --- | --- |
 | [Project Breakdown.md](Project%20Breakdown.md) | The full v2 concept, architecture, data model, costs and build order |
-| [user-stories.md](user-stories.md) | 78 user stories with acceptance criteria |
+| [user-stories.md](user-stories.md) | 83 user stories with acceptance criteria |
 | [todolist.md](todolist.md) | Build checklist by phase |
 | [workflow.md](workflow.md) | Current status and how the docs fit together |
 

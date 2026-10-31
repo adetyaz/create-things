@@ -25,7 +25,9 @@ import {
 
 const id = () => uuid('id').primaryKey().defaultRandom();
 const userId = () => text('user_id').notNull();
-const createdAt = () => timestamp('created_at', { withTimezone: true }).notNull().defaultNow();
+/** A required timestamp that defaults to now. */
+const stamp = (name: string) => timestamp(name, { withTimezone: true }).notNull().defaultNow();
+const createdAt = () => stamp('created_at');
 const at = (name: string) => timestamp(name, { withTimezone: true });
 
 // --- enums ---
@@ -132,7 +134,11 @@ export const items = pgTable(
 		difficulty: difficulty('difficulty'),
 		isLearningGoal: boolean('is_learning_goal').notNull().default(false),
 		arenaBlockId: text('arena_block_id'),
-		savedAt: createdAt(),
+		/** False when the title was made up from the URL or note, so analysis may replace it. */
+		titleFromUser: boolean('title_from_user').notNull().default(false),
+		/** Why the last analysis attempt failed; cleared when one succeeds. */
+		analysisError: text('analysis_error'),
+		savedAt: stamp('saved_at'),
 		lastActiveAt: at('last_active_at')
 	},
 	(t) => [
@@ -148,6 +154,9 @@ export const analyses = pgTable('analyses', {
 	itemId: uuid('item_id')
 		.notNull()
 		.references(() => items.id, { onDelete: 'cascade' }),
+	summary: text('summary'),
+	technique: text('technique'),
+	/** `{ palette, notes }`: the extracted palette plus the model's description of color use. */
 	colors: jsonb('colors'),
 	typography: text('typography'),
 	layout: text('layout'),
@@ -157,6 +166,7 @@ export const analyses = pgTable('analyses', {
 	forDevelopers: text('for_developers'),
 	forCreators: text('for_creators'),
 	brief: text('brief'),
+	skills: text('skills').array(),
 	attribution: text('attribution'),
 	model: text('model'),
 	createdAt: createdAt()
@@ -216,7 +226,7 @@ export const projects = pgTable('projects', {
 	title: text('title').notNull(),
 	status: projectStatus('status').notNull().default('ideating'),
 	content: jsonb('content'),
-	startedAt: createdAt(),
+	startedAt: stamp('started_at'),
 	completedAt: at('completed_at')
 });
 
@@ -241,7 +251,7 @@ export const pomodoroSessions = pgTable(
 		id: id(),
 		userId: userId(),
 		stepId: uuid('step_id').references(() => roadmapSteps.id, { onDelete: 'set null' }),
-		startedAt: createdAt(),
+		startedAt: stamp('started_at'),
 		endedAt: at('ended_at'),
 		completed: boolean('completed').notNull().default(false),
 		note: text('note')
@@ -288,7 +298,7 @@ export const pets = pgTable(
 		foodToday: integer('food_today').notNull().default(0),
 		foodTodayDate: date('food_today_date'),
 		returningDays: integer('returning_days').notNull().default(0),
-		bornAt: createdAt(),
+		bornAt: stamp('born_at'),
 		diedAt: at('died_at'),
 		memorialItemId: uuid('memorial_item_id'),
 		paid: boolean('paid').notNull().default(false)
@@ -335,7 +345,7 @@ export const userItems = pgTable(
 			.references(() => catalogItems.id),
 		acquiredVia: acquiredVia('acquired_via').notNull(),
 		equippedOnPetId: uuid('equipped_on_pet_id').references(() => pets.id, { onDelete: 'set null' }),
-		acquiredAt: createdAt()
+		acquiredAt: stamp('acquired_at')
 	},
 	(t) => [primaryKey({ columns: [t.userId, t.catalogItemId] })]
 );
@@ -359,7 +369,7 @@ export const creditLedger = pgTable(
 export const creditBalances = pgTable('credit_balances', {
 	userId: text('user_id').primaryKey(),
 	balance: integer('balance').notNull().default(0),
-	updatedAt: createdAt()
+	updatedAt: stamp('updated_at')
 });
 
 export const aiUsageDaily = pgTable(
@@ -465,7 +475,7 @@ export const notifications = pgTable(
 		userId: userId(),
 		kind: text('kind').notNull(),
 		channel: notifyChannel('channel').notNull(),
-		sentAt: createdAt()
+		sentAt: stamp('sent_at')
 	},
 	(t) => [index('notifications_user_idx').on(t.userId, t.sentAt)]
 );

@@ -101,16 +101,21 @@ export const GET: RequestHandler = async ({ url, platform }) => {
 	}
 	await check('tatum.rate.SUI_USD', () => getExchangeRate('SUI', 'USD'));
 
-	// v1 analysis libraries (Phase 0 #8): do they run on Workers, not just bundle?
+	// Analysis libraries on Workers: metadata scraping and color palettes.
 	if (url.searchParams.get('libs') === '1') {
 		await check('lib.metascraper', async () => {
 			const { scrapeMetadata } = await import('$lib/server/scraper/metadata');
 			return scrapeMetadata('https://github.com/MystenLabs/walrus-memory');
 		});
-		await check('lib.nodeVibrant', async () => {
+		const palette = async (url: string) => {
 			const { extractColors } = await import('$lib/server/colors/extract');
-			return extractColors('https://opengraph.githubassets.com/1/MystenLabs/walrus-memory');
-		});
+			return (await extractColors(url)) ?? 'none (format not decoded on the server)';
+		};
+		await check('lib.palette.png', () =>
+			palette('https://opengraph.githubassets.com/1/MystenLabs/walrus-memory')
+		);
+		await check('lib.palette.jpeg', () => palette('https://picsum.photos/id/1015/600/400.jpg'));
+		await check('lib.palette.webp', () => palette('https://www.gstatic.com/webp/gallery/1.webp'));
 	}
 
 	const body = JSON.stringify(

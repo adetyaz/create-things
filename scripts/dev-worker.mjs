@@ -23,7 +23,9 @@ if (!local) {
 	process.exit(1);
 }
 
-const child = spawn('npx', ['wrangler', 'dev', '--env-file', '.env', ...process.argv.slice(2)], {
+// `--env local`: no Workers AI binding, so nothing reaches Cloudflare (see wrangler.jsonc).
+const args = ['wrangler', 'dev', '--env', 'local', '--env-file', '.env', ...process.argv.slice(2)];
+const child = spawn('npx', args, {
 	stdio: 'inherit',
 	shell: true,
 	env: { ...process.env, CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE: local }

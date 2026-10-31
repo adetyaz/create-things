@@ -1,47 +1,48 @@
 /**
- * Color palette extraction using node-vibrant.
- * Works on image URLs or base64 data URIs.
+ * Color palette for an image URL (link captures, og:images). Screenshots and uploads get
+ * their palette in the browser instead, from canvas pixels, using the same `paletteFromRgba`.
  */
-import { Vibrant } from 'node-vibrant/node';
+import { paletteFromRgba, type Palette } from '$lib/colors/palette';
+import { decodeImage } from './decode';
 
-export interface ColorPalette {
-	vibrant: string;
-	darkVibrant: string;
-	lightVibrant: string;
-	muted: string;
-	darkMuted: string;
-	lightMuted: string;
-	all: string[];
+export { formatPalette, type Palette } from '$lib/colors/palette';
+
+const MAX_BYTES = 8 * 1024 * 1024;
+
+export interface FetchedImage {
+	bytes: Uint8Array;
+	/** From the response header, e.g. image/png. */
+	mime: string;
 }
 
-function swatchToHex(swatch: { hex: string } | null | undefined): string {
-	return swatch?.hex ?? '';
+/** Downloads an image with a size cap and timeout. */
+export async function fetchImage(imageUrl: string): Promise<FetchedImage> {
+	const res = await fetch(imageUrl, {
+		headers: { accept: 'image/png,image/jpeg;q=0.9,image/*;q=0.5' },
+		signal: AbortSignal.timeout(10_000)
+	});
+	if (!res.ok) throw new Error(`Image request failed with HTTP ${res.status}`);
+
+	const length = Number(res.headers.get('content-length') ?? 0);
+	if (length > MAX_BYTES) throw new Error('Image is too large');
+
+	const bytes = new Uint8Array(await res.arrayBuffer());
+	if (bytes.byteLength > MAX_BYTES) throw new Error('Image is too large');
+
+	const mime = (res.headers.get('content-type') ?? 'image/png').split(';')[0].trim();
+	return { bytes, mime };
 }
 
-/** Extract a color palette from an image URL or base64 data URI. */
-export async function extractColors(imageSource: string): Promise<ColorPalette> {
-	const palette = await Vibrant.from(imageSource).getPalette();
-
-	const vibrant = swatchToHex(palette.Vibrant);
-	const darkVibrant = swatchToHex(palette.DarkVibrant);
-	const lightVibrant = swatchToHex(palette.LightVibrant);
-	const muted = swatchToHex(palette.Muted);
-	const darkMuted = swatchToHex(palette.DarkMuted);
-	const lightMuted = swatchToHex(palette.LightMuted);
-
-	const all = [vibrant, darkVibrant, lightVibrant, muted, darkMuted, lightMuted].filter(Boolean);
-
-	return { vibrant, darkVibrant, lightVibrant, muted, darkMuted, lightMuted, all };
+/** Palette from downloaded bytes, or null for formats the server can't decode (e.g. WebP). */
+export function paletteFromImageBytes(bytes: Uint8Array): Palette | null {
+	try {
+		return paletteFromRgba(decodeImage(bytes).data);
+	} catch {
+		return null;
+	}
 }
 
-/** Format a palette into a human-readable string for AI prompts and Notion storage. */
-export function formatPalette(palette: ColorPalette): string {
-	const parts: string[] = [];
-	if (palette.vibrant) parts.push(`Vibrant: ${palette.vibrant}`);
-	if (palette.darkVibrant) parts.push(`Dark Vibrant: ${palette.darkVibrant}`);
-	if (palette.lightVibrant) parts.push(`Light Vibrant: ${palette.lightVibrant}`);
-	if (palette.muted) parts.push(`Muted: ${palette.muted}`);
-	if (palette.darkMuted) parts.push(`Dark Muted: ${palette.darkMuted}`);
-	if (palette.lightMuted) parts.push(`Light Muted: ${palette.lightMuted}`);
-	return parts.join(' | ');
+/** Fetches a JPEG or PNG and builds its palette. Null for other formats; the vision model covers those. */
+export async function extractColors(imageUrl: string): Promise<Palette | null> {
+	return paletteFromImageBytes((await fetchImage(imageUrl)).bytes);
 }

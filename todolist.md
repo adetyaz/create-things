@@ -9,11 +9,12 @@
 > Details: [Project Breakdown.md](Project%20Breakdown.md#hackathon-tatum--walrus-total-recall). Builds on Phases 0–4 plus pet chat (Phase 6, item 48).
 
 - [x] H1. Confirm the Walrus Memory SDK runs on Workers; health check against the mainnet relayer (30 Oct: health + mainnet save + recall pass under `wrangler dev`; `/api/dev/checks`)
-- [ ] H2. `memories` table + queue consumer that sends summaries to Walrus within its rate limit (US-071)
+- [ ] H2. `memories` table + queue consumer that sends summaries to Walrus within its rate limit; summaries go through Walrus `analyze` to extract facts (US-071)
 - [ ] H3. Memory writes for every type in the Breakdown list; at least 10 on mainnet
 - [ ] H4. Recall wired into Pick for me, roadmaps, "I'm stuck"/"teach me" and pet chat; the pet cites the memory it used (US-071)
-- [ ] H5. Plan with days: `plan_slots`, drag to move, Today shows today's step (US-073)
-- [ ] H6. Fit-it-in flow for new ideas: add as step / swap day / park / 5-minute note; stop and continue (US-072)
+- [ ] H5. Plan with time blocks: `plan_slots` with day, start time or habit anchor, place; drag to move; Today shows today's block; nudges at the block's time (US-073)
+- [ ] H6. Fit-it-in flow for new ideas: add as step / swap a block / park / 5-minute note; related item found with Walrus `embed`; stop and continue (US-072)
+- [ ] H6b. Reshuffle: missed blocks offered new slots, today rebuilt, never miss twice (2-minute version first after a missed day), busy-week reshuffle (US-079, US-073)
 - [ ] H7. Voice mode: record → Workers AI transcription → split + sort ideas → fit-it-in (US-074)
 - [ ] H8. Next-thing suggestions that carry knowledge forward (US-075)
 - [ ] H9. "What your pet knows": list, delete, forget all (US-076)
@@ -32,7 +33,7 @@
 - [ ] 1. Switch to `@sveltejs/adapter-cloudflare`; add `wrangler.toml` with R2, KV, Queues, Hyperdrive, Workers AI bindings
 - [ ] 2. Neon project + Hyperdrive config; confirm ORM (Drizzle) works through Hyperdrive (30 Oct: Neon project linked via `neon.ts`, Drizzle + `pg` read/write pass through local Hyperdrive emulation. Left: real Hyperdrive config, needs `wrangler login`)
 - [x] 3. Database schema + migrations for the tables in the Data Model section (30 Oct: 25 tables in `src/lib/server/db/schema.ts`; `drizzle/0000_init.sql` applied to Neon `production`; typed insert/read through Hyperdrive verified. Foreign keys to Better Auth users come with #4)
-- [ ] 4. Better Auth: magic link + Google (US-001)
+- [ ] 4. Better Auth: Google + magic links, optional 2FA (US-001). Built near the end (hackathon Stage E); until then `src/lib/server/user.ts` returns one dev user
 - [ ] 5. Extension signs in against the new API
 - [ ] 6. R2 uploads replace Uploadcare; signed URLs for private images
 - [x] 7. Remove publish, portfolio, Figma, Creative DNA, Upstash and Notion-as-database code, plus their routes, nav links and landing-page copy (30 Oct: 43 files removed; landing page is a v2 placeholder until the redesign; kept AI modules, metascraper, Notion client for export, privacy page, extension)
@@ -41,10 +42,10 @@
 
 ## Phase 1 — Capture + AI foundation
 
-- [ ] 10. Items API; extension capture writes to Postgres (US-006)
+- [ ] 10. Items API; extension capture writes to Postgres (US-006) (30 Oct: `POST/GET /api/items`, `GET /api/items/[id]` built for links + notes as the dev user; screenshots/uploads wait for R2; extension not ported yet)
 - [ ] 11. AI Gateway set up with Workers AI primary and DeepInfra fallback
-- [ ] 12. Test which models return reliable structured JSON; pick defaults per task
-- [ ] 13. Analysis queue consumer: analysis + size + difficulty + learning-goal detection (US-010–012)
+- [ ] 12. Test which models return reliable structured JSON; pick defaults per task (model ids in `src/lib/server/analysis/model.ts`; analysis reports which model answered)
+- [x] 13. Analysis queue consumer: analysis + size + difficulty + learning-goal detection (US-010–012) (30 Oct: built — queue wrapper + internal route, metadata, Material palette, Workers AI vision → text → Groq, migration 0001; verified live under `npm run dev` with Gemini on 31 Oct; errors saved on the item; retry via `POST /api/items/[id]/analyze`; migrations 0002–0003; verified through the real queue under `npm run dev:worker` on 31 Oct: learning goal detected)
 - [ ] 14. Credit ledger, balances and daily free quota enforced on every AI call; refund on failure (US-062, US-063)
 - [ ] 15. Turnstile + per-user and per-IP rate limits (US-070)
 - [ ] 16. Verify: capture a URL, screenshot and note → analysis appears; quota decreases; a forced failure refunds
@@ -61,11 +62,13 @@
 
 ## Phase 3 — Starting + Pomodoro
 
-- [ ] 24. Roadmap prompt with ≤30-minute steps; project vs skill style (US-017, US-018)
+- [ ] 24. Roadmap prompt with ≤30-minute steps; project vs skill style; each step gets a 2-minute version, search terms and tools (US-017, US-018, US-081, US-082)
+- [ ] 24b. Adaptive roadmap: re-plan what comes next when a topic or milestone is done (US-081)
 - [ ] 25. Project space + journal ported to Postgres (US-021, US-022)
 - [ ] 26. Pomodoro timer, start from step, end-of-session note (US-026, US-027)
 - [ ] 27. Focus sounds: Web Audio noise, R2 loops, mixer, fades, starter set (US-028)
 - [ ] 28. Reflection prompts (US-023)
+- [ ] 28b. Start ritual for blocks and the daily shutdown wrap-up with shutdown time in settings (US-080)
 - [ ] 29. Check iPhone PWA background audio behaviour
 - [ ] 30. Verify: start a step, run a pomodoro with sounds, log a note, step completes
 
@@ -94,7 +97,7 @@
 
 - [ ] 46. All 4 launch species with breeds; shared attachment points
 - [ ] 47. Personalities + tone slider (US-037)
-- [ ] 48. Level 3 chat via Groq, replacing stuck/teach buttons (US-019, US-020, US-040)
+- [ ] 48. Level 3 chat via Groq wrapped with Walrus `withMemWal`, replacing stuck/teach buttons (US-019, US-020, US-040)
 - [ ] 49. Onboarding timeline with minimums; change rules (US-004)
 - [ ] 50. Run away + 3-day return (US-044)
 - [ ] 51. Death, skeleton, memorial shelf, signature item (US-045)
@@ -103,6 +106,7 @@
 - [ ] 54. Body sliders (US-048)
 - [ ] 55. Accessories, room decor, toys + break games (US-049, US-050)
 - [ ] 56. Micro-interactions + liveliness setting (US-051)
+- [ ] 56b. Choose a web search provider; help me choose comparisons with sources, "checked on" dates and one pick (US-083)
 - [ ] 57. Verify: full pet lifecycle on a test account with a short timeline
 
 ## Phase 7 — Living interface + weather
@@ -121,7 +125,7 @@
 - [ ] 66. Offline cache + IndexedDB sync queue (US-069)
 - [ ] 67. Extension badge + lightweight pet in popup (US-058)
 - [ ] 68. Email (Resend) + web push in the pet's voice; quiet hours (US-059, US-060)
-- [ ] 69. Weekly digest card + email (US-061)
+- [ ] 69. Weekly digest card + email: focused hours first, identity language (US-061)
 - [ ] 70. Verify: go offline mid-pomodoro and journal, come back, everything syncs
 
 ## Phase 9 — Integrations

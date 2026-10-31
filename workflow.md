@@ -5,8 +5,8 @@
 ## Where things stand
 
 - **Concept:** rebuilt and agreed. See [Project Breakdown.md](Project%20Breakdown.md).
-- **Stories:** 78 stories in [user-stories.md](user-stories.md) (US-071–078 are the hackathon ones); 8 partly exist in the old code.
-- **Tasks:** 108 in [todolist.md](todolist.md): 18 hackathon tasks (H1–H18), 86 steps across Phases 0–11, and 4 after launch.
+- **Stories:** 83 stories in [user-stories.md](user-stories.md) (US-071–078 are the hackathon ones; US-079–083 added 31 Oct for reshuffling, rituals and navigation); 8 partly exist in the old code.
+- **Tasks:** 112 in [todolist.md](todolist.md): 19 hackathon tasks (H1–H18 plus H6b), 89 steps across Phases 0–11, and 4 after launch.
 - **UI:** being redesigned. The v1 Zine look doesn't carry over; the new direction is still to be decided.
 - **Plan:** v2 uses Neon Postgres on Cloudflare; Notion is only an optional export.
 - **Hackathon:** entering Tatum × Walrus "Total Recall", Track 02 (Smart Agents for Real Life). Scope and checklist in the Breakdown; tasks H1–H18 in the todolist.

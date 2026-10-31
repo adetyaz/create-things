@@ -1,8 +1,8 @@
 # createthings
 
-> Pick one thing. Start it. Keep what you learn. Don't let your pet starve.
+> Pick one thing. Start small. Keep going when plans change. Always know the next step.
 
-createthings is for people with too many ideas and too many things they want to try, who end up stuck deciding what to start and do nothing. It collects everything you save, helps you choose **one** thing, breaks it into steps small enough to start today, makes what you learn stick, and gives you a 3D pet that depends on you showing up.
+createthings is for people with too many ideas and too many things they want to try, make or learn. To-do lists are passive: you write one, nothing pushes you to do it, and the first time something takes over that time the plan falls apart. createthings is an active partner instead. It helps you choose **one** thing, breaks it into steps small enough to start today, always shows you the next step (even what to search for and which tool to use), **reshuffles your plan when life gets in the way**, fits in new ideas without derailing you, keeps what you learn, and gives you a 3D pet that remembers your plans and depends on you showing up.
 
 It's meant to be a complete digital experience: the app has weather, a day and night cycle, sounds, and a pet that lives in it. The app itself shows whether you've been showing up.
 
@@ -34,13 +34,15 @@ It's meant to be a complete digital experience: the app has weather, a day and n
 
 ## The Problem
 
-Three things go wrong, one after the other:
+Five things stop people, usually in this order:
 
-1. **Too many options.** People save links, screenshots, notes and Are.na blocks faster than they can act on them. The pile becomes a source of guilt, not ideas.
-2. **No clear first step.** Even after choosing something, it feels too big or too hard to begin, so they go back to saving more things.
-3. **Learning doesn't stick.** When they do try something new, what they learned fades within weeks. The next attempt starts from zero, and hard skills never compound.
+1. **Too many options.** People save links, screenshots, notes and Are.na blocks faster than they act on them. The pile becomes guilt, not ideas.
+2. **No idea where to go next.** Even after choosing, they don't know the next step, which tools to use, or even what to search for. When they finish studying one thing, they don't know what comes after it. This is where most attempts stall.
+3. **Nothing pushes them.** A to-do list never tells you to do it. Most productivity apps are easy to forget for a month.
+4. **Plans break.** Something comes up and takes the time. Reshuffling everything by hand feels like starting over, so they give up instead.
+5. **Learning doesn't stick.** What they learn fades in weeks, so the next attempt starts from zero and hard skills never compound.
 
-On top of that, nothing pulls them back. Most productivity apps are easy to forget about for a month.
+The goal is **momentum when plans change**: always a next step, a push to take it, and a plan that bends instead of breaking.
 
 ---
 
@@ -55,23 +57,27 @@ The AI adapts to what was saved (a UI screenshot, an article, a video, a "learn 
 ## Core Loop
 
 ```
-CAPTURE → SORT → PICK ONE → START SMALL → LEARN → REMEMBER
-   ↑                                                  │
-   └──────────── next thing, when this is done ───────┘
+CAPTURE → SORT → PICK ONE → PLAN → START SMALL → LEARN → REMEMBER
+   ↑                          ↑                              │
+   │                          └── RESHUFFLE when life ───────┤
+   │                              happens or ideas arrive    │
+   └──────────────── next thing, when this is done ──────────┘
 
-            🐾 your pet eats when you do the work
+        🐾 your pet pushes, remembers your plans, and eats when you do the work
 ```
 
 | Step        | What happens                                                                  |
 | ----------- | ----------------------------------------------------------------------------- |
 | Capture     | Save anything from the extension or PWA, or import Are.na channels            |
 | Sort        | Quick keep / let go triage turns the pile into a short Shortlist              |
-| Pick one    | The app suggests one item to focus on, based on time and energy available     |
-| Start small | A roadmap of 15–30 minute steps; the current step is shown alone              |
+| Pick one    | The app suggests one item to focus on, based on time, energy and memory       |
+| Plan        | Steps go into time blocks: day, time, place, and what they follow ("after coffee") |
+| Start small | Each step is 15–30 minutes with a 2-minute version; the next step is always clear, with what to search and which tool to use |
 | Learn       | Pomodoro sessions in the project space, with a journal and AI help            |
-| Remember    | What you learn becomes review cards, resurfaced on a spaced schedule          |
+| Remember    | What you learn becomes review cards; the pet remembers how you work           |
+| Reshuffle   | Missed a block or got a new idea? The pet re-plans around it and never lets you miss twice |
 
-The **pet** runs alongside the whole loop. Work on your Focus item feeds it. Neglect makes it hungry, then it runs away, and eventually it dies.
+The **pet** runs alongside the whole loop. It pushes you toward the next step, holds you to your plan, and eats when you work on your Focus item. Neglect makes it hungry, then it runs away, and eventually it dies.
 
 ---
 
@@ -81,13 +87,19 @@ Every feature is judged by these:
 
 1. **Fewer choices, not more.** Show one thing at a time wherever possible.
 2. **Starting beats planning.** Any screen should lead to a first action within a minute.
-3. **Letting go counts as progress.** Archiving an idea you'll never do is a win.
-4. **Limit what's in progress.** Only 1–3 items can be in Focus at once (default 1).
-5. **Learning should compound.** Nothing you learn is lost; it comes back until it sticks.
-6. **No guilt, but real consequences.** The pet and the interface show neglect, and there's always a free way back.
-7. **Showing up beats skipping.** Half a workout is better than no gym. Five minutes or two lines always counts.
-8. **The interface shows how you've been doing.** You can tell at a glance whether you've been showing up, without reading a number.
-9. **You can't buy your way out of showing up.** Everything paid is cosmetic or extra AI. Nothing paid replaces doing the work.
+3. **There is always a next step.** Never leave someone wondering what to do, what to search for, or which tool to pick.
+4. **Plans bend, they don't break.** When life takes the time, reshuffle; never make the user start over.
+5. **Never miss twice.** Missing once is life. After a miss, the next day's smallest step becomes the priority. (*Atomic Habits*)
+6. **Make it obvious, easy and satisfying.** A set time and place, a 2-minute version of every step, and an immediate reward. (*Atomic Habits*)
+7. **Protect focus.** Time blocks, start and shutdown rituals, and new ideas parked instead of followed. (*Deep Work*)
+8. **Letting go counts as progress.** Archiving an idea you'll never do is a win.
+9. **Limit what's in progress.** Only 1–3 items can be in Focus at once (default 1).
+10. **Learning should compound.** Nothing you learn is lost; it comes back until it sticks.
+11. **Identity over outcomes.** Celebrate who you're becoming ("you design every morning now"), not just finished items.
+12. **No guilt, but real consequences.** The pet and the interface show neglect, and there's always a free way back.
+13. **Showing up beats skipping.** Half a workout is better than no gym. Two minutes or two lines always counts.
+14. **The interface shows how you've been doing.** You can tell at a glance whether you've been showing up, without reading a number.
+15. **You can't buy your way out of showing up.** Everything paid is cosmetic or extra AI. Nothing paid replaces doing the work.
 
 ---
 
@@ -139,23 +151,63 @@ Runs automatically after every capture, through a queue.
 - Prompt appears when more than ~10 items are unsorted ("Sort 12 new things, about 2 min")
 - End screen frames letting go as progress ("Kept 3, let go of 8")
 
-### 5. Pick One: Today Screen + Focus
+### 5. Pick One, Plan + Reshuffle
 
-- **Today is the home screen.** It shows the pet's room, one Focus item, its current step, a Start Pomodoro button and any reviews due. Nothing else.
+This is the heart of the product: a plan that pushes you, then bends when life gets in the way.
+
+**Today and Focus**
+
+- **Today is the home screen.** It shows the pet's room, today's planned block (or the current step), a Start Pomodoro button and any reviews due. Nothing else.
 - **Pick for me** asks how much time you have (15 / 30 / 60+ min) and your energy (low / normal / high), then suggests one Shortlist item with its first step
   - **Start** · **Not today** (next suggestion) · **Let it go**
 - **Focus limit:** default 1, up to 3. Adding a new Focus item means pausing or finishing one.
 - **Pause** returns an item to the Shortlist with its progress kept
 
-### 6. Start Small: Roadmaps (exists, changed)
+**Plan: time blocks** (*Deep Work* time blocking, *Atomic Habits* implementation intentions)
+
+- Focus steps are placed into **blocks**: a day, a start time, and optionally a place ("Tue 8:00, desk")
+- A block can follow a **habit anchor** instead of a clock time: "after morning coffee", "after lunch" (habit stacking)
+- The pet nudges at the block's time or anchor, in its own voice
+
+**Reshuffle: when life happens**
+
+- **Missed a block:** the pet offers to move it, never silently. Today's plan is rebuilt around what's left.
+- **Never miss twice:** after a missed day, the next day starts with the step's **2-minute version** as the top priority, and the pet says so
+- **New idea or plan mid-week:** goes through fit-it-in (§13): add as a step, swap a block, park it, or a 5-minute note
+- **Busy week:** "Only 2 blocks free this week? Here's what moves."
+
+**Rituals** (*Deep Work*)
+
+- **Start ritual:** starting a block runs the same steps every time: sounds, pet sleeps, distractions parked
+- **Daily shutdown:** at the end of the day (time set by the user) the pet runs a 1-minute wrap-up: what got done, what moves, what's first tomorrow. Finishing it is a snack for the pet.
+
+### 6. Start Small: Roadmaps as Navigation (exists, changed)
+
+A roadmap works like navigation: it always answers "what now?", including when someone doesn't know what to search for or which tool to use.
 
 - Generated from an item's analysis
 - **Two styles:**
   - **Project roadmaps** for things to make or recreate
   - **Skill roadmaps** for learning goals: basics → practice → small project, with more knowledge cards along the way
 - Every milestone is split into **steps of 15–30 minutes**. Only the current step is prominent.
+- **Each step comes with:**
+  - a **2-minute version**, the smallest possible start (*Atomic Habits* two-minute rule)
+  - **what to search for**: actual search terms, because "I don't know what to Google" is a real blocker
+  - **tools and resources** for that step; when there's a real choice of tools, **help me choose** (below)
+- **Adaptive, not fixed:** when a topic or milestone is done, the roadmap re-plans what comes next from what you now know, what you keep forgetting and your goals
 - **"I'm stuck"** gives a smaller step or a short explanation. **"Teach me this"** gives a short lesson tied to the item. Both are asked through the pet (see Pet assistant).
 - Progress tracking per step and milestone
+
+**Help me choose (compare and contrast)**
+
+- When a step needs a choice ("pick a 3D tool", "choose a website builder"), or when you ask the pet, it compares **2–4 options** side by side:
+  - what each gives you **for your goal**, not a generic feature list
+  - **price**: free, one-off or subscription, and free or student tiers
+  - learning curve, fit for this project, and what you'd give up
+- **Prioritised by goal:** for **learning**, free, beginner-friendly and well-documented first; for **building**, whatever gets the result fastest and holds up in production
+- **Always ends with one pick** and a short reason ("Go with Blender: free, and your goal is learning"); the pick becomes part of the plan and is remembered
+- Prices and features come from a **live web search**, with a source and "checked on" date for each; nothing is quoted from model memory
+- Uses the free quota, then credits (a web search costs more than a plain answer)
 
 ### 7. Learn: Project Space + Journal (exists)
 
@@ -341,7 +393,7 @@ The app looks different depending on how you've been doing and what's happening 
 - Hunger: "Biscuit is getting hungry, 10 minutes on your type poster?"
 - Pomodoro end, reviews due
 - **Quiet hours** (default 22:00–08:00 local) and per-channel settings
-- **Weekly digest:** what you started, finished and let go, steps done, cards reviewed, how much the pet ate. Encouraging when the week was empty.
+- **Weekly digest:** focused hours and sessions first (the lead measure, *Deep Work*), then steps done, blocks kept and reshuffled, cards reviewed, and how much the pet ate. Written as identity, not a scorecard ("12 sessions: you're someone who designs now"). Encouraging when the week was empty.
 
 ### 13. Assistant Memory (Walrus)
 
@@ -377,10 +429,21 @@ The pet is an accountability partner that **remembers**. It knows your goals, wh
 - Transcribed, then split into separate ideas and sorted: new item, step for a current Focus item, journal note, or learning goal
 - Each idea goes through the fit-it-in flow above; nothing is added without your OK
 
+**Walrus's own AI** (part of the Walrus Memory SDK)
+
+| Feature       | What it does                                                        | Used for                                             |
+| ------------- | ------------------------------------------------------------------- | ---------------------------------------------------- |
+| `withMemWal`  | Wraps any AI SDK model: recalls relevant memories into the prompt before each reply and saves new facts after | **Pet chat** (Groq model wrapped), so every answer uses what the pet knows |
+| `analyze`     | The relayer extracts individual facts from text and stores each one | Turning our **summaries** (session notes, plan changes) into memories |
+| `embed`       | Embedding vector only, nothing stored                               | **Fit-it-in**: matching a new idea to the right Focus item |
+
+- Auto-save in `withMemWal` is limited to chat; journal text and transcripts never go through it
+- Saves and `analyze` calls go through the memory queue and respect the relayer's rate limits
+
 **Rules**
 
 - **Postgres stays the source of truth** (items, steps, journal, cards, pet). Walrus holds only what the assistant has learned.
-- **Summaries, not raw text.** The hosted Walrus relayer can read what it receives, so journal entries and transcripts stay in Postgres; Walrus gets short summaries ("struggled with kerning, prefers short steps").
+- **Summaries, not raw text.** The hosted Walrus relayer can read what it receives, so journal entries and transcripts stay in Postgres; Walrus gets short summaries ("struggled with kerning, prefers short steps"), and `analyze` only ever runs on those summaries.
 - Saves go through a queue (Walrus rate limits) and never block the app
 - **"What the pet knows about you"** in Settings: see every memory, delete one, or forget everything
 - Memory is part of the assistant: guide/actions stay free; recalls inside chat count toward the chat quota
@@ -545,13 +608,15 @@ Settings → Connect Notion → scheduled one-way export of items, journals, kno
 Settings → Download Obsidian vault → zip of Markdown files
 ```
 
-### Flow 12: Plan with days
+### Flow 12: Plan with time blocks
 
 ```
-Focus item started → its steps are placed on days
-  → Today shows today's planned step first
-  → Drag a step to move it to another day
-  → Skipped a day → the pet offers to move the step forward (never silently)
+Focus item started → its steps go into blocks
+  → Each block: a day + a start time (or a habit anchor like "after coffee") + optional place
+  → Today shows today's block first; the pet nudges at its time or anchor
+  → Drag a block to move it
+  → Missed a block → the pet offers to move it (never silently) and rebuilds today
+  → Missed a whole day → never miss twice: tomorrow opens with the step's 2-minute version
   → Every plan change is remembered (plan, plan_change)
 ```
 
@@ -587,6 +652,26 @@ Ask the pet on the Plus/Pro tier without enough credits
   → A failed or unconfirmed payment never charges and never generates
 ```
 
+### Flow 16: Help me choose
+
+```
+A step needs a tool choice, or the user asks the pet ("Figma or Penpot?")
+  → Goal read from the item: learning or building
+  → Live web search for 2–4 options (prices, free tiers, what each gives)
+  → Side-by-side comparison for this goal, with sources and "checked on" dates
+  → One pick with a short reason → added to the plan, remembered (tool_choice)
+```
+
+### Flow 17: Daily shutdown
+
+```
+Shutdown time (set by the user) → pet: "Wrap up today?"
+  → What got done (from sessions and steps)
+  → What moves (unfinished blocks offered new slots)
+  → What's first tomorrow (one block, with its 2-minute version)
+  → Snack for the pet; summary saved to memory (session_summary / plan_change)
+```
+
 ---
 
 ## Tech Stack
@@ -598,15 +683,17 @@ Ask the pet on the Plus/Pro tier without enough credits
 | Hosting            | **Cloudflare Workers** (`adapter-cloudflare`), replacing Vercel  |
 | Database           | **Neon Postgres** through **Cloudflare Hyperdrive**              |
 | ORM / driver       | Drizzle over `node-postgres` (`pg`) through Hyperdrive, one short-lived client per request (Neon's recommendation for Cloudflare). Confirmed 30 Oct against Neon via local Hyperdrive emulation |
-| Auth               | **Better Auth**: magic link + Google (Apple later)               |
+| Auth               | **Better Auth**: Google sign-in + email magic links (Resend); optional 2FA the user turns on (authenticator app + backup codes). Built near the end; until then everything runs as one dev user (`src/lib/server/user.ts`). Apple later |
 | Files              | **Cloudflare R2** (captures, sounds, pet assets), replacing Uploadcare |
 | Cache              | Cloudflare KV (weather per city, model config)                   |
 | Background jobs    | Cloudflare **Queues** (analysis, imports, exports, notifications) + **Cron Triggers** |
 | AI                 | **AI Gateway** → Workers AI, DeepInfra / Groq, premium via OpenRouter |
+| Color palettes     | **Material Color Utilities** (Google's Material You quantizer). Pixels come from a canvas in the browser for screenshots/uploads, and from pure-JS decoders (`jpeg-js`, `fast-png`) on Workers for link images. WebP links fall back to the vision model |
 | Abuse protection   | Turnstile + rate limiting                                        |
 | Email              | Resend                                                           |
 | Push               | Web Push (VAPID) from Workers                                    |
 | Weather            | Provider to choose (Open-Meteo commercial plan likely), cached per city |
+| Web search         | For help-me-choose comparisons: live prices and features with sources (provider to choose) |
 | 3D pet             | Designed in **Spline**; real-time 3D on capable devices, lightweight pre-rendered fallback on low-power phones and the extension |
 | Audio              | Web Audio (generated noise + mixing), loops in R2                |
 | Assistant memory   | **Walrus Memory** (`@mysten-incubation/memwal` 0.1.12, hosted mainnet relayer; needs `@mysten/sui` + `@mysten/seal` installed) |
@@ -646,9 +733,14 @@ Ask the pet on the Plus/Pro tier without enough credits
 | Pet chat                | Groq (fastest replies)           | Workers AI                       |
 | Plus / Pro tiers        | Premium models via OpenRouter    | —                                |
 
+- **Local development runs fully local** (decided 31 Oct): the `local` Wrangler environment has the database and queue bindings but no Workers AI, so `npm run dev` and `npm run dev:worker` never open a remote session to Cloudflare. Locally, analysis uses **Gemini** (`gemini-3.5-flash-lite`, reads images; 2.5 Flash-Lite is retired for new keys) then Groq; Workers AI is used once deployed. Gemini's free tier may train on prompts, so it runs only in local development on your own test data; production uses it only when `GEMINI_PAID_TIER=true` (decided 31 Oct).
 - **Privacy rule:** only providers or tiers that don't train on your data (no Gemini free tier, no `:free` models)
 - Structured JSON output is tested per model before it's used for roadmaps and cards
 - OpenCode Zen's free models can't be used: they only work inside OpenCode
+
+### Queues inside SvelteKit
+
+SvelteKit's Cloudflare adapter only builds a `fetch()` worker. After `vite build`, `scripts/wrap-worker.mjs` swaps in `scripts/worker-entry.js`, which adds `queue()`: each message is handed in-process to `POST /api/internal/queue/[queue]` with a flag only the queue handler sets, so all job code lives in SvelteKit (`$lib`, `$env`). A failed job is retried with backoff, then dead-lettered (`createthings-analysis` → `createthings-analysis-dlq`, 3 retries). Under `npm run dev` there is no consumer, so jobs run inline in the dev server instead.
 
 ### Rules that let it scale
 
@@ -682,11 +774,11 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | Table                | Columns                                                                 |
 | -------------------- | ----------------------------------------------------------------------- |
 | `users`, `sessions`, `accounts` | Managed by Better Auth                                       |
-| `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
-| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, saved_at, last_active_at |
-| `analyses`           | id, item_id, colors, typography, layout, mood[], style, components, for_developers, for_creators, brief, attribution, model |
+| `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), shutdown_time, weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
+| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, saved_at, last_active_at |
+| `analyses`           | id, item_id, summary, technique, colors (palette + notes), typography, layout, mood[], style, components, for_developers, for_creators, brief, skills[] (feeds the roadmap), attribution, model |
 | `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress         |
-| `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, done_at            |
+| `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, two_minute (smallest start), search_terms[], tools[], done_at |
 | `projects`           | id, user_id, item_id, title, status, content (editor JSON), started_at, completed_at |
 | `journal_entries`    | id, user_id, project_id, body, source (manual/pomodoro/check-in/voice), created_at |
 | `pomodoro_sessions`  | id, user_id, step_id, started_at, ended_at, completed, note             |
@@ -702,7 +794,8 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `arena_channels`     | id, user_id, slug, mode (triage/curated)                                |
 | `exports`            | user_id, target (notion), token (encrypted), last_run_at                |
 | `push_subscriptions` | id, user_id, endpoint, keys                                             |
-| `plan_slots`         | id, user_id, step_id, day, position (a Focus step placed on a day)      |
+| `plan_slots`         | id, user_id, step_id, day, start_time, anchor (e.g. "after coffee"), place, position, missed_at (a Focus step placed in a time block) |
+| `comparisons`        | id, user_id, item_id, step_id, question, goal (learning/building), options (JSON: gives, price, fit, sources), pick, reason, checked_at |
 | `memories`           | id, user_id, type, summary, source_type, source_id, status (queued/sent/failed), attempts, last_error, walrus_job_id, created_at, deleted_at (local copy + outbox for Walrus) |
 | `voice_captures`     | id, user_id, audio_key (R2), transcript, ideas (JSON), created_at       |
 | `sui_payments`       | id, user_id, tx_digest, amount, coin (usdc/sui), purpose (credits/request), confirmed_at |
@@ -715,7 +808,9 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | Route                              | Purpose                                         |
 | ---------------------------------- | ----------------------------------------------- |
 | `/api/auth/*`                      | Better Auth                                     |
-| `/api/items`, `/api/items/[id]`    | Capture, list, update status                    |
+| `/api/items`, `/api/items/[id]`    | Capture (queues analysis), list, read with analysis |
+| `/api/items/[id]/analyze`         | Retry the analysis of an item still in the inbox |
+| `/api/internal/queue/[queue]`      | Queue messages land here (internal only)        |
 | `/api/triage`                      | Keep / let go / later                           |
 | `/api/focus/pick`                  | Suggest one Shortlist item                      |
 | `/api/roadmap`                     | Generate project or skill roadmap               |
@@ -732,7 +827,8 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/export/*`                    | Notion connect + run, Obsidian zip              |
 | `/api/push/*`                      | Subscribe / unsubscribe                         |
 | `/api/webhooks/payments`           | Add credits after confirmed payment             |
-| `/api/plan`                        | Place steps on days, move them                  |
+| `/api/plan`                        | Place steps in time blocks, move them, reshuffle, daily shutdown |
+| `/api/choose`                      | Help me choose: compare options for a step (web search) |
 | `/api/ideas/fit`                   | Suggest how a new idea fits the current plan    |
 | `/api/voice`                       | Upload a voice ramble → transcript → ideas      |
 | `/api/memory/*`                    | List, delete one, forget all; receipts from Sui |
@@ -785,6 +881,7 @@ GROQ_API_KEY=
 DEEPINFRA_API_KEY=
 OPENROUTER_API_KEY=
 GEMINI_API_KEY=
+GEMINI_PAID_TIER=             # true only for a paid-tier key; otherwise Gemini runs in local development only
 
 # Email + push
 RESEND_API_KEY=
@@ -839,7 +936,7 @@ Workers AI, R2, KV, Queues and Hyperdrive are Cloudflare **bindings** in `wrangl
 | Prize                       | Amount            | How we compete                                                        |
 | --------------------------- | ----------------- | --------------------------------------------------------------------- |
 | Track 02                    | $500 / $300 / $200 | The whole entry                                                      |
-| Best Walrus Memory          | $500              | "Deepest learning loop. Memories that visibly change the product": the pet's picks, plan changes and answers change because of memory, and it says why |
+| Best Walrus Memory          | $500              | "Deepest learning loop. Memories that visibly change the product": the pet's picks, plan changes and answers change because of memory, and it says why. Uses Walrus's own AI too: `withMemWal` around pet chat, `analyze` on summaries, `embed` for fit-it-in |
 | Best Use of Agent Payments  | $500              | Plus/Pro AI requests paid per call with USDC on Sui via MPP, confirmed through Tatum |
 | Best Tatum AI Builder App   | $500              | Skipped: it's for apps built primarily with ai.tatum.io               |
 
@@ -875,7 +972,7 @@ All Tatum calls go through one server module with the API key (`src/lib/server/t
 
 ### Memory types (10+ required on mainnet)
 
-`goal` · `learning_goal` · `plan` · `plan_change` · `idea_parked` · `idea_merged` · `session_summary` · `stuck_topic` · `lesson_learned` · `review_weakness` · `pick_feedback` · `work_pattern` · `expansion` · `voice_ideas`
+`goal` · `learning_goal` · `plan` · `plan_change` · `idea_parked` · `idea_merged` · `session_summary` · `stuck_topic` · `lesson_learned` · `review_weakness` · `pick_feedback` · `work_pattern` · `expansion` · `voice_ideas` · `tool_choice`
 
 ### Submission checklist
 
@@ -898,11 +995,11 @@ From the build order that means: Phase 0 (without R2 if needed), Phase 1 capture
 
 | Stage              | Work                                                                                   |
 | ------------------ | -------------------------------------------------------------------------------------- |
-| A · Foundations    | Phase 0 #1 (Cloudflare adapter) · H1 Walrus SDK live test · H10 Tatum client · MPP payment test · Phase 0 #2–4, #7–9 |
+| A · Foundations    | Phase 0 #1 (Cloudflare adapter) · H1 Walrus SDK live test · H10 Tatum client · MPP payment test · Phase 0 #2–3, #7–9 |
 | B · Core loop      | Phase 1 #10–14 · H2 memory outbox · Phase 2 #17–21 · Phase 3 #24–26 · H5 plan with days · Phase 4 #31–36, #38 · Phase 6 #48 pet chat |
-| C · Memory at work | H3 memory types · H4 recall + citations · H6 fit-it-in · H7 voice · H8 next things · H9 + H11 memory page and receipts |
+| C · Memory at work | H3 memory types · H4 recall + citations · H6 fit-it-in + reshuffle + never miss twice · H7 voice · H8 next things · H9 + H11 memory page and receipts |
 | D · Payments       | Phase 10 #79 Plus/Pro tiers · H12 Pro answer per request · H13 credit packs in USDC/SUI |
-| E · Submit         | H15 full loop on a fresh account · H16 README + public repo · H17 blog · H18 video, posts, form |
+| E · Auth + submit  | Phase 0 #4–5 auth (Google, magic links, optional 2FA; extension sign-in) · H15 full loop on a fresh account · H16 README + public repo · H17 blog · H18 video, posts, form |
 
 Not needed for the demo loop and left for later unless chosen: Phase 0 #5 (extension sign-in), #6 (R2); Phase 1 #15 (Turnstile); Phase 3 #27–29; Phase 4 #37, #39.
 
@@ -920,7 +1017,7 @@ SvelteKit app, the extension's capture logic, AI prompts and analysis logic, roa
 
 1. Switch to `adapter-cloudflare`, set up `wrangler.toml` with bindings
 2. Neon + Hyperdrive + ORM schema and migrations
-3. Better Auth (magic link + Google); extension signs in against the new API
+3. Better Auth (Google + magic links, optional 2FA); extension signs in against the new API. Built near the end (decided 30 Oct); a single dev user stands in until then
 4. R2 for uploads, replacing Uploadcare
 5. Remove publish, portfolio, Figma, Creative DNA, Upstash and the Notion-as-database code
 6. Check `node-vibrant` and `metascraper` on Workers; swap or move them into queue consumers
@@ -940,10 +1037,10 @@ SvelteKit app, the extension's capture logic, AI prompts and analysis logic, roa
 
 ### Phase 3: Starting + Pomodoro
 
-14. Roadmaps with ≤30-minute steps, project and skill styles
+14. Roadmaps as navigation: ≤30-minute steps with a 2-minute version, search terms and tools; project and skill styles; adaptive "what next"
 15. Pomodoro with end-of-session note
 16. Focus sounds: generated noise, R2 loops, mixer, starter set
-17. Journal reflection prompts
+17. Journal reflection prompts; plan time blocks with anchors; start ritual and daily shutdown
 
 ### Phase 4: Pet v1
 
@@ -963,10 +1060,11 @@ SvelteKit app, the extension's capture logic, AI prompts and analysis logic, roa
 ### Phase 6: Pet, full version
 
 27. All 4 launch species with breeds, sliders and personalities with the tone slider
-28. Level 3 assistant (chat via Groq) replacing the stuck/teach buttons
+28. Level 3 assistant (chat via Groq), wrapped with Walrus `withMemWal`, replacing the stuck/teach buttons
 29. Onboarding timeline, running away, death, memorial, revive, earn an egg
 30. Shared attachment points, earned accessories, room decor, toys and break games
 31. Micro-interactions + liveliness setting
+31b. Help me choose: comparisons with live web search, sources and one pick
 
 ### Phase 7: Living interface + weather
 
@@ -978,7 +1076,7 @@ SvelteKit app, the extension's capture logic, AI prompts and analysis logic, roa
 
 35. Installable PWA, offline cache + IndexedDB sync queue
 36. Extension badge (pet mood, reviews due)
-37. Email + web push from the pet, quiet hours, weekly digest
+37. Email + web push from the pet, quiet hours, weekly digest (focused hours first, identity language)
 
 ### Phase 9: Integrations
 
@@ -1004,7 +1102,7 @@ SvelteKit app, the extension's capture logic, AI prompts and analysis logic, roa
 | Item                                                     | When        |
 | -------------------------------------------------------- | ----------- |
 | New UI design direction (replaces the v1 Zine look)      | Before building v2 screens |
-| ~~`node-vibrant` and `metascraper` run on Workers~~ Checked 30 Oct: `metascraper` works; `node-vibrant` fails at runtime (its image decoder breaks on Workers: "Class constructor Inflate cannot be invoked without new"). Replacement to decide | Phase 0     |
+| ~~`node-vibrant` and `metascraper` run on Workers~~ Checked 30 Oct: `metascraper` works; `node-vibrant` fails at runtime (its image decoder breaks on Workers: "Class constructor Inflate cannot be invoked without new"). Replaced 30 Oct by Material Color Utilities + `jpeg-js` / `fast-png` (see Tech Stack) | Phase 0     |
 | ~~ORM choice (Drizzle) with Hyperdrive~~ Done 30 Oct locally (`wrangler dev` and `vite dev`); still create the real Hyperdrive config with `wrangler hyperdrive create` using DATABASE_URL_UNPOOLED | Phase 0     |
 | Which Workers AI models return reliable structured JSON  | Phase 1     |
 | Spline export: live sliders, performance on phones, fallback renders | Phase 4 |
@@ -1012,6 +1110,7 @@ SvelteKit app, the extension's capture logic, AI prompts and analysis logic, roa
 | Weather provider and commercial plan price               | Phase 7     |
 | Are.na API endpoints, auth and rate limits               | Phase 9     |
 | Payment provider availability in your country            | Phase 10    |
+| Web search provider for help-me-choose (price, quality, whether results can be shown with sources) | Phase 6 |
 | Workers AI rate limit increase                           | Phase 11    |
 | ~~Walrus Memory SDK runs on Workers~~ Done 30 Oct: health, a real mainnet save and a recall all work under `wrangler dev`. A save takes ~30 s to confirm, so saves must go through the queue | Hackathon |
 | Workers AI speech-to-text quality for rambling voice notes (Whisper, Whisper v3 Turbo, Deepgram Nova-3 / Flux available; test with real recordings in H7) | Hackathon |

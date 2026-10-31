@@ -2,7 +2,7 @@
 
 **v2.0 · October 2026** · Source of truth: [Project Breakdown.md](Project%20Breakdown.md)
 
-78 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
+83 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
 
 ## Keys
 
@@ -26,6 +26,7 @@
 > As a new user, I want to sign in quickly so that I can start without setting anything up.
 
 - AC-01 Sign in with an email magic link or Google
+- AC-05 Optional 2FA: the user can turn on an authenticator app (with backup codes) in settings; it is never forced
 - AC-02 The extension signs in against the same account
 - AC-03 No Notion account is needed
 - AC-04 Turnstile runs on signup
@@ -174,6 +175,8 @@
 | US-014 | Open to one clear thing                | 2     | `[ ]`  |
 | US-015 | Let the app pick for me                | 2     | `[ ]`  |
 | US-016 | Stay limited to a few things           | 2     | `[ ]`  |
+| US-079 | Never miss twice                       | Hackathon | `[ ]`  |
+| US-080 | Close the day with a shutdown          | 3     | `[ ]`  |
 
 ### US-014 — Open to one clear thing
 
@@ -201,6 +204,25 @@
 - AC-02 Starting another item at the limit asks me to pause or finish one first
 - AC-03 Pause returns an item to Shortlist with progress kept
 
+
+### US-079 — Never miss twice
+
+> As someone who falls off after one bad day, I want the app to catch me after a miss so that one missed day doesn't become a lost week.
+
+- AC-01 A missed block is offered a new slot by the pet, never moved silently
+- AC-02 After a missed day, the next day opens with the step's 2-minute version as the top priority, and the pet says why ("Missing once is fine. Let's not miss twice.")
+- AC-03 Today's plan is rebuilt around what's left; nothing makes me start over
+- AC-04 Misses and recoveries are remembered, so the pet learns my patterns ("drifts after 3 days off")
+
+### US-080 — Close the day with a shutdown
+
+> As someone whose head keeps spinning at night, I want a short end-of-day wrap-up so that I stop with a clear plan for tomorrow.
+
+- AC-01 At my shutdown time (set in settings) the pet offers a 1-minute wrap-up
+- AC-02 It shows what got done, offers new slots for unfinished blocks, and sets one first block for tomorrow with its 2-minute version
+- AC-03 Finishing it is a snack for the pet; skipping it costs nothing
+- AC-04 The wrap-up is saved to memory as a session summary
+
 ---
 
 ## 06 · Roadmaps
@@ -211,6 +233,9 @@
 | US-018 | Get a learning path for a skill        | 3     | `[ ]`  |
 | US-019 | Get unstuck                            | 6     | `[ ]`  |
 | US-020 | Get taught one thing                   | 6     | `[ ]`  |
+| US-081 | Always know the next step              | 3     | `[ ]`  |
+| US-082 | Start with a 2-minute version          | 3     | `[ ]`  |
+| US-083 | Help me choose between tools           | 6     | `[ ]`  |
 
 ### US-017 — Get steps small enough to start
 
@@ -244,6 +269,34 @@
 - AC-01 "Teach me this" on any analysis point or step, asked through the pet
 - AC-02 3–5 short paragraphs, tied to my item, not generic
 - AC-03 Offers to turn the lesson into knowledge cards
+
+
+### US-081 — Always know the next step
+
+> As someone who stalls because I don't know where to go, I want the roadmap to tell me exactly what to do next so that I keep moving.
+
+- AC-01 Every step shows what to search for (actual search terms) and the tools and resources it needs
+- AC-02 There is always one clear next step; the roadmap never ends on "now figure it out"
+- AC-03 When I finish a topic or milestone, the roadmap re-plans what comes next from what I now know, what I keep forgetting and my goals
+- AC-04 Past choices (tools I picked, topics I struggled with) shape the next steps
+
+### US-082 — Start with a 2-minute version
+
+> As someone who freezes at the start, I want the smallest possible version of each step so that starting feels effortless.
+
+- AC-01 Every roadmap step has a 2-minute version ("open Blender and add a cube")
+- AC-02 Today and nudges lead with the 2-minute version when I've been away or missed a day
+- AC-03 Doing just the 2-minute version counts and feeds the pet
+
+### US-083 — Help me choose between tools
+
+> As someone stuck between options, I want a clear comparison for my goal so that I can pick and move on.
+
+- AC-01 When a step needs a tool choice, or I ask the pet, it compares 2–4 options side by side: what each gives for my goal, price (free, one-off, subscription, free or student tiers), learning curve, fit and trade-offs
+- AC-02 Learning goals favour free, beginner-friendly, well-documented options; building goals favour what gets the result fastest and holds up
+- AC-03 Prices and features come from a live web search, each with a source and "checked on" date
+- AC-04 It always ends with one pick and a short reason; the pick goes into my plan and is remembered
+- AC-05 Uses the free quota, then credits; the cost is shown before it runs
 
 ---
 
@@ -466,6 +519,7 @@
 - AC-01 Chat replaces the stuck / teach buttons (US-019, US-020)
 - AC-02 Replies in the pet's personality; fast (Groq)
 - AC-03 Free daily quota, then credits; cost shown before sending
+- AC-04 Built on Walrus `withMemWal`: relevant memories are recalled into each reply, and new facts from the chat are saved
 
 ### US-041 — Feed my pet by doing the work
 
@@ -655,9 +709,10 @@
 
 > As a user, I want a weekly summary so that I can see my progress.
 
-- AC-01 Started, finished, let go, steps done, cards reviewed, food eaten
+- AC-01 Focused hours and sessions first, then steps done, blocks kept and reshuffled, items started, finished and let go, cards reviewed, food eaten
 - AC-02 Card on Today plus email
 - AC-03 Encouraging message when the week was empty
+- AC-04 Written as identity, not a scorecard ("12 sessions: you're someone who designs now")
 
 ---
 
@@ -760,7 +815,7 @@
 | ------ | -------------------------------------------- | --------- | ------ |
 | US-071 | Have my pet remember my goals and plan        | Hackathon | `[ ]`  |
 | US-072 | Fit a new idea in without killing the vibe    | Hackathon | `[ ]`  |
-| US-073 | Plan my steps on days                         | Hackathon | `[ ]`  |
+| US-073 | Plan my steps in time blocks                 | Hackathon | `[ ]`  |
 | US-074 | Yap my ideas by voice                         | Hackathon | `[ ]`  |
 | US-075 | Get told what to do next and how it connects  | Hackathon | `[ ]`  |
 | US-076 | See and delete what my pet knows              | Hackathon | `[ ]`  |
@@ -773,6 +828,7 @@
 - AC-02 Memories are short summaries; raw journal text and transcripts stay in our database
 - AC-03 Pick for me, roadmaps, "I'm stuck" answers and nudges use these memories, and the pet says which one ("Last Tuesday kerning tripped you up…")
 - AC-04 Saving a memory never slows the app; failed saves retry from a queue
+- AC-05 Summaries become memories through Walrus `analyze`, which extracts the individual facts
 
 ### US-072 — Fit a new idea in without killing the vibe
 
@@ -782,15 +838,17 @@
 - AC-02 It names the related item and days ("You set Tue–Thu for the contact page")
 - AC-03 Stop and continue: pausing keeps progress, and the pet tells me where I left off when I return
 - AC-04 Nothing changes in the plan without my OK
+- AC-05 The related Focus item is found by meaning with Walrus `embed`, not by keywords
 
-### US-073 — Plan my steps on days
+### US-073 — Plan my steps in time blocks
 
-> As someone who loses track, I want my steps placed on days so that I know what's on today.
+> As someone who loses track, I want my steps placed in time blocks so that I know what's on and when.
 
-- AC-01 Place Focus steps on days; drag to move them
-- AC-02 Today shows today's planned step first
-- AC-03 Skipped days move forward with an offer from the pet, never silently
+- AC-01 Place Focus steps in blocks: a day plus a start time, or a habit anchor ("after coffee"), plus an optional place; drag to move them
+- AC-02 Today shows today's block first; the pet nudges at its time or anchor
+- AC-03 Skipped blocks move forward with an offer from the pet, never silently (see US-079)
 - AC-04 Plan changes are remembered
+- AC-05 A busy week reshuffles in one go: "Only 2 blocks free this week? Here's what moves."
 
 ### US-074 — Yap my ideas by voice
 
@@ -852,8 +910,8 @@
 | 02 Capture                   | 4       | 1             |
 | 03 Analyze                   | 3       | 1             |
 | 04 Sort                      | 1       | 0             |
-| 05 Focus                     | 3       | 0             |
-| 06 Roadmaps                  | 4       | 1             |
+| 05 Focus                     | 5       | 0             |
+| 06 Roadmaps                  | 7       | 1             |
 | 07 Project, Journal & Export | 5       | 2             |
 | 08 Pomodoro & Sounds         | 5       | 0             |
 | 09 Knowledge Review          | 5       | 0             |
@@ -864,4 +922,4 @@
 | 14 PWA & Platform            | 3       | 0             |
 | 15 Assistant Memory & Voice  | 6       | 0             |
 | 16 Sui Payments              | 2       | 0             |
-| **Total**                    | **78**  | **8**         |
+| **Total**                    | **83**  | **8**         |
