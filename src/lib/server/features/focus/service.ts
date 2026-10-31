@@ -6,15 +6,26 @@ import { and, count, eq, inArray } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
 import { items, userSettings } from '$lib/server/db/schema';
 import { remember, type NewMemory } from '$lib/server/features/memory/service';
-import { startPlanning } from '$lib/server/features/roadmap/service';
+import { getRoadmap, startPlanning } from '$lib/server/features/roadmap/service';
 
 type Platform = App.Platform | undefined;
 type Item = typeof items.$inferSelect;
 
 export type Decision = 'start' | 'not_today' | 'let_go';
 
+/** Where the user left off, so the pet can say it when an item is started again. */
+export interface ResumePoint {
+	stepId: string;
+	title: string;
+	twoMinute: string | null;
+	doneSteps: number;
+	totalSteps: number;
+	message: string;
+}
+
 export type DecideResult =
-	| { status: 'started' | 'skipped' | 'let_go'; item: Item }
+	| { status: 'started'; item: Item; resumeAt: ResumePoint | null }
+	| { status: 'skipped' | 'let_go'; item: Item }
 	| { status: 'at_limit'; limit: number; focus: Item[] }
 	| { status: 'not_found' };
 
@@ -81,7 +92,26 @@ export async function decide(
 	note(platform, userId, item, `Started working on "${item.title}".`);
 	// Starting makes the project and plans its roadmap in the background.
 	await startPlanning(platform, userId, updated);
-	return { status: 'started', item: updated };
+	return { status: 'started', item: updated, resumeAt: await resumePoint(platform, userId, item) };
+}
+
+/** The next unfinished step of an item that already has progress; null for a fresh start. */
+async function resumePoint(
+	platform: Platform,
+	userId: string,
+	item: Item
+): Promise<ResumePoint | null> {
+	const roadmap = await getRoadmap(platform, userId, item.id).catch(() => null);
+	const step = roadmap?.currentStep;
+	if (!roadmap || !step || roadmap.doneSteps === 0) return null;
+	return {
+		stepId: step.id,
+		title: step.title,
+		twoMinute: step.twoMinute,
+		doneSteps: roadmap.doneSteps,
+		totalSteps: roadmap.totalSteps,
+		message: `Welcome back to ${item.title}. You'd done ${roadmap.doneSteps} of ${roadmap.totalSteps} steps; next up: ${step.title}.`
+	};
 }
 
 /** Pause a Focus item: back to the Shortlist, progress kept. */
