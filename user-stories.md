@@ -2,7 +2,7 @@
 
 **v2.0 · October 2026** · Source of truth: [Project Breakdown.md](Project%20Breakdown.md)
 
-83 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
+87 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
 
 ## Keys
 
@@ -177,6 +177,9 @@
 | US-016 | Stay limited to a few things           | 2     | `[ ]`  |
 | US-079 | Never miss twice                       | Hackathon | `[ ]`  |
 | US-080 | Close the day with a shutdown          | 3     | `[ ]`  |
+| US-084 | Pick what matters this month           | Hackathon | `[ ]`  |
+| US-085 | Plan my week in one go                 | Hackathon | `[ ]`  |
+| US-086 | Know tomorrow's top 3 before I sleep   | Hackathon | `[ ]`  |
 
 ### US-014 — Open to one clear thing
 
@@ -219,9 +222,37 @@
 > As someone whose head keeps spinning at night, I want a short end-of-day wrap-up so that I stop with a clear plan for tomorrow.
 
 - AC-01 At my shutdown time (set in settings) the pet offers a 1-minute wrap-up
-- AC-02 It shows what got done, offers new slots for unfinished blocks, and sets one first block for tomorrow with its 2-minute version
+- AC-02 It shows what got done, offers new slots for unfinished blocks, and asks me to rank tomorrow's top 3 (see US-086)
 - AC-03 Finishing it is a snack for the pet; skipping it costs nothing
 - AC-04 The wrap-up is saved to memory as a session summary
+
+### US-084 — Pick what matters this month
+
+> As someone with too many ideas, I want to choose just a few things for the month so that everything else stops pulling at me.
+
+- AC-01 The first time I open the app in a new month, the pet asks which 1–3 things matter this month
+- AC-02 Everything else on my Shortlist goes on a not-this-month list: parked until next month, never deleted, and I can bring one back
+- AC-03 Pick for me and the weekly plan only draw from the month's goals
+- AC-04 It starts with a short, skippable review of last month: what moved, what I learned, anything to let go
+- AC-05 The review and the picks are remembered, so next month's suggestions build on them
+
+### US-085 — Plan my week in one go
+
+> As someone who never gets round to planning, I want the pet to fill my week for me so that I only have to adjust it.
+
+- AC-01 On my weekly plan day (default Sunday evening, set in settings) the pet asks how many blocks I have and when (times or anchors like "after coffee"); if I miss it, it asks the next time I open the app that week
+- AC-02 The pet fills the blocks with the next roadmap steps from this month's goals
+- AC-03 Each block reads as "I will [step] at [time] at [place]"
+- AC-04 I can drag, swap or remove blocks; nothing is saved until I OK it
+- AC-05 The plan is remembered, and next week's plan learns from which blocks I kept and missed
+
+### US-086 — Know tomorrow's top 3 before I sleep
+
+> As someone who wakes up not knowing where to start, I want tomorrow ranked the night before so that I start the day with no decisions.
+
+- AC-01 In the daily shutdown I rank up to 3 blocks for tomorrow, pre-filled from my week's plan
+- AC-02 Today shows only #1; the next appears when it's done
+- AC-03 Anything not done moves through the reshuffle rules (US-079), never silently
 
 ---
 
@@ -236,6 +267,7 @@
 | US-081 | Always know the next step              | 3     | `[ ]`  |
 | US-082 | Start with a 2-minute version          | 3     | `[ ]`  |
 | US-083 | Help me choose between tools           | 6     | `[ ]`  |
+| US-087 | Learn in a way that sticks             | 3     | `[ ]`  |
 
 ### US-017 — Get steps small enough to start
 
@@ -297,6 +329,16 @@
 - AC-03 Prices and features come from a live web search, each with a source and "checked on" date
 - AC-04 It always ends with one pick and a short reason; the pick goes into my plan and is remembered
 - AC-05 Uses the free quota, then credits; the cost is shown before it runs
+
+### US-087 — Learn in a way that sticks
+
+> As someone learning something hard, I want my learning steps built the way brains actually learn so that what I study stays with me.
+
+- AC-01 Skill roadmaps build chunks: understand it → practise it → use it somewhere new
+- AC-02 Each learning step ends with a quick recall ("close the tab, what do you remember?") that drafts my cards
+- AC-03 Before a learning step counts as done, the pet offers a quick self-check or explain-it-back; I can skip it
+- AC-04 When I'm stuck, the pet first suggests a short break away from it, then a smaller step or a different angle
+- AC-05 Practice steps and reviews mix in older topics, and re-plans lean into what I found hard
 
 ---
 

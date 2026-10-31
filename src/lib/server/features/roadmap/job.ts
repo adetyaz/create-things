@@ -221,7 +221,8 @@ function stepRows(roadmapId: string, milestones: PlannedMilestone[], start: numb
 			minutes: s.minutes,
 			twoMinute: s.twoMinute,
 			searchTerms: s.searchTerms,
-			tools: s.tools
+			tools: s.tools,
+			recall: s.recall
 		}))
 	);
 }

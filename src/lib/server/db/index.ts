@@ -2,6 +2,9 @@ import { optionalEnv } from '$lib/server/platform/env';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 
+/** A database client, as handed to `withDb` callbacks. */
+export type Db = NodePgDatabase;
+
 /** Hyperdrive on Workers (it pools connections); DATABASE_URL anywhere without the binding. */
 function connectionString(platform?: App.Platform): string {
 	const url = platform?.env?.HYPERDRIVE?.connectionString ?? optionalEnv('DATABASE_URL');

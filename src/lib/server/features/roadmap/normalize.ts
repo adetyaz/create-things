@@ -6,6 +6,7 @@ export interface PlannedStep {
 	twoMinute: string | null;
 	searchTerms: string[];
 	tools: string[];
+	recall: string | null;
 }
 
 export interface PlannedMilestone {
@@ -71,7 +72,8 @@ function step(value: unknown): PlannedStep {
 		minutes: Number.isFinite(minutes) ? Math.min(45, Math.max(5, Math.round(minutes))) : 25,
 		twoMinute: text(s.twoMinute) || null,
 		searchTerms: list(s.searchTerms).map(text).filter(Boolean).slice(0, 4),
-		tools: list(s.tools).map(text).filter(Boolean).slice(0, 4)
+		tools: list(s.tools).map(text).filter(Boolean).slice(0, 4),
+		recall: text(s.recall) || null
 	};
 }
 

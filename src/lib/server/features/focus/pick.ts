@@ -2,7 +2,7 @@
  * Pick for me: one Shortlist item for the time and energy available, informed by what the pet
  * remembers, with the memories it relied on returned as citations.
  */
-import { and, count, desc, eq, inArray, notInArray } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, isNull, lte, notInArray, or, sql } from 'drizzle-orm';
 import { generateJson } from '$lib/server/ai';
 import { withDb } from '$lib/server/db';
 import { analyses, items } from '$lib/server/db/schema';
@@ -41,6 +41,8 @@ export async function pickForMe(
 				and(
 					eq(items.userId, userId),
 					eq(items.status, 'shortlist'),
+					// Not-this-month and parked items stay out until their day comes.
+					or(isNull(items.parkedUntil), lte(items.parkedUntil, sql`current_date`)),
 					input.exclude.length ? notInArray(items.id, input.exclude) : undefined
 				)
 			)

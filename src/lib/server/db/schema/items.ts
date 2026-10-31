@@ -1,6 +1,6 @@
 /** Captured items and their analyses. */
 import { sql } from 'drizzle-orm';
-import { boolean, index, jsonb, pgTable, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { boolean, date, index, jsonb, pgTable, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { id, userId, stamp, createdAt, at } from './columns';
 import { itemStatus, captureType, itemSize, difficulty } from './enums';
 
@@ -26,7 +26,9 @@ export const items = pgTable(
 		/** Why the last analysis attempt failed; cleared when one succeeds. */
 		analysisError: text('analysis_error'),
 		savedAt: stamp('saved_at'),
-		lastActiveAt: at('last_active_at')
+		lastActiveAt: at('last_active_at'),
+		/** Out of Pick for me and plans until this day: not this month, or parked by fit-it-in. */
+		parkedUntil: date('parked_until')
 	},
 	(t) => [
 		index('items_user_status_idx').on(t.userId, t.status),

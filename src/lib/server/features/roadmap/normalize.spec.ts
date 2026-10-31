@@ -21,7 +21,8 @@ describe('normalizeRoadmap', () => {
 								minutes: 120,
 								twoMinute: 'Find middle C',
 								searchTerms: ['Cmaj7 voicing'],
-								tools: ['Piano']
+								tools: ['Piano'],
+								recall: 'Which notes make Cmaj7?'
 							},
 							{ title: 'Learn Dm7' }
 						]
@@ -46,8 +47,10 @@ describe('normalizeRoadmap', () => {
 			minutes: 45,
 			twoMinute: 'Find middle C',
 			searchTerms: ['Cmaj7 voicing'],
-			tools: ['Piano']
+			tools: ['Piano'],
+			recall: 'Which notes make Cmaj7?'
 		});
+		expect(roadmap.milestones[0].steps[1].recall).toBeNull();
 		expect(roadmap.milestones[0].steps[1].minutes).toBe(25);
 	});
 

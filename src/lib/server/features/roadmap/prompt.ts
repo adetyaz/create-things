@@ -2,7 +2,17 @@ import type { RecalledMemory } from '$lib/server/features/memory/recall';
 
 export const ROADMAP_SYSTEM = `You plan projects and learning as navigation for a scattered person: there must always be a clear next step, small enough to start today. Every step takes 15–30 minutes and is an action to DO, not a topic to study. Skip what they already know. Reply with one JSON object only.`;
 
-const STEP_SHAPE = `{ "title": "imperative, specific action", "minutes": 15-30, "twoMinute": "the tiniest way to start, under 2 minutes", "searchTerms": ["2-3 exact things to type into a search engine"], "tools": ["0-3 tools or apps needed"] }`;
+const STEP_SHAPE = `{ "title": "imperative, specific action", "minutes": 15-30, "twoMinute": "the tiniest way to start, under 2 minutes", "searchTerms": ["2-3 exact things to type into a search engine"], "tools": ["0-3 tools or apps needed"], "recall": "learning goals only: one question to answer from memory after the step, else omit" }`;
+
+/** How brains learn (Learning How to Learn), applied to skill roadmaps. */
+const LEARNING_RULES = [
+	'Build it the way brains learn:',
+	'- Each milestone is one chunk: understand it → practise it → use it somewhere new.',
+	'- Frame steps as time on something ("25 minutes on chord shapes"), not "finish X".',
+	'- Every step that teaches something gets a "recall" question to answer with the tab closed.',
+	'- Practice steps in later milestones mix in skills from earlier ones (interleaving).',
+	'- Spend extra practice on anything the memories say was hard.'
+].join('\n');
 
 function memoryLines(memories: RecalledMemory[]): string[] {
 	if (memories.length === 0) return ['(nothing yet)'];
@@ -24,8 +34,8 @@ export function roadmapPrompt(c: RoadmapContext): string {
 	return [
 		`Make a roadmap for: "${c.title}"`,
 		c.isLearningGoal
-			? 'This is a LEARNING GOAL: use the skill shape (basics → practice → a small project of their own).'
-			: 'This is a THING TO MAKE: use the project shape (set up → build the core → polish → share or finish).',
+			? `This is a LEARNING GOAL: use the skill shape (basics → practice → a small project of their own).\n${LEARNING_RULES}`
+			: 'This is a THING TO MAKE: use the project shape (set up → build the core → polish → share or finish). Where a step teaches a new technique, give it a "recall" question too.',
 		c.summary && `What it is: ${c.summary}`,
 		c.brief && `Starting brief: ${c.brief}`,
 		c.skills.length > 0 && `Skills it needs: ${c.skills.join(', ')}`,
@@ -65,6 +75,7 @@ export function replanPrompt(c: {
 		...memoryLines(c.memories),
 		'',
 		'Rewrite ONLY the milestones still ahead, building on what they have done and remember (shorten what they already know, add support where they struggled). You may rename or merge them.',
+		'Mix earlier skills into the new practice steps, and give steps that teach something a "recall" question.',
 		'Return:',
 		`{ "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ] } ] }`
 	].join('\n');
