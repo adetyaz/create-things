@@ -2,7 +2,7 @@
  * What the pet remembers. Postgres keeps every memory (the source of truth); Walrus gets the summary
  * through the memory queue. Summaries only, never raw journal text or transcripts.
  */
-import { and, desc, eq, inArray, isNotNull, isNull, lt, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNotNull, isNull, lt, ne, sql } from 'drizzle-orm';
 import { withDb, type Db } from '$lib/server/db';
 import { memories, memoryType, userSettings } from '$lib/server/db/schema';
 import { enqueue, type EnqueueResult } from '$lib/server/jobs';
@@ -49,8 +49,34 @@ export async function remember(
 			.returning({ id: memories.id })
 	);
 	await sendDigest(platform, userId).catch((e) => console.error('[memory] digest failed', e));
+	await retryFailed(platform, userId).catch((e) => console.error('[memory] retry failed', e));
 	if (delivery === 'digest') return { memoryId: row.id, delivery: 'in daily digest' };
 	return { memoryId: row.id, delivery: await enqueue(platform, 'memory', { memoryId: row.id }) };
+}
+
+/**
+ * Queues the user's memories again that failed to send more than 15 minutes ago (production's queue
+ * retries on its own; `vite dev` doesn't). Only real failures (an error recorded, not yet given up
+ * on), so nothing in flight is sent twice.
+ */
+async function retryFailed(platform: Platform, userId: string): Promise<void> {
+	const stuck = await withDb(platform, (db) =>
+		db
+			.select({ id: memories.id })
+			.from(memories)
+			.where(
+				and(
+					eq(memories.userId, userId),
+					eq(memories.status, 'queued'),
+					isNotNull(memories.lastError),
+					isNull(memories.deletedAt),
+					ne(memories.delivery, 'digest'),
+					lt(memories.createdAt, new Date(Date.now() - 15 * 60 * 1000))
+				)
+			)
+			.limit(10)
+	);
+	for (const { id } of stuck) await enqueue(platform, 'memory', { memoryId: id });
 }
 
 /**

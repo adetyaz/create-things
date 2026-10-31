@@ -11,7 +11,7 @@
 - [x] H1. Confirm the Walrus Memory SDK runs on Workers; health check against the mainnet relayer (30 Oct: health + mainnet save + recall pass under `wrangler dev`; `/api/dev/checks`)
 - [x] H2. `memories` table + queue consumer that sends summaries to Walrus within its rate limit; summaries go through Walrus `analyze` to extract facts (US-071) (31 Oct: `features/memory`, `createthings-memory` queue + DLQ, per-user namespaces, analysis remembers goals; verified 31 Oct: a learning goal was sent to Walrus mainnet; analyze extracted 6 facts)
 - [ ] H2b. Walrus cost rules 1–7 (Breakdown §13 "Cost rules"): daily digest for small events, `remember` + dedupe + idempotency for one-fact memories, cached embeddings, bulk status lookups, recall cutoff (verified live 31 Oct: a skip waits as `digest`; a plan change went out as one `remember`; embeddings cached on items; delete used one bulk lookup. Not yet seen: a digest rolling up the next day)
-- [ ] H3. Memory writes for every type in the Breakdown list; at least 10 on mainnet
+- [ ] H3. Memory writes for every type in the Breakdown list; at least 10 on mainnet (31 Oct: 86 memories sent to Walrus mainnet; 8 of 14 types written: goal, learning_goal, plan, plan_change, idea_parked, idea_merged, lesson_learned, pick_feedback. The other 6 come with their features: work_pattern with the first daily digest, session_summary with pomodoro and shutdown (#26, #28b), stuck_topic with pet chat (#48), review_weakness with quizzes (44b), expansion with collections (73d), voice_ideas with voice (H7). Failed sends are now retried when the next memory is saved)
 - [ ] H4. Recall wired into Pick for me, roadmaps, "I'm stuck"/"teach me" and pet chat; the pet cites the memory it used (US-071) (31 Oct: Pick for me done; roadmaps, stuck and chat come with those features)
 - [x] H5. Plan with time blocks: `plan_slots` with day, start time or habit anchor, place; drag to move; Today shows today's block; nudges at the block's time (US-073) (31 Oct: server side done and verified live: move/unplan a block, misses found on read. Dragging blocks moves to #17 with the screens; nudges move to #68 with email and push)
 - [x] H5a. Weekly plan: blocks wanted (count + when) → the pet fills them from the month's goals as implementation intentions; adjust and save; `plan_periods` (US-085) (verified live 31 Oct: 4 blocks filled in roadmap order and saved; `plan` memory sent. Screen comes with the UI)
@@ -110,7 +110,7 @@
 
 - [ ] 46. All 4 launch species with breeds; shared attachment points
 - [ ] 47. Personalities + tone slider (US-037)
-- [ ] 48. Level 3 chat via Groq wrapped with Walrus `withMemWal`, replacing stuck/teach buttons (US-019, US-020, US-040)
+- [ ] 48. Level 3 chat via Groq wrapped with Walrus `withMemWal`, replacing stuck/teach buttons (US-019, US-020, US-040) (model: Groq once its key works; locally Gemini or a local OpenCode provider. "I'm stuck" suggests a short break first (from 24c) and writes `stuck_topic`)
 - [ ] 49. Onboarding timeline with minimums; change rules (US-004)
 - [ ] 50. Run away + 3-day return (US-044)
 - [ ] 51. Death, skeleton, memorial shelf, signature item (US-045)

@@ -592,7 +592,7 @@ The pet is an accountability partner that **remembers**. It knows your goals, wh
 
 | Feature       | What it does                                                        | Used for                                             |
 | ------------- | ------------------------------------------------------------------- | ---------------------------------------------------- |
-| `withMemWal`  | Wraps any AI SDK model: recalls relevant memories into the prompt before each reply and saves new facts after | **Pet chat** (Groq model wrapped), so every answer uses what the pet knows |
+| `withMemWal`  | Wraps any AI SDK model: recalls relevant memories into the prompt before each reply and saves new facts after | **Pet chat** (the chat model wrapped), so every answer uses what the pet knows. Model: Groq once its key works; locally Gemini, or OpenCode running on the laptop and connected as a provider (decided 31 Oct) |
 | `analyze`     | The relayer extracts individual facts from text and stores each one | Turning our **summaries** (session notes, plan changes) into memories |
 | `embed`       | Embedding vector only, nothing stored                               | **Fit-it-in**: matching a new idea to the right Focus item |
 
@@ -604,7 +604,7 @@ The pet is an accountability partner that **remembers**. It knows your goals, wh
 - **Postgres stays the source of truth** (items, steps, journal, cards, pet). Walrus holds only what the assistant has learned.
 - **Summaries, not raw text.** The hosted Walrus relayer can read what it receives, so journal entries and transcripts stay in Postgres; Walrus gets short summaries ("struggled with kerning, prefers short steps"), and `analyze` only ever runs on those summaries.
 - Saves go through a queue (Walrus rate limits) and never block the app
-- **How saving works:** a feature calls `remember()`, which writes a `memories` row (status `queued`) and puts its id on the `createthings-memory` queue. The consumer sends the summary to Walrus with `analyze` (one message at a time, so the relayer's rate limits hold), stores the job ids and marks the row `sent`. Failures before Walrus accepts the text are retried with backoff (5 tries, then the dead-letter queue); after acceptance it's never re-sent, because `analyze` has no idempotency key
+- **How saving works:** a feature calls `remember()`, which writes a `memories` row (status `queued`) and puts its id on the `createthings-memory` queue. The consumer sends the summary to Walrus with `analyze` (one message at a time, so the relayer's rate limits hold), stores the job ids and marks the row `sent`. Failures before Walrus accepts the text are retried with backoff (5 tries, then the dead-letter queue); after acceptance it's never re-sent, because `analyze` has no idempotency key. Under `vite dev` there's no queue retry, so a memory whose send failed is queued again when the user's next memory is saved (if it failed more than 15 minutes ago)
 - **Network and cost:** Walrus Memory runs on **mainnet** (the hackathon needs mainnet memories). The hosted relayer's wallet pays storage, so it costs nothing beyond its rate limits and a 1 GB cap per account
 - **Namespaces:** one per user, so recall never mixes users: `createthings-<userId>` in production, `createthings-dev-<userId>` when running locally (`MEMORY_NAMESPACE_PREFIX` overrides)
 - **First source:** when an item's analysis finishes, its summary is remembered as a `goal` or `learning_goal`
