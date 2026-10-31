@@ -57,6 +57,13 @@
       "when": 1793464973549,
       "tag": "0007_drop_is_learning_goal",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793465601197,
+      "tag": "0008_roadmap_goals",
+      "breakpoints": true
     }
   ]
 }

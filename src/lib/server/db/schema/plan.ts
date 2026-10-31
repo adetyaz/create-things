@@ -24,6 +24,10 @@ export const roadmaps = pgTable('roadmaps', {
 	skills: jsonb('skills'),
 	resources: jsonb('resources'),
 	progress: progress('progress').notNull().default('not_started'),
+	/** "By the end you'll be able to…": what every milestone builds toward. */
+	goal: text('goal'),
+	/** The 2–3 goals suggested when the roadmap was made, for the user to choose from. */
+	goalOptions: jsonb('goal_options'),
 	createdAt: createdAt()
 });
 
@@ -45,6 +49,8 @@ export const roadmapSteps = pgTable(
 		tools: text('tools').array(),
 		/** Learning steps end with a recall question ("close the tab: what do you remember?"). */
 		recall: text('recall'),
+		/** 'step', or 'proof' for a proving ground: a real song, lab or piece using what's been learned. */
+		kind: text('kind').notNull().default('step'),
 		doneAt: at('done_at')
 	},
 	(t) => [index('roadmap_steps_roadmap_idx').on(t.roadmapId, t.position)]

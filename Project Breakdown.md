@@ -307,6 +307,7 @@ A roadmap works like navigation: it always answers "what now?", including when s
 - **"I'm stuck"** gives a smaller step or a short explanation. **"Teach me this"** gives a short lesson tied to the item. Both are asked through the pet (see Pet assistant).
 - Progress tracking per step and milestone
 - **How a roadmap is made:** Start creates the project and queues a roadmap job (`createthings-roadmap`). The AI gets the item's analysis plus the user's recalled memories (what they know, what tripped them up) and returns 3–5 milestones of 15–30 minute steps, each with a 2-minute version, search terms and tools, plus resources. Learning goals get the skill shape. Costs 5 credits; saved as a `plan` memory
+- **Goal and proving grounds:** the roadmap job also returns 2–3 goal options ("By the end you'll be able to…"); the first is used unless the user chose one. For learning intents, each milestone ends with 1–3 proving grounds, saved as steps of kind `proof`, shaped by the practice kind (songs, labs, a harvest). They count as steps for progress and the weekly plan. Changing the goal re-plans toward it
 - **Re-planning:** when the last step of a milestone is completed, a re-plan job rewrites the not-yet-done steps of the later milestones from what's been done and remembered. Done steps are never changed
 
 **Learning the way brains learn** (*Learning How to Learn*, Barbara Oakley and Terrence Sejnowski)
@@ -965,8 +966,8 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), shutdown_time, weekly_plan_day + weekly_plan_time (default Sunday 18:00), weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
 | `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, saved_at, last_active_at, parked_until (not this month, or parked by fit-it-in), intent + practice_kind (registry ids, §3b; replaces is_learning_goal), intent_confirmed_at, goal, target_date |
 | `analyses`           | id, item_id, summary, technique, colors (palette + notes), typography, layout, mood[], style, components, for_developers, for_creators, brief, skills[] (feeds the roadmap), attribution, model |
-| `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress, goal ("by the end you'll be able to…"), collection_id (when following a course) |
-| `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, two_minute (smallest start), search_terms[], tools[], recall (learning steps: the recall question that ends the step), done_at |
+| `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress, goal ("by the end you'll be able to…"), goal_options (the 2–3 suggested), collection_id (when following a course) |
+| `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, two_minute (smallest start), search_terms[], tools[], recall (learning steps: the recall question that ends the step), kind (step / proof: a proving ground), done_at |
 | `projects`           | id, user_id, item_id, title, status, content (editor JSON), started_at, completed_at |
 | `journal_entries`    | id, user_id, project_id, body, source (manual/pomodoro/check-in/voice), created_at |
 | `pomodoro_sessions`  | id, user_id, step_id, started_at, ended_at, completed, note             |
@@ -1006,6 +1007,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/triage`                      | Keep (→ Shortlist) / let go (→ Archived) / later |
 | `/api/focus/pick`                  | Suggest one Shortlist item from time, energy and recalled memories; cites the memories used |
 | `/api/focus`, `/api/focus/decide`, `/api/focus/pause` | Current Focus items; Start / Not today / Let it go; pause back to the Shortlist |
+| `/api/items/[id]/roadmap` (PATCH)   | Choose or write the goal: re-plans toward it (a fresh roadmap if nothing is done yet, else the milestones ahead) |
 | `/api/items/[id]/roadmap`          | Read the roadmap (GET) or regenerate it (POST); also generated on Start |
 | `/api/steps/[id]/complete`         | Complete a step; finishing a milestone re-plans the rest |
 | `/api/projects`, `/api/journal`    | Project content + journal                       |

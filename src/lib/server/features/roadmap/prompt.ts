@@ -16,6 +16,21 @@ const LEARNING_RULES = [
 	'- Spend extra practice on anything the memories say was hard.'
 ].join('\n');
 
+const PROOF_SHAPE = `{ "title": "the real thing to do, named", "minutes": 20-45, "twoMinute": "...", "searchTerms": ["how to find it: chords, tabs, lab guide"], "tools": [] }`;
+
+/**
+ * Proving grounds for learning intents: real things after each milestone that use only what has
+ * been learned so far. Names songs and pieces; never writes out sheet music or lyrics.
+ */
+function provingGroundRules(c: { intent: string; practiceKind: string | null }): string | null {
+	if (!intentOf(c.intent).learning) return null;
+	const kind = practiceKindOf(c.practiceKind);
+	return [
+		`End every milestone with a "provingGround" list of 1–3 items: ${kind ? kind.provingGround : 'real things to do'} that use ONLY what has been learned so far, a little harder each milestone, building toward the goal.`,
+		'Name real, well-known songs, pieces, labs or projects. Give search terms to find the chords, tabs or instructions. Never write out sheet music, tabs or lyrics.'
+	].join('\n');
+}
+
 function memoryLines(memories: RecalledMemory[]): string[] {
 	if (memories.length === 0) return ['(nothing yet)'];
 	return memories.map((m) => `- ${m.text}`);
@@ -27,6 +42,8 @@ export interface RoadmapContext {
 	intent: string;
 	practiceKind: string | null;
 	goal: string | null;
+	/** True when the user chose the goal: keep it exactly. */
+	goalChosen?: boolean;
 	targetDate: string | null;
 	summary: string | null;
 	brief: string | null;
@@ -46,7 +63,12 @@ export function roadmapPrompt(c: RoadmapContext): string {
 			? LEARNING_RULES
 			: 'Where a step teaches a new technique, give it a "recall" question too.',
 		kind && `Kind of practice: ${kind.label.toLowerCase()}. ${kind.practice}`,
-		c.goal && `Their goal: ${c.goal}. Every milestone should build toward it.`,
+		c.goal &&
+			(c.goalChosen
+				? `Their goal (they chose it, keep it exactly): ${c.goal}. Every milestone builds toward it.`
+				: `Their goal, roughly: ${c.goal}. Every milestone builds toward it.`),
+		`Goal options: suggest 3 concrete goals, each starting "By the end you'll be able to", ${intent.goalHint}; the first closest to their goal.`,
+		provingGroundRules(c),
 		c.targetDate && `Target date: ${c.targetDate}. Size the plan to fit before it.`,
 		c.summary && `What it is: ${c.summary}`,
 		c.brief && `Starting brief: ${c.brief}`,
@@ -59,9 +81,10 @@ export function roadmapPrompt(c: RoadmapContext): string {
 		'Return:',
 		'{',
 		`  "style": "${intent.roadmapStyle}",`,
+		`  "goalOptions": ["By the end you'll be able to …", "…", "…"],`,
 		'  "skills": ["skills this builds"],',
 		'  "resources": [{ "title": "...", "url": "only if you are sure it exists, else omit" }],',
-		`  "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ] } ]`,
+		`  "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ]${intent.learning ? `, "provingGround": [ ${PROOF_SHAPE} ]` : ''} } ]`,
 		'}',
 		'3-5 milestones, 2-5 steps each.'
 	]
@@ -71,12 +94,18 @@ export function roadmapPrompt(c: RoadmapContext): string {
 
 export function replanPrompt(c: {
 	title: string;
+	intent: string;
+	practiceKind: string | null;
+	goal: string | null;
 	done: { milestone: string; title: string }[];
 	remainingMilestones: string[];
 	memories: RecalledMemory[];
 }): string {
+	const learning = intentOf(c.intent).learning;
 	return [
 		`Re-plan the rest of the roadmap for: "${c.title}"`,
+		c.goal ? `Their goal (keep it): ${c.goal}. Everything ahead builds toward it.` : '',
+		provingGroundRules(c) ?? '',
 		'',
 		'Steps they have finished:',
 		...c.done.map((d) => `- [${d.milestone}] ${d.title}`),
@@ -89,6 +118,8 @@ export function replanPrompt(c: {
 		'Rewrite ONLY the milestones still ahead, building on what they have done and remember (shorten what they already know, add support where they struggled). You may rename or merge them.',
 		'Mix earlier skills into the new practice steps, and give steps that teach something a "recall" question.',
 		'Return:',
-		`{ "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ] } ] }`
-	].join('\n');
+		`{ "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ]${learning ? `, "provingGround": [ ${PROOF_SHAPE} ]` : ''} } ] }`
+	]
+		.filter((line, i, all) => line !== '' || all[i - 1] !== '')
+		.join('\n');
 }

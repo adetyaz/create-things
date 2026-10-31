@@ -180,3 +180,27 @@ export async function completeStep(
 		replanning: result.replan
 	};
 }
+
+export type SetGoalResult =
+	| { status: 'replanning'; mode: 'generate' | 'replan'; goal: string; delivery: EnqueueResult }
+	| { status: 'not_found' };
+
+/**
+ * Sets the roadmap's goal (a suggested one or the user's own) and re-plans toward it: a fresh
+ * roadmap if nothing is done yet, otherwise the milestones still ahead.
+ */
+export async function setGoal(
+	platform: Platform,
+	userId: string,
+	itemId: string,
+	goal: string
+): Promise<SetGoalResult> {
+	const current = await getRoadmap(platform, userId, itemId);
+	if (!current) return { status: 'not_found' };
+	await withDb(platform, (db) =>
+		db.update(roadmaps).set({ goal }).where(eq(roadmaps.id, current.roadmap.id))
+	);
+	const mode = current.doneSteps === 0 ? 'generate' : 'replan';
+	const delivery = await enqueue(platform, 'roadmap', { itemId, mode, goal });
+	return { status: 'replanning', mode, goal, delivery };
+}
