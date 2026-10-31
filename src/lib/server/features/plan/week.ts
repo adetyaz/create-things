@@ -5,7 +5,14 @@
  */
 import { and, asc, desc, eq, gte, inArray, isNull, notInArray } from 'drizzle-orm';
 import { withDb, type Db } from '$lib/server/db';
-import { items, planPeriods, planSlots, roadmaps, roadmapSteps } from '$lib/server/db/schema';
+import {
+	courseUnits,
+	items,
+	planPeriods,
+	planSlots,
+	roadmaps,
+	roadmapSteps
+} from '$lib/server/db/schema';
 import { remember } from '$lib/server/features/memory/service';
 import { ownedSteps, timezoneOf } from './context';
 import { monthStart, today, weekStart, weekdayName } from './dates';
@@ -23,7 +30,10 @@ type Platform = App.Platform | undefined;
 
 export interface WeekProposal {
 	weekOf: string;
-	blocks: FilledBlock[];
+	/** `beforeClass`: this block practises a course unit ahead of its class. */
+	blocks: (FilledBlock & { beforeClass?: { date: string; unit: string } })[];
+	/** Course classes from today to the last planned day, so the plan can be read around them. */
+	classes: { date: string; unit: string; itemTitle: string }[];
 	/** Goals with no roadmap yet: start them (or POST their roadmap) so they can fill blocks. */
 	needsRoadmap: { id: string; title: string }[];
 }
@@ -40,7 +50,25 @@ export async function proposeWeek(
 
 		const queues: StepOption[][] = [];
 		const needsRoadmap: WeekProposal['needsRoadmap'] = [];
-		for (const goal of goals) {
+		const lastDay = [...requestedDays].sort().at(-1)!;
+		const classes = await db
+			.select({ date: courseUnits.unitDate, unit: courseUnits.title, itemId: courseUnits.itemId })
+			.from(courseUnits)
+			.where(
+				and(
+					inArray(
+						courseUnits.itemId,
+						goals.map((g) => g.id)
+					),
+					gte(courseUnits.unitDate, day)
+				)
+			)
+			.orderBy(asc(courseUnits.unitDate));
+		// Goals with a class coming up go first, so their practice lands before the class.
+		const nextClass = (id: string) =>
+			classes.find((c) => c.itemId === id && c.date! <= lastDay)?.date ?? '9999-12-31';
+		const ordered = [...goals].sort((a, b) => nextClass(a.id).localeCompare(nextClass(b.id)));
+		for (const goal of ordered) {
 			const [roadmap] = await db
 				.select({ id: roadmaps.id })
 				.from(roadmaps)
@@ -81,13 +109,31 @@ export async function proposeWeek(
 					minutes: s.minutes,
 					twoMinute: s.twoMinute,
 					itemId: goal.id,
-					itemTitle: goal.title
+					itemTitle: goal.title,
+					milestone: s.milestone
 				}))
 			);
 		}
 
+		// A course step in a block on or before its unit's class is practice ahead of that class.
+		const classOf = new Map(classes.map((c) => [`${c.itemId}:${c.unit}`, c.date!]));
+		const filled = fillBlocks(blocks, queues).map((b) => {
+			const date = b.step && classOf.get(`${b.step.itemId}:${b.step.milestone}`);
+			return date && b.day <= date ? { ...b, beforeClass: { date, unit: b.step!.milestone! } } : b;
+		});
 		const firstDay = [...requestedDays].sort()[0];
-		return { weekOf: weekStart(firstDay), blocks: fillBlocks(blocks, queues), needsRoadmap };
+		return {
+			weekOf: weekStart(firstDay),
+			blocks: filled,
+			classes: classes
+				.filter((c) => c.date! <= lastDay)
+				.map((c) => ({
+					date: c.date!,
+					unit: c.unit,
+					itemTitle: goals.find((g) => g.id === c.itemId)?.title ?? ''
+				})),
+			needsRoadmap
+		};
 	});
 }
 

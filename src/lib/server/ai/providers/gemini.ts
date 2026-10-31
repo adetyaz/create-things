@@ -24,6 +24,9 @@ export async function gemini(request: JsonRequest): Promise<unknown> {
 			inline_data: { mime_type: request.image.mime, data: base64(request.image.bytes) }
 		});
 	}
+	for (const file of request.files ?? []) {
+		parts.push({ inline_data: { mime_type: file.mime, data: base64(file.bytes) } });
+	}
 
 	const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.gemini}:generateContent`;
 	const res = await fetch(url, {

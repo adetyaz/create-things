@@ -17,12 +17,20 @@ export async function generateJson(
 	const ai = platform?.env?.AI;
 	const attempts: Array<[string, () => Promise<unknown>]> = [];
 
-	if (ai && request.image && request.image.bytes.byteLength <= MAX_VISION_BYTES) {
+	// Documents (PDFs, several photos) are only read by Gemini; text-only models would guess.
+	const readsFilesOnly = Boolean(request.files?.length);
+	if (
+		!readsFilesOnly &&
+		ai &&
+		request.image &&
+		request.image.bytes.byteLength <= MAX_VISION_BYTES
+	) {
 		attempts.push([MODELS.workersAiVision, () => workersAiVision(ai, request)]);
 	}
-	if (ai) attempts.push([MODELS.workersAiText, () => workersAiText(ai, request)]);
+	if (!readsFilesOnly && ai)
+		attempts.push([MODELS.workersAiText, () => workersAiText(ai, request)]);
 	if (geminiAllowed(platform?.env)) attempts.push([MODELS.gemini, () => gemini(request)]);
-	if (groqAvailable()) attempts.push([MODELS.groq, () => groq(request)]);
+	if (!readsFilesOnly && groqAvailable()) attempts.push([MODELS.groq, () => groq(request)]);
 
 	const skipped: string[] = [];
 	for (const [model, run] of attempts) {
@@ -36,6 +44,8 @@ export async function generateJson(
 	throw new Error(
 		attempts.length
 			? `All models failed. ${skipped.join(' | ')}`
-			: 'No AI available: bind Workers AI (AI), or set GEMINI_API_KEY or GROQ_API_KEY'
+			: readsFilesOnly
+				? 'Reading documents needs Gemini: set GEMINI_API_KEY (and GEMINI_PAID_TIER=true in production)'
+				: 'No AI available: bind Workers AI (AI), or set GEMINI_API_KEY or GROQ_API_KEY'
 	);
 }

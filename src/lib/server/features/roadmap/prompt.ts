@@ -32,6 +32,18 @@ function provingGroundRules(c: { intent: string; practiceKind: string | null }):
 	].join('\n');
 }
 
+/** The course's units, which the milestones must follow exactly. */
+function courseLines(units: RoadmapContext['courseUnits']): string[] {
+	if (!units?.length) return [];
+	return [
+		'This follows a course. Make exactly one milestone per unit, in this order, titled exactly as the unit. Add your own steps and proving grounds around each unit; never drop, merge or reorder units:',
+		...units.map(
+			(u, i) =>
+				`${i + 1}. ${u.title}${u.unitDate ? ` (class ${u.unitDate})` : ''}${u.topics?.length ? `: ${u.topics.join(', ')}` : ''}`
+		)
+	];
+}
+
 function memoryLines(memories: RecalledMemory[]): string[] {
 	if (memories.length === 0) return ['(nothing yet)'];
 	return memories.map((m) => `- ${m.text}`);
@@ -46,6 +58,8 @@ export interface RoadmapContext {
 	/** True when the user chose the goal: keep it exactly. */
 	goalChosen?: boolean;
 	targetDate: string | null;
+	/** A course's units in order: one milestone each, same titles, same order. */
+	courseUnits?: { title: string; topics: string[] | null; unitDate: string | null }[];
 	summary: string | null;
 	brief: string | null;
 	skills: string[];
@@ -71,12 +85,13 @@ export function roadmapPrompt(c: RoadmapContext): string {
 		`Goal options: suggest 3 concrete goals, each starting "By the end you'll be able to", ${intent.goalHint}; the first closest to their goal.`,
 		provingGroundRules(c),
 		c.targetDate && `Target date: ${c.targetDate}. Size the plan to fit before it.`,
+		...courseLines(c.courseUnits),
 		c.summary && `What it is: ${c.summary}`,
 		c.brief && `Starting brief: ${c.brief}`,
 		c.skills.length > 0 && `Skills it needs: ${c.skills.join(', ')}`,
 		c.size && `Expected size: ${c.size}${c.difficulty ? `, ${c.difficulty}` : ''}`,
 		'',
-		'What you remember about them (skip what they know, design around what tripped them up):',
+		'What you remember about them (use only what is about this subject: skip what they know, design around what tripped them up):',
 		...memoryLines(c.memories),
 		'',
 		'Return:',
@@ -87,7 +102,9 @@ export function roadmapPrompt(c: RoadmapContext): string {
 		'  "resources": [{ "title": "...", "url": "only if you are sure it exists, else omit" }],',
 		`  "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ]${intent.learning ? `, "provingGround": [ ${PROOF_SHAPE} ]` : ''} } ]`,
 		'}',
-		'3-5 milestones, 2-5 steps each.'
+		c.courseUnits?.length
+			? `${c.courseUnits.length} milestones, one per unit, ${c.courseUnits.length > 8 ? '2-3' : '2-5'} steps each.`
+			: '3-5 milestones, 2-5 steps each.'
 	]
 		.filter((line) => line !== false && line !== null)
 		.join('\n');
@@ -98,6 +115,8 @@ export function replanPrompt(c: {
 	intent: string;
 	practiceKind: string | null;
 	goal: string | null;
+	/** True for a course: its units stay as milestones, same titles, same order. */
+	isCourse?: boolean;
 	done: { milestone: string; title: string }[];
 	remainingMilestones: string[];
 	memories: RecalledMemory[];
@@ -113,10 +132,12 @@ export function replanPrompt(c: {
 		'',
 		`Milestones still ahead: ${c.remainingMilestones.join(' → ')}`,
 		'',
-		'What you remember about them:',
+		'What you remember about them (use only what is about this subject):',
 		...memoryLines(c.memories),
 		'',
-		'Rewrite ONLY the milestones still ahead, building on what they have done and remember (shorten what they already know, add support where they struggled). You may rename or merge them.',
+		c.isCourse
+			? 'Rewrite ONLY the steps of the milestones still ahead, building on what they have done and remember. These milestones are course units: keep every one, with the same title, in the same order.'
+			: 'Rewrite ONLY the milestones still ahead, building on what they have done and remember (shorten what they already know, add support where they struggled). You may rename or merge them.',
 		'Mix earlier skills into the new practice steps, and give steps that teach something a "recall" question.',
 		'Return:',
 		`{ "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ]${learning ? `, "provingGround": [ ${PROOF_SHAPE} ]` : ''} } ] }`

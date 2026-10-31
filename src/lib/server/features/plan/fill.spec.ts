@@ -43,5 +43,8 @@ describe('intention', () => {
 		expect(intention({ day: '2026-11-03', anchor: 'after coffee' }, 'Read chapter 1')).toBe(
 			'I will read chapter 1 on Tue after coffee'
 		);
+		expect(intention({ day: '2026-11-03' }, '25 minutes on chord shapes')).toBe(
+			'I will spend 25 minutes on chord shapes on Tue'
+		);
 	});
 });

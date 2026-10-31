@@ -12,7 +12,8 @@ import { OutOfCreditsError, withCredits } from '$lib/server/features/credits/ser
 import { remember } from '$lib/server/features/memory/service';
 import { recallMemories } from '$lib/server/features/memory/recall';
 import { intentOf } from '$lib/server/features/intents/registry';
-import { normalizeRoadmap, type PlannedMilestone } from './normalize';
+import { unitsOf } from '$lib/server/features/courses/service';
+import { alignToUnits, normalizeRoadmap, type PlannedMilestone } from './normalize';
 import { ROADMAP_SYSTEM, replanPrompt, roadmapPrompt } from './prompt';
 
 type Platform = App.Platform | undefined;
@@ -90,6 +91,7 @@ async function generate(
 		`Plan for "${item.title}": what I already know, what tripped me up, how I like to work`
 	);
 	const fallbackStyle = intentOf(item.intent).roadmapStyle;
+	const courseUnits = await unitsOf(platform, item.id);
 
 	const { plan, model } = await withCredits(
 		platform,
@@ -106,6 +108,7 @@ async function generate(
 					goal: chosenGoal ?? item.goal,
 					goalChosen: Boolean(chosenGoal),
 					targetDate: item.targetDate,
+					courseUnits,
 					summary: analysis?.summary ?? item.note,
 					brief: analysis?.brief ?? null,
 					skills: analysis?.skills ?? [],
@@ -114,7 +117,16 @@ async function generate(
 					memories
 				})
 			});
-			const plan = normalizeRoadmap(result.data, fallbackStyle);
+			const raw = normalizeRoadmap(result.data, fallbackStyle);
+			const plan = courseUnits.length
+				? {
+						...raw,
+						milestones: alignToUnits(
+							raw.milestones,
+							courseUnits.map((u) => u.title)
+						)
+					}
+				: raw;
 			// Thrown inside withCredits, so an unusable answer is refunded and retried.
 			if (plan.milestones.length === 0) throw new Error('The model returned no usable milestones');
 			return { plan, model: result.model };
@@ -185,6 +197,7 @@ async function replan(platform: Platform, itemId: string): Promise<RoadmapOutcom
 	const ahead = milestonesAhead(steps);
 	if (ahead.length === 0) return { status: 'skipped', itemId, reason: 'nothing left to re-plan' };
 	const done = steps.filter((s) => s.doneAt);
+	const isCourse = (await unitsOf(platform, item.id)).length > 0;
 
 	const memories = await recallMemories(
 		item.userId,
@@ -204,12 +217,15 @@ async function replan(platform: Platform, itemId: string): Promise<RoadmapOutcom
 					intent: item.intent,
 					practiceKind: item.practiceKind,
 					goal: roadmap.goal,
+					isCourse,
 					done: done.map((s) => ({ milestone: s.milestone, title: s.title })),
 					remainingMilestones: ahead,
 					memories
 				})
 			});
-			const { milestones } = normalizeRoadmap(result.data, roadmap.style);
+			const planned = normalizeRoadmap(result.data, roadmap.style).milestones;
+			// A course's units ahead keep their names and order.
+			const milestones = isCourse ? alignToUnits(planned, ahead) : planned;
 			if (milestones.length === 0) throw new Error('The model returned no usable milestones');
 			return { milestones, model: result.model };
 		},

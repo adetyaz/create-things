@@ -4,6 +4,8 @@ export interface JsonRequest {
 	/** JSON schema for models with structured output. */
 	schema?: Record<string, unknown>;
 	image?: { bytes: Uint8Array; mime: string };
+	/** Documents to read (PDFs, photos, text). Only models that read files are tried. */
+	files?: { bytes: Uint8Array; mime: string }[];
 	/** Longest reply allowed, in tokens. Long structured replies (roadmaps) need more. */
 	maxTokens?: number;
 }

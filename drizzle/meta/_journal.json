@@ -71,6 +71,13 @@
       "when": 1793467191303,
       "tag": "0009_item_plan_error",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793469085129,
+      "tag": "0010_course_units",
+      "breakpoints": true
     }
   ]
 }

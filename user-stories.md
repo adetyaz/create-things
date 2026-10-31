@@ -2,7 +2,7 @@
 
 **v2.0 · October 2026** · Source of truth: [Project Breakdown.md](Project%20Breakdown.md)
 
-98 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
+99 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
 
 ## Keys
 
@@ -232,6 +232,7 @@
 | US-084 | Pick what matters this month           | Hackathon | `[ ]`  |
 | US-085 | Plan my week in one go                 | Hackathon | `[ ]`  |
 | US-086 | Know tomorrow's top 3 before I sleep   | Hackathon | `[ ]`  |
+| US-099 | Plan my year, half-year and quarter    | 3     | `[ ]`  |
 
 ### US-014 — Open to one clear thing
 
@@ -305,6 +306,16 @@
 - AC-01 In the daily shutdown I rank up to 3 blocks for tomorrow, pre-filled from my week's plan
 - AC-02 Today shows only #1; the next appears when it's done
 - AC-03 Anything not done moves through the reshuffle rules (US-079), never silently
+
+### US-099 — Plan my year, half-year and quarter
+
+> As someone with big hopes for the year, I want longer plans that feed my months so that each week moves the big things forward.
+
+- AC-01 Optional year, half-year and quarter plans, each with 1–3 goals; the year adds themes and who I want to become
+- AC-02 Each period's goals become the shortlist for the period below it (year → half → quarter → month → week)
+- AC-03 Each ends with a short review; the year's is a yearly review and integrity report
+- AC-04 Quarter goals get a target date at the quarter's end
+- AC-05 New periods (a season, a semester) can be added without changing the rest of the app
 
 ---
 
