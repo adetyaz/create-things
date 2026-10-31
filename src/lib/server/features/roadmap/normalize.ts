@@ -97,3 +97,11 @@ function list(value: unknown): unknown[] {
 function text(value: unknown): string {
 	return typeof value === 'string' ? value.trim() : '';
 }
+
+/**
+ * Course milestones are named after its units, in order, whatever the model called them. Extra
+ * milestones (if the model split a unit) keep their own names.
+ */
+export function alignToUnits(milestones: PlannedMilestone[], units: string[]): PlannedMilestone[] {
+	return milestones.map((m, i) => (i < units.length ? { ...m, title: units[i] } : m));
+}

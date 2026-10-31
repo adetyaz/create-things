@@ -136,3 +136,20 @@ export const pomodoroSessions = pgTable(
 	},
 	(t) => [index('pomodoro_sessions_user_idx').on(t.userId, t.startedAt)]
 );
+
+/** A course's units in order, read from its syllabus. The course roadmap has one milestone each. */
+export const courseUnits = pgTable(
+	'course_units',
+	{
+		id: id(),
+		itemId: uuid('item_id')
+			.notNull()
+			.references(() => items.id, { onDelete: 'cascade' }),
+		position: integer('position').notNull(),
+		title: text('title').notNull(),
+		topics: text('topics').array(),
+		/** The class or due date for this unit, when the syllabus gives one. */
+		unitDate: date('unit_date')
+	},
+	(t) => [index('course_units_item_idx').on(t.itemId, t.position)]
+);

@@ -16,6 +16,8 @@ export interface StepOption {
 	twoMinute: string | null;
 	itemId: string;
 	itemTitle: string;
+	/** The milestone it belongs to; for a course, the unit's title. */
+	milestone?: string;
 }
 
 export interface FilledBlock extends BlockRequest {
@@ -42,7 +44,9 @@ export function fillBlocks(blocks: BlockRequest[], queues: StepOption[][]): Fill
 
 /** "I will sketch three logo ideas on Tue at 08:00 at my desk". */
 export function intention(block: BlockRequest, stepTitle: string): string {
-	const what = stepTitle.charAt(0).toLowerCase() + stepTitle.slice(1);
+	const lowered = stepTitle.charAt(0).toLowerCase() + stepTitle.slice(1);
+	// Learning steps read as time on something ("25 minutes on chord shapes").
+	const what = /^\d+\s*(minutes?|mins?)\s/i.test(lowered) ? `spend ${lowered}` : lowered;
 	const when = block.startTime
 		? ` at ${block.startTime.slice(0, 5)}`
 		: block.anchor

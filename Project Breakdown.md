@@ -212,7 +212,7 @@ Possible later kinds: maths and logic, sport, care work. Each is a registry entr
 | Quick capture: link, screenshot, upload, note | One thing | Built |
 | Voice ("just yap") | One thing, or several split out | Hackathon (H7) |
 | **"I want to…"**, typed or spoken | One thing | Phase 3 |
-| **Curriculum from a PDF or photos/screenshots** | Ordered collection | Phase 3 |
+| **Curriculum from a PDF or photos/screenshots** | A course with ordered units | Phase 3 |
 | Brain dump at onboarding | Several things | Phase 2 |
 | Are.na channel | Collection | Phase 9 |
 | Pinterest board (through a library or MCP built for createthings) | Collection | Phase 9 |
@@ -232,6 +232,7 @@ Possible later sources: YouTube or Spotify playlists, browser bookmark folders, 
 - The course's units become the milestones, **in the course's order**. The roadmap adds what courses don't give you: 2-minute versions, search terms, recall questions and proving grounds
 - Re-plans add support around the course but never reorder or drop its units
 - **Class dates** from the syllabus go into the plan: the weekly plan puts practice blocks before each class, and exam dates become the target date
+- **How it works:** `POST /api/courses` takes a PDF or up to 10 photos/screenshots. Gemini reads them once (the file isn't stored until R2 storage exists) and returns the course title, its units in order (topics and dates where given) and any exam date. That becomes an item with the course intent (exam date as the target date) and its units in `course_units`. Its roadmap has one milestone per unit, in order, with the unit's title; re-plans keep the remaining units in order. Week proposals mark blocks that come before a unit's class. Reading a syllabus costs 3 credits
 
 ### 4. Sort: Triage
 
@@ -266,6 +267,19 @@ Each layer feeds the next, and each review is remembered, so the next plan learn
   - Each block is written as an **implementation intention**: "I will [step] at [time / after coffee] at [place]"
   - The week's review is the weekly digest (§12)
 - **Day: Ivy Lee method.** In the daily shutdown you rank **up to 3** blocks for tomorrow (pre-filled from the week). Today shows only #1; the next appears when it's done
+
+**Longer horizons: year, half-year, quarter** (optional; each sits above the month and feeds it)
+
+| Period | What you decide | Review |
+| --- | --- | --- |
+| **Year** | 1–3 themes or big goals ("this year: play jazz, ship my portfolio"), with who you want to become | A yearly review and "integrity report" in the style James Clear writes his: what went well, what didn't, what you learned, whether you lived by your values |
+| **Half-year** | Which year goals this half carries | Halfway check: still the right goals? |
+| **Quarter** | 1–3 goals for the next 12 weeks, each with a target date at the quarter's end (short enough to feel urgent) | What got done in 12 weeks; what carries over |
+| **Month → week → day** | As above, now drawing from the quarter's goals | As above |
+
+- Each period offers its goals as the shortlist for the one below it, so the year shapes the month without extra work
+- Nothing forces the long horizons: someone who only plans weeks never sees them
+- **Plug and play:** periods are a registry (`features/plan/periods.ts`: length, how many goals, review questions, when it's offered); adding "season" or "semester" is one entry (Code layout rule 8)
 
 **Plan: time blocks** (*Deep Work* time blocking, *Atomic Habits* implementation intentions)
 
@@ -936,6 +950,7 @@ src/routes/api/       Thin: validate input → call a feature service → return
    - `features/intents/practice.ts`: kind id, label, practice rules and proving-ground examples for the prompt
    - `features/sources/registry.ts`: each source is an adapter with an id, label, shape (one / collection / ordered) and, for connected services, `connect`, `list` and `sync`. Are.na and Pinterest are adapters; the Pinterest adapter wraps the library or MCP built for it
    - `features/plan/shapes.ts`: roadmap (now), tasters (Phase 3), recurring (later)
+   - `features/plan/periods.ts`: year, half, quarter, month, week (each: length, goals allowed, review questions, when it's offered)
 
 ### Queues inside SvelteKit
 
@@ -976,7 +991,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), shutdown_time, weekly_plan_day + weekly_plan_time (default Sunday 18:00), weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
 | `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, plan_error (why the last roadmap job failed), saved_at, last_active_at, parked_until (not this month, or parked by fit-it-in), intent + practice_kind (registry ids, §3b; replaces is_learning_goal), intent_confirmed_at, goal, target_date |
 | `analyses`           | id, item_id, summary, technique, colors (palette + notes), typography, layout, mood[], style, components, for_developers, for_creators, brief, skills[] (feeds the roadmap), attribution, model |
-| `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress, goal ("by the end you'll be able to…"), goal_options (the 2–3 suggested), collection_id (when following a course) |
+| `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress, goal ("by the end you'll be able to…"), goal_options (the 2–3 suggested) |
 | `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, two_minute (smallest start), search_terms[], tools[], recall (learning steps: the recall question that ends the step), kind (step / proof: a proving ground), done_at |
 | `projects`           | id, user_id, item_id, title, status, content (editor JSON), started_at, completed_at |
 | `journal_entries`    | id, user_id, project_id, body, source (manual/pomodoro/check-in/voice), created_at |
@@ -992,12 +1007,13 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `arena_connections`  | user_id, token (encrypted), last_sync_at                                |
 | `arena_channels`     | id, user_id, slug, mode (triage/curated)                                |
 | `collections`        | id, user_id, title, source (registry id: arena, pinterest, app, curriculum…), external_id, ordered, suggested (grouped by the app, not yet kept), kept_at, thread (what connects it), created_at |
-| `collection_items`   | collection_id, item_id, position, unit_date (a class date from a syllabus) |
+| `collection_items`   | collection_id, item_id, position                                        |
+| `course_units`       | id, item_id, position, title, topics[], unit_date (a course's units in order, read from its syllabus) |
 | `source_connections` | id, user_id, source (registry id), config (encrypted tokens and settings), last_synced_at (one row per connected service) |
 | `exports`            | user_id, target (notion), token (encrypted), last_run_at                |
 | `push_subscriptions` | id, user_id, endpoint, keys                                             |
 | `plan_slots`         | id, user_id, step_id, day, start_time, anchor (e.g. "after coffee"), place, position (the day's rank: 1–3 is tomorrow's top 3), missed_at (a Focus step placed in a time block) |
-| `plan_periods`       | id, user_id, kind (month/week), starts_on, goal_item_ids[] (the month's 1–3), blocks_wanted (week), review (short summary), created_at (one row per month or week planned) |
+| `plan_periods`       | id, user_id, kind (registry id: year, half, quarter, month, week), starts_on, goal_item_ids[] (the month's 1–3), blocks_wanted (week), review (short summary), created_at (one row per month or week planned) |
 | `comparisons`        | id, user_id, item_id, step_id, question, goal (learning/building), options (JSON: gives, price, fit, sources), pick, reason, checked_at |
 | `memories`           | id, user_id, type, summary, source_type, source_id, status (queued/sent/failed), attempts, last_error, walrus_job_id, created_at, deleted_at (local copy + outbox for Walrus) |
 | `voice_captures`     | id, user_id, audio_key (R2), transcript, ideas (JSON), created_at       |
@@ -1017,6 +1033,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/triage`                      | Keep (→ Shortlist) / let go (→ Archived) / later |
 | `/api/focus/pick`                  | Suggest one Shortlist item from time, energy and recalled memories; cites the memories used |
 | `/api/focus`, `/api/focus/decide`, `/api/focus/pause` | Current Focus items; Start / Not today / Let it go; pause back to the Shortlist |
+| `/api/courses`                     | POST a syllabus (PDF or up to 10 photos, base64) → a course item with its units in order |
 | `/api/items/[id]/understanding`    | GET the confirm card (intent, kind of practice, goal, date, and the choices); PUT to confirm or change it |
 | `/api/items/[id]/roadmap` (PATCH)   | Choose or write the goal: re-plans toward it (a fresh roadmap if nothing is done yet, else the milestones ahead) |
 | `/api/items/[id]/roadmap`          | Read the roadmap (GET) or regenerate it (POST); also generated on Start |
@@ -1257,6 +1274,7 @@ SvelteKit app, the extension's capture logic, AI prompts and analysis logic, roa
 16. Focus sounds: generated noise, R2 loops, mixer, starter set
 17. Journal reflection prompts; plan time blocks with anchors; start ritual and daily shutdown
 17b. Intents and practice kinds as registries; confirm card at Start; roadmap goal and proving grounds; "I want to…" input; follow a course from a PDF or photos (with class dates); try-it-out tasters
+17c. Longer horizons: year, half-year and quarter plans as a period registry, each feeding the one below, with reviews (yearly integrity report)
 
 ### Phase 4: Pet v1
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeRoadmap } from './normalize';
+import { alignToUnits, normalizeRoadmap } from './normalize';
 
 describe('normalizeRoadmap', () => {
 	it('keeps valid milestones and steps, and clamps drift', () => {
@@ -90,6 +90,33 @@ describe('normalizeRoadmap', () => {
 		expect(roadmap.milestones[0].steps.map((s) => [s.kind, s.title, s.minutes])).toEqual([
 			['step', 'Learn 3-7 shells', 25],
 			['proof', 'Play Autumn Leaves (A section)', 40]
+		]);
+	});
+});
+
+describe('alignToUnits', () => {
+	it('names course milestones after their units, in order', () => {
+		const step = {
+			title: 's',
+			minutes: 25,
+			twoMinute: null,
+			searchTerms: [],
+			tools: [],
+			recall: null,
+			kind: 'step' as const
+		};
+		const aligned = alignToUnits(
+			[
+				{ title: 'Week 1 (class 2026-11-01): Holding the guitar', steps: [step] },
+				{ title: 'Week 2 stuff', steps: [step] },
+				{ title: 'Extra review', steps: [step] }
+			],
+			['Week 1: Holding the guitar', 'Week 2: Open chords']
+		);
+		expect(aligned.map((m) => m.title)).toEqual([
+			'Week 1: Holding the guitar',
+			'Week 2: Open chords',
+			'Extra review'
 		]);
 	});
 });
