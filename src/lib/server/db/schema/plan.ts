@@ -12,7 +12,7 @@ import {
 	uuid
 } from 'drizzle-orm/pg-core';
 import { id, userId, stamp, createdAt, at } from './columns';
-import { roadmapStyle, progress, projectStatus, journalSource, planPeriodKind } from './enums';
+import { roadmapStyle, progress, projectStatus, journalSource } from './enums';
 import { items } from './items';
 
 export const roadmaps = pgTable('roadmaps', {
@@ -85,11 +85,16 @@ export const planPeriods = pgTable(
 	{
 		id: id(),
 		userId: userId(),
-		kind: planPeriodKind('kind').notNull(),
+		/** An id from features/plan/periods.ts (text, so no migration per period). */
+		kind: text('kind').notNull(),
 		startsOn: date('starts_on').notNull(),
 		goalItemIds: uuid('goal_item_ids').array(),
 		blocksWanted: integer('blocks_wanted'),
 		review: text('review'),
+		/** Year: 1–3 themes in their words ("play jazz", "ship my portfolio"). */
+		themes: text('themes').array(),
+		/** Year: who they want to become. */
+		intention: text('intention'),
 		createdAt: createdAt()
 	},
 	(t) => [uniqueIndex('plan_periods_user_kind_start_idx').on(t.userId, t.kind, t.startsOn)]

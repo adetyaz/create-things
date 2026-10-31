@@ -81,9 +81,25 @@ export const applyFitInput = z.object({
 	parkUntil: z.iso.date().optional()
 });
 
+/** Body of POST /api/plan/periods/[kind]: goals (up to the period's limit), and for the year themes. */
+export const horizonInput = z
+	.object({
+		goalItemIds: z.array(uuid).max(10).default([]),
+		/** Year: 1–3 themes in their words. */
+		themes: z.array(z.string().trim().min(2).max(100)).max(3).optional(),
+		/** Year: who they want to become. */
+		intention: z.string().trim().min(3).max(200).optional(),
+		review: z.string().trim().max(2000).optional()
+	})
+	.refine(
+		(h) => h.goalItemIds.length > 0 || (h.themes?.length ?? 0) > 0,
+		'Pick at least one goal or theme'
+	);
+
 export type BlockInput = z.infer<typeof block>;
 export type PlanMonthInput = z.infer<typeof planMonthInput>;
 export type SaveWeekInput = z.infer<typeof saveWeekInput>;
+export type HorizonInput = z.infer<typeof horizonInput>;
 export type MoveInput = z.infer<typeof moveInput>;
 export type ReshuffleInput = z.infer<typeof reshuffleInput>;
 export type ApplyFitInput = z.infer<typeof applyFitInput>;
