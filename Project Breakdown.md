@@ -256,6 +256,8 @@ A roadmap works like navigation: it always answers "what now?", including when s
 
 ### 10. The Pet
 
+The full state machine for building the model (life states, activities, reactions, inputs and the animation checklist) is in [pet-state-machine.md](pet-state-machine.md).
+
 #### Species
 
 - **Launch:** dog, cat, fluffy monster, dragon. Each has **breeds** (variants on the same model with different fur, shape and personality).
