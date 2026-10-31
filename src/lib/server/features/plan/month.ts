@@ -8,6 +8,7 @@ import { items, planPeriods } from '$lib/server/db/schema';
 import { remember } from '$lib/server/features/memory/service';
 import { understandingOf, type Understanding } from '$lib/server/features/intents/understanding';
 import { timezoneOf } from './context';
+import { currentGoals } from './horizons';
 import { addDays, monthName, monthStart, nextMonthStart, today } from './dates';
 import type { PlanMonthInput } from './input';
 
@@ -26,6 +27,8 @@ export interface MonthView {
 	planned: boolean;
 	goals: MonthItem[];
 	notThisMonth: MonthItem[];
+	/** The quarter's goals, offered first when picking the month's (empty if no quarter is planned). */
+	suggested: MonthItem[];
 }
 
 /** Items that can be a month goal. */
@@ -65,7 +68,8 @@ export async function getMonth(platform: Platform, userId: string): Promise<Mont
 			planned: Boolean(period),
 			// In the order the user picked them.
 			goals: goalIds.flatMap((id) => goals.filter((g) => g.id === id)),
-			notThisMonth
+			notThisMonth,
+			suggested: (await currentGoals(db, userId, 'quarter', day)) ?? []
 		};
 	});
 }

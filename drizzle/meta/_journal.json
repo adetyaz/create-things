@@ -78,6 +78,13 @@
       "when": 1793469085129,
       "tag": "0010_course_units",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793479101167,
+      "tag": "0011_plan_period_registry",
+      "breakpoints": true
     }
   ]
 }

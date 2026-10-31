@@ -1019,7 +1019,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `exports`            | user_id, target (notion), token (encrypted), last_run_at                |
 | `push_subscriptions` | id, user_id, endpoint, keys                                             |
 | `plan_slots`         | id, user_id, step_id, day, start_time, anchor (e.g. "after coffee"), place, position (the day's rank: 1–3 is tomorrow's top 3), missed_at (a Focus step placed in a time block) |
-| `plan_periods`       | id, user_id, kind (registry id: year, half, quarter, month, week), starts_on, goal_item_ids[] (the month's 1–3), blocks_wanted (week), review (short summary), created_at (one row per month or week planned) |
+| `plan_periods`       | id, user_id, kind (registry id: year, half, quarter, month, week), starts_on, goal_item_ids[] (the period's 1–3), blocks_wanted (week), review (short summary), themes[] + intention (year: themes and who they want to become), created_at (one row per month or week planned) |
 | `comparisons`        | id, user_id, item_id, step_id, question, goal (learning/building), options (JSON: gives, price, fit, sources), pick, reason, checked_at |
 | `memories`           | id, user_id, type, summary, source_type, source_id, status (queued/sent/failed), attempts, last_error, walrus_job_id, created_at, deleted_at (local copy + outbox for Walrus) |
 | `voice_captures`     | id, user_id, audio_key (R2), transcript, ideas (JSON), created_at       |
@@ -1058,6 +1058,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/push/*`                      | Subscribe / unsubscribe                         |
 | `/api/webhooks/payments`           | Add credits after confirmed payment             |
 | `/api/plan`                        | Place steps in time blocks, move them, reshuffle, daily shutdown |
+| `/api/plan/periods/[kind]`         | Year, half-year, quarter (any generic period): GET goals, themes, review questions and the shortlist from the period above; POST the plan |
 | `/api/plan/month`                  | GET the month's goals and not-this-month list; POST the review and the 1–3 picks; PATCH to bring one item back |
 | `/api/plan/week`                   | POST the blocks you have (day + time or anchor + place) → the pet's filled week to adjust (free, no AI); PUT to save it |
 | `/api/plan/day`                    | GET a day's blocks in rank order (default today) and the one Today shows |

@@ -15,7 +15,6 @@ export const itemSize = pgEnum('item_size', ['afternoon', 'weekend', 'week', 'mo
 export const difficulty = pgEnum('difficulty', ['easy', 'medium', 'hard']);
 export const roadmapStyle = pgEnum('roadmap_style', ['project', 'skill']);
 export const progress = pgEnum('progress', ['not_started', 'in_progress', 'complete']);
-export const planPeriodKind = pgEnum('plan_period_kind', ['month', 'week']);
 export const projectStatus = pgEnum('project_status', ['ideating', 'in_progress', 'done']);
 export const journalSource = pgEnum('journal_source', ['manual', 'pomodoro', 'check_in', 'voice']);
 export const cardSource = pgEnum('card_source', [

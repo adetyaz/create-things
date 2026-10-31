@@ -15,6 +15,7 @@ import {
 } from '$lib/server/db/schema';
 import { remember } from '$lib/server/features/memory/service';
 import { ownedSteps, timezoneOf } from './context';
+import { currentGoals } from './horizons';
 import { monthStart, today, weekStart, weekdayName } from './dates';
 import {
 	byTime,
@@ -137,7 +138,7 @@ export async function proposeWeek(
 	});
 }
 
-/** The month's goals once a month is planned, otherwise what's in Focus. */
+/** The month's goals once a month is planned, else the quarter's, else what's in Focus. */
 async function weekGoals(db: Db, userId: string, day: string) {
 	const [month] = await db
 		.select({ goalItemIds: planPeriods.goalItemIds })
@@ -149,7 +150,11 @@ async function weekGoals(db: Db, userId: string, day: string) {
 				eq(planPeriods.startsOn, monthStart(day))
 			)
 		);
-	const goalIds = month?.goalItemIds ?? [];
+	const monthIds = month?.goalItemIds ?? [];
+	// No month planned: the quarter's goals, if there are any; otherwise what's in Focus.
+	const goalIds = monthIds.length
+		? monthIds
+		: ((await currentGoals(db, userId, 'quarter', day))?.map((g) => g.id) ?? []);
 	const rows = await db
 		.select({ id: items.id, title: items.title })
 		.from(items)
