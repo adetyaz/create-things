@@ -1,4 +1,6 @@
 import type { RecalledMemory } from '$lib/server/features/memory/recall';
+import { intentOf } from '$lib/server/features/intents/registry';
+import { practiceKindOf } from '$lib/server/features/intents/practice';
 
 export const ROADMAP_SYSTEM = `You plan projects and learning as navigation for a scattered person: there must always be a clear next step, small enough to start today. Every step takes 15–30 minutes and is an action to DO, not a topic to study. Skip what they already know. Reply with one JSON object only.`;
 
@@ -21,7 +23,11 @@ function memoryLines(memories: RecalledMemory[]): string[] {
 
 export interface RoadmapContext {
 	title: string;
-	isLearningGoal: boolean;
+	/** Ids from the intent and practice-kind registries. */
+	intent: string;
+	practiceKind: string | null;
+	goal: string | null;
+	targetDate: string | null;
 	summary: string | null;
 	brief: string | null;
 	skills: string[];
@@ -31,11 +37,17 @@ export interface RoadmapContext {
 }
 
 export function roadmapPrompt(c: RoadmapContext): string {
+	const intent = intentOf(c.intent);
+	const kind = practiceKindOf(c.practiceKind);
 	return [
 		`Make a roadmap for: "${c.title}"`,
-		c.isLearningGoal
-			? `This is a LEARNING GOAL: use the skill shape (basics → practice → a small project of their own).\n${LEARNING_RULES}`
-			: 'This is a THING TO MAKE: use the project shape (set up → build the core → polish → share or finish). Where a step teaches a new technique, give it a "recall" question too.',
+		`What they're trying to do: ${intent.label.toLowerCase()}. ${intent.roadmapShape}`,
+		intent.learning
+			? LEARNING_RULES
+			: 'Where a step teaches a new technique, give it a "recall" question too.',
+		kind && `Kind of practice: ${kind.label.toLowerCase()}. ${kind.practice}`,
+		c.goal && `Their goal: ${c.goal}. Every milestone should build toward it.`,
+		c.targetDate && `Target date: ${c.targetDate}. Size the plan to fit before it.`,
 		c.summary && `What it is: ${c.summary}`,
 		c.brief && `Starting brief: ${c.brief}`,
 		c.skills.length > 0 && `Skills it needs: ${c.skills.join(', ')}`,
@@ -46,7 +58,7 @@ export function roadmapPrompt(c: RoadmapContext): string {
 		'',
 		'Return:',
 		'{',
-		`  "style": "${c.isLearningGoal ? 'skill' : 'project'}",`,
+		`  "style": "${intent.roadmapStyle}",`,
 		'  "skills": ["skills this builds"],',
 		'  "resources": [{ "title": "...", "url": "only if you are sure it exists, else omit" }],',
 		`  "milestones": [ { "title": "...", "steps": [ ${STEP_SHAPE} ] } ]`,

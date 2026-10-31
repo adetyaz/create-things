@@ -11,6 +11,7 @@ import { generateJson } from '$lib/server/ai';
 import { OutOfCreditsError, withCredits } from '$lib/server/features/credits/service';
 import { remember } from '$lib/server/features/memory/service';
 import { recallMemories } from '$lib/server/features/memory/recall';
+import { intentOf } from '$lib/server/features/intents/registry';
 import { normalizeRoadmap, type PlannedMilestone } from './normalize';
 import { ROADMAP_SYSTEM, replanPrompt, roadmapPrompt } from './prompt';
 
@@ -60,7 +61,7 @@ async function generate(platform: Platform, itemId: string): Promise<RoadmapOutc
 		item.userId,
 		`Plan for "${item.title}": what I already know, what tripped me up, how I like to work`
 	);
-	const fallbackStyle = item.isLearningGoal ? 'skill' : 'project';
+	const fallbackStyle = intentOf(item.intent).roadmapStyle;
 
 	const { plan, model } = await withCredits(
 		platform,
@@ -71,7 +72,10 @@ async function generate(platform: Platform, itemId: string): Promise<RoadmapOutc
 				system: ROADMAP_SYSTEM,
 				prompt: roadmapPrompt({
 					title: item.title,
-					isLearningGoal: item.isLearningGoal,
+					intent: item.intent,
+					practiceKind: item.practiceKind,
+					goal: item.goal,
+					targetDate: item.targetDate,
 					summary: analysis?.summary ?? item.note,
 					brief: analysis?.brief ?? null,
 					skills: analysis?.skills ?? [],

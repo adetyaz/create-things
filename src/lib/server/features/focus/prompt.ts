@@ -9,7 +9,8 @@ export interface PickCandidate {
 	summary: string | null;
 	size: string | null;
 	difficulty: string | null;
-	isLearningGoal: boolean;
+	/** The intent's label, e.g. "Learn a skill". */
+	intent: string;
 	daysWaiting: number;
 }
 
@@ -26,7 +27,7 @@ export function pickPrompt(input: {
 	];
 	for (const c of input.candidates) {
 		const facts = [
-			c.isLearningGoal ? 'learning goal' : 'thing to make',
+			c.intent.toLowerCase(),
 			c.size && `size: ${c.size}`,
 			c.difficulty && `difficulty: ${c.difficulty}`,
 			`waiting ${c.daysWaiting} day${c.daysWaiting === 1 ? '' : 's'}`

@@ -19,7 +19,6 @@ export const items = pgTable(
 		status: itemStatus('status').notNull().default('inbox'),
 		size: itemSize('size'),
 		difficulty: difficulty('difficulty'),
-		isLearningGoal: boolean('is_learning_goal').notNull().default(false),
 		arenaBlockId: text('arena_block_id'),
 		/** False when the title was made up from the URL or note, so analysis may replace it. */
 		titleFromUser: boolean('title_from_user').notNull().default(false),
@@ -28,7 +27,16 @@ export const items = pgTable(
 		savedAt: stamp('saved_at'),
 		lastActiveAt: at('last_active_at'),
 		/** Out of Pick for me and plans until this day: not this month, or parked by fit-it-in. */
-		parkedUntil: date('parked_until')
+		parkedUntil: date('parked_until'),
+		/** What they're trying to do: an id from features/intents/registry.ts (text, so no migration per intent). */
+		intent: text('intent').notNull().default('make'),
+		/** An id from features/intents/practice.ts, or null if unclear. */
+		practiceKind: text('practice_kind'),
+		/** Set when the user confirms the intent on the confirm card. */
+		intentConfirmedAt: at('intent_confirmed_at'),
+		/** "By the end you'll be able to…". */
+		goal: text('goal'),
+		targetDate: date('target_date')
 	},
 	(t) => [
 		index('items_user_status_idx').on(t.userId, t.status),
