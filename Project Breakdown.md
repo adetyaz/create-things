@@ -136,6 +136,27 @@ Every feature is judged by these:
 - Per channel, choose **"triage these"** (default) or **"already curated"** (goes straight to Shortlist)
 - Block mapping: Image → upload, Link → url, Text → note, Media → url, Attachment → url
 - Sync on demand and daily; already-imported block IDs are skipped
+- A channel can also be kept **as a collection** (§2b), so it can be built from as a whole
+
+### 2b. Collections: build from a group of things
+
+A collection is a group of things that mean something together: an Are.na channel, a Pinterest board, or a group in the app. A curriculum is an ordered collection.
+
+**Never a chore.** Nobody has to organise anything:
+
+- **The app groups for you.** Similar saves are grouped by meaning (Walrus `embed`), and the pet suggests a collection: *"You've saved 9 riso posters. Keep them together?"* One tap keeps it, one ignores it.
+- **Collections from Are.na and Pinterest arrive ready-made.**
+- Making or editing a collection by hand is possible but never required
+
+**Build from this collection**
+
+1. **Find the thread:** what connects it ("two-colour riso prints with bold type and grain"), using the colour palettes already extracted from each item
+2. **Spark ideas:** 3–5 ideas that combine items, each showing which items it came from
+3. **Make one:** an idea becomes an item (Make intent); its roadmap uses the collection's items as references
+4. **Learn what's behind it:** the skills shared across the collection become a Learn goal
+5. **Keep it growing:** when a sync brings in new items, the pet notices ("3 new pins fit your zine idea")
+
+Accepted ideas are saved as `expansion` memories. Finding the thread and sparking ideas use the free quota, then credits.
 
 ### 3. Analyze (exists, changed)
 
@@ -146,6 +167,67 @@ Runs automatically after every capture, through a queue.
 - **Learning goals** (e.g. "learn Blender") are detected and marked so they get a skill-style roadmap
 - Source attribution (author, URL, platform) from metadata
 - **New:** size estimate (afternoon / weekend / week / month) and difficulty (easy / medium / hard), used by the picker
+- **New:** a guess at the intent, the kind of practice and a goal (§3b), confirmed later, never asked at capture
+
+### 3b. Understand: what you're trying to do
+
+Every input answers two questions: **what are you trying to do?** and **how did it come in?** The app guesses both and you confirm in one tap. Capture stays instant.
+
+**Intents** (what you're trying to do). Each one plans differently and works toward a different kind of goal:
+
+| Intent | Examples | How the plan works | The goal you work towards | Plan shape | When |
+|---|---|---|---|---|---|
+| **Learn a skill** | Guitar, Spanish, jazz chords, knife skills | Practise, repeat, build up | Something real you can do: a song, a 5-minute conversation, a dish | Roadmap (skill) | Now |
+| **Make something** | A website, a chair, a zine, an album | Steps toward a finished thing | The finished thing and where it goes (live site, gift, shop) | Roadmap (project) | Now |
+| **Follow a course** | AWS cert, a uni class, a guitar course | The course's units in its order, with our support added | Pass or finish, plus one project that uses it | Roadmap (course) | Phase 3 |
+| **Try it out** | Pottery, climbing, "see if I like coding" | 2–3 short taster sessions | A decision: keep it, park it or let it go | Tasters | Phase 3 |
+| **Grow or tend something** | A garden, a small farm, sourdough, training a dog | Recurring care tied to seasons, weather and place; checking in | A state of things: a first harvest, a starter that rises | Recurring | Later |
+| **Build a habit** | Running, reading, journaling | The same small thing on set days, no end date | Who you're becoming ("I'm a runner") with a floor (2 minutes counts) | Recurring | Later |
+
+Any intent can have a **target date** ("by March", "exam on 12 Dec"); the plan then works backwards from it.
+
+**Possible later intents** (each is one registry entry, see Code layout rule 8): research or understand a topic · prepare for an event (exam, interview, trip, talk) · fix or repair something · teach or share what you know · get fit or recover · change careers · collect and curate.
+
+**Kinds of practice** (worked out by the AI, never asked). The same intent practises differently by subject:
+
+| Kind | Examples | What practice looks like | Proving ground |
+|---|---|---|---|
+| **Body and hands** | Guitar, dance, woodworking | Slow then faster, repetition | Songs, routines, a small build |
+| **Knowledge** | Cloud, history, law | Recall, explain it back, labs | Practice exams, a hands-on lab, a mini project |
+| **Real world and living things** | Gardening, farming, cooking | Tasks set by season, weather and place; observing | A herb box, a harvest, a meal |
+| **Creative** | Design, writing, music production | Study great work, then make your own | An original piece |
+| **People and language** | Spanish, public speaking | Real conversations, recordings | Ordering food in Spanish, a 3-minute talk |
+
+Possible later kinds: maths and logic, sport, care work. Each is a registry entry.
+
+**The goal and proving grounds**
+
+- **Every roadmap opens with a goal**: "By the end you'll be able to…". The AI suggests 2–3 concrete targets (a song, a finished site, a passed exam); you pick or write your own. The roadmap builds toward it, and re-plans keep it.
+- **Proving grounds** (learning intents): after each milestone, 1–3 real things to do that use only what you've learned so far, getting harder each time: songs for jazz chords, a lab for cloud, a herb box for gardening. Each has search terms to find the chords, tabs or instructions. The app names songs and pieces; it never copies sheet music or lyrics.
+
+**Ways things come in** (sources). Each is a plug-in (Code layout rule 8):
+
+| Source | Shape | Status |
+|---|---|---|
+| Quick capture: link, screenshot, upload, note | One thing | Built |
+| Voice ("just yap") | One thing, or several split out | Hackathon (H7) |
+| **"I want to…"**, typed or spoken | One thing | Phase 3 |
+| **Curriculum from a PDF or photos/screenshots** | Ordered collection | Phase 3 |
+| Brain dump at onboarding | Several things | Phase 2 |
+| Are.na channel | Collection | Phase 9 |
+| Pinterest board (through a library or MCP built for createthings) | Collection | Phase 9 |
+| A collection made in the app (§2b) | Collection | Phase 9 |
+
+Possible later sources: YouTube or Spotify playlists, browser bookmark folders, Notion pages, GitHub repos, Kindle or Readwise highlights, podcast episodes, Instagram or TikTok saves, newsletters, photos of handwritten notes.
+
+**Confirm card.** When you Start something or pick it for the month, one card shows what the app understood: *"Looks like you want to **learn** jazz piano. Goal: play Autumn Leaves with drop-2 voicings. Right?"* Intent, goal and date can each be changed with one tap. The choice is remembered.
+
+**Following a course**
+
+- Upload the syllabus as a PDF or one or more photos/screenshots
+- The course's units become the milestones, **in the course's order**. The roadmap adds what courses don't give you: 2-minute versions, search terms, recall questions and proving grounds
+- Re-plans add support around the course but never reorder or drop its units
+- **Class dates** from the syllabus go into the plan: the weekly plan puts practice blocks before each class, and exam dates become the target date
 
 ### 4. Sort: Triage
 
@@ -203,10 +285,12 @@ Each layer feeds the next, and each review is remembered, so the next plan learn
 
 A roadmap works like navigation: it always answers "what now?", including when someone doesn't know what to search for or which tool to use.
 
-- Generated from an item's analysis
-- **Two styles:**
+- Generated from an item's analysis, shaped by its intent and kind of practice (§3b)
+- **Opens with a goal** ("by the end you'll be able to…") that every milestone builds toward
+- **Styles:**
   - **Project roadmaps** for things to make or recreate
-  - **Skill roadmaps** for learning goals: basics → practice → small project, with more knowledge cards along the way
+  - **Skill roadmaps** for learning goals: basics → practice → small project, with more knowledge cards along the way, and **proving grounds** after each milestone (real songs, labs, pieces that use what you've learned so far)
+  - **Course roadmaps** that follow an uploaded curriculum's units in order (§3b)
 - Every milestone is split into **steps of 15–30 minutes**. Only the current step is prominent.
 - **Each step comes with:**
   - a **2-minute version**, the smallest possible start (*Atomic Habits* two-minute rule)
@@ -829,6 +913,11 @@ src/routes/api/       Thin: validate input → call a feature service → return
 5. **Every request body is validated with zod** (`features/*/input.ts` + `platform/http.ts`).
 6. **A new queue** is one entry in `jobs/queues.ts` and one in `jobs/registry.ts`, plus its binding in `wrangler.jsonc` (top level and `env.local`).
 7. **Schema changes** go in the matching `db/schema/<domain>.ts`, then `npm run db:generate`.
+8. **Plug and play: intents, practice kinds, sources and plan shapes are registries.** Adding one is one entry in its registry file; nothing else changes and no migration is needed (they're stored as text ids, checked against the registry, not as Postgres enums).
+   - `features/intents/registry.ts`: id, label, the confirm-card wording, plan shape, goal prompt, roadmap rules
+   - `features/intents/practice.ts`: kind id, label, practice rules and proving-ground examples for the prompt
+   - `features/sources/registry.ts`: each source is an adapter with an id, label, shape (one / collection / ordered) and, for connected services, `connect`, `list` and `sync`. Are.na and Pinterest are adapters; the Pinterest adapter wraps the library or MCP built for it
+   - `features/plan/shapes.ts`: roadmap (now), tasters (Phase 3), recurring (later)
 
 ### Queues inside SvelteKit
 
@@ -867,9 +956,9 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | -------------------- | ----------------------------------------------------------------------- |
 | `users`, `sessions`, `accounts` | Managed by Better Auth                                       |
 | `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), shutdown_time, weekly_plan_day + weekly_plan_time (default Sunday 18:00), weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
-| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, saved_at, last_active_at, parked_until (not this month, or parked by fit-it-in) |
+| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, saved_at, last_active_at, parked_until (not this month, or parked by fit-it-in), intent + practice_kind (registry ids, §3b; replaces is_learning_goal), intent_confirmed_at, goal, target_date |
 | `analyses`           | id, item_id, summary, technique, colors (palette + notes), typography, layout, mood[], style, components, for_developers, for_creators, brief, skills[] (feeds the roadmap), attribution, model |
-| `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress         |
+| `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress, goal ("by the end you'll be able to…"), collection_id (when following a course) |
 | `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, two_minute (smallest start), search_terms[], tools[], recall (learning steps: the recall question that ends the step), done_at |
 | `projects`           | id, user_id, item_id, title, status, content (editor JSON), started_at, completed_at |
 | `journal_entries`    | id, user_id, project_id, body, source (manual/pomodoro/check-in/voice), created_at |
@@ -884,6 +973,9 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `ai_usage_daily`     | user_id, date, free_used                                                |
 | `arena_connections`  | user_id, token (encrypted), last_sync_at                                |
 | `arena_channels`     | id, user_id, slug, mode (triage/curated)                                |
+| `collections`        | id, user_id, title, source (registry id: arena, pinterest, app, curriculum…), external_id, ordered, suggested (grouped by the app, not yet kept), kept_at, thread (what connects it), created_at |
+| `collection_items`   | collection_id, item_id, position, unit_date (a class date from a syllabus) |
+| `source_connections` | id, user_id, source (registry id), config (encrypted tokens and settings), last_synced_at (one row per connected service) |
 | `exports`            | user_id, target (notion), token (encrypted), last_run_at                |
 | `push_subscriptions` | id, user_id, endpoint, keys                                             |
 | `plan_slots`         | id, user_id, step_id, day, start_time, anchor (e.g. "after coffee"), place, position (the day's rank: 1–3 is tomorrow's top 3), missed_at (a Focus step placed in a time block) |
@@ -1140,6 +1232,7 @@ SvelteKit app, the extension's capture logic, AI prompts and analysis logic, roa
 15. Pomodoro with end-of-session note
 16. Focus sounds: generated noise, R2 loops, mixer, starter set
 17. Journal reflection prompts; plan time blocks with anchors; start ritual and daily shutdown
+17b. Intents and practice kinds as registries; confirm card at Start; roadmap goal and proving grounds; "I want to…" input; follow a course from a PDF or photos (with class dates); try-it-out tasters
 
 ### Phase 4: Pet v1
 
@@ -1180,6 +1273,7 @@ SvelteKit app, the extension's capture logic, AI prompts and analysis logic, roa
 ### Phase 9: Integrations
 
 38. Are.na connect, channel modes, import + daily sync
+38b. Sources as plug-in adapters; collections (suggested by the app, kept in one tap); build from a collection (thread, ideas, make, learn, keep growing); Pinterest adapter on the library or MCP built for it
 39. Notion scheduled export; Obsidian zip
 
 ### Phase 10: Store + payments (last)
