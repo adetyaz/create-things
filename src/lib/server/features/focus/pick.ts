@@ -65,6 +65,7 @@ export async function pickForMe(
 	);
 	const summaryOf = new Map(summaries.map((s) => [s.itemId, s.summary]));
 	const memories = await recallMemories(
+		platform,
 		userId,
 		`What should I work on with ${input.minutes} minutes and ${input.energy} energy? My goals, plans and how I work.`
 	);

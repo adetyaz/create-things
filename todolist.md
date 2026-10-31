@@ -10,6 +10,7 @@
 
 - [x] H1. Confirm the Walrus Memory SDK runs on Workers; health check against the mainnet relayer (30 Oct: health + mainnet save + recall pass under `wrangler dev`; `/api/dev/checks`)
 - [x] H2. `memories` table + queue consumer that sends summaries to Walrus within its rate limit; summaries go through Walrus `analyze` to extract facts (US-071) (31 Oct: `features/memory`, `createthings-memory` queue + DLQ, per-user namespaces, analysis remembers goals; verified 31 Oct: a learning goal was sent to Walrus mainnet; analyze extracted 6 facts)
+- [ ] H2b. Walrus cost rules 1–7 (Breakdown §13 "Cost rules"): daily digest for small events, `remember` + dedupe + idempotency for one-fact memories, cached embeddings, bulk status lookups, recall cutoff (verified live 31 Oct: a skip waits as `digest`; a plan change went out as one `remember`; embeddings cached on items; delete used one bulk lookup. Not yet seen: a digest rolling up the next day)
 - [ ] H3. Memory writes for every type in the Breakdown list; at least 10 on mainnet
 - [ ] H4. Recall wired into Pick for me, roadmaps, "I'm stuck"/"teach me" and pet chat; the pet cites the memory it used (US-071) (31 Oct: Pick for me done; roadmaps, stuck and chat come with those features)
 - [x] H5. Plan with time blocks: `plan_slots` with day, start time or habit anchor, place; drag to move; Today shows today's block; nudges at the block's time (US-073) (31 Oct: server side done and verified live: move/unplan a block, misses found on read. Dragging blocks moves to #17 with the screens; nudges move to #68 with email and push)
@@ -21,7 +22,7 @@
 - [x] H6b. Reshuffle: missed blocks offered new slots, today rebuilt, never miss twice (2-minute version first after a missed day), busy-week reshuffle (US-079, US-073) (verified live 31 Oct: missed blocks offered new slots, never miss twice put yesterday's step first today, busy week kept 1 and moved 1; `plan_change` sent)
 - [ ] H7. Voice mode: record → Workers AI transcription → split + sort ideas → fit-it-in (US-074); also spoken "I want to…" (from 24g, US-089)
 - [ ] H8. Next-thing suggestions that carry knowledge forward (US-075)
-- [ ] H9. "What your pet knows": list, delete, forget all (US-076)
+- [x] H9. "What your pet knows": list, delete, forget all (US-076) (31 Oct: Walrus can't erase memories, the SDK has no delete. Delete one leaves its facts out of recall (blob ids from its job ids, nothing re-sent); forget all moves to a fresh namespace; the app says the encrypted copy expires on its own. See Breakdown §13) (verified live 31 Oct: 86 memories listed in 4 groups; deleting one hid its fact from recall with one bulk lookup and showed the honest note. "Forget everything" built but not run live, by choice: it wipes what the pet uses)
 - [x] H10. Tatum client (server-only): Sui RPC + Data API (30 Oct: `src/lib/server/tatum`, gRPC over fetch; mainnet + testnet + SUI/USD pass under `wrangler dev`)
 - [ ] H11. Memory receipts read from Sui through Tatum (US-076)
 - [ ] H12. Per-request Pro payment with `@suimpp/mpp`, confirmed via Tatum (US-077). Needs Phase 10 item 79 (Plus/Pro tiers) first
