@@ -10,6 +10,7 @@ export const ACTION_COSTS = {
 	course: 3,
 	petChat: 1,
 	pick: 1,
+	next: 1,
 	stuck: 1,
 	teach: 1,
 	cards: 1,

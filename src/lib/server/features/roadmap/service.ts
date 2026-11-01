@@ -129,6 +129,8 @@ export type CompleteResult =
 			replanning: boolean;
 			/** After the last taster session: keep it, park it or let it go (POST /api/items/[id]/tasters). */
 			decide: TasterDecision | null;
+			/** The roadmap is complete: offer to finish the item (POST /api/items/[id]/finish). */
+			readyToFinish: boolean;
 	  }
 	| { status: 'not_found' };
 
@@ -194,7 +196,15 @@ export async function completeStep(
 							choices: ['keep', 'park', 'let_go'] as TasterDecision['choices']
 						}
 					: null;
-			return { itemId: found.itemId, view: view(roadmap, steps), milestoneDone, replan, decide };
+			const readyToFinish = !wasDone && progress === 'complete' && !isTasters(found.intent);
+			return {
+				itemId: found.itemId,
+				view: view(roadmap, steps),
+				milestoneDone,
+				replan,
+				decide,
+				readyToFinish
+			};
 		})
 	);
 	if (!result) return { status: 'not_found' };
@@ -209,7 +219,8 @@ export async function completeStep(
 		roadmap: result.view,
 		milestoneDone: result.milestoneDone,
 		replanning: result.replan,
-		decide: result.decide
+		decide: result.decide,
+		readyToFinish: result.readyToFinish
 	};
 }
 
