@@ -206,13 +206,34 @@ export async function deleteMemory(
 	);
 	if (!row) return { status: 'not_found' };
 
-	const blobIds = await blobIdsOf(platform, row);
-	if (blobIds.length) {
-		await withDb(platform, (db) =>
-			db.update(memories).set({ blobIds }).where(eq(memories.id, row.id))
-		);
+	// A small event already sent inside a day's digest: the digest holds its text, so it goes too.
+	const [digest] = row.digestId
+		? await withDb(platform, (db) =>
+				db
+					.update(memories)
+					.set({ deletedAt: new Date() })
+					.where(and(eq(memories.id, row.digestId!), isNull(memories.deletedAt)))
+					.returning()
+			)
+		: [];
+
+	let hiddenFacts = 0;
+	for (const target of digest ? [row, digest] : [row]) {
+		const blobIds = await blobIdsOf(platform, target);
+		hiddenFacts += blobIds.length;
+		if (blobIds.length) {
+			await withDb(platform, (db) =>
+				db.update(memories).set({ blobIds }).where(eq(memories.id, target.id))
+			);
+		}
 	}
-	return { status: 'deleted', hiddenFacts: blobIds.length, note: DELETE_NOTE };
+	return {
+		status: 'deleted',
+		hiddenFacts,
+		note: digest
+			? `${DELETE_NOTE} It was part of the ${digest.createdAt.toISOString().slice(0, 10)} daily summary, so that summary is removed too.`
+			: DELETE_NOTE
+	};
 }
 
 /** The blob ids of a sent memory's facts, from its Walrus job ids, in one bulk lookup (cost rule 5). */
@@ -232,10 +253,24 @@ async function blobIdsOf(platform: Platform, row: Memory): Promise<string[]> {
 export async function deletedBlobIds(platform: Platform, userId: string): Promise<Set<string>> {
 	const rows = await withDb(platform, (db) =>
 		db
-			.select({ blobIds: memories.blobIds })
+			.select()
 			.from(memories)
 			.where(and(eq(memories.userId, userId), isNotNull(memories.deletedAt)))
 	);
+	// Deleted while Walrus was still storing it: look its blob ids up again (for a day, then give up).
+	const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+	const late = rows.filter(
+		(r) => !r.blobIds?.length && r.walrusJobId && (r.deletedAt?.getTime() ?? 0) > dayAgo
+	);
+	for (const row of late) {
+		const found = await blobIdsOf(platform, row);
+		if (found.length) {
+			row.blobIds = found;
+			await withDb(platform, (db) =>
+				db.update(memories).set({ blobIds: found }).where(eq(memories.id, row.id))
+			);
+		}
+	}
 	return new Set(rows.flatMap((r) => r.blobIds ?? []));
 }
 
