@@ -49,6 +49,7 @@ describe('normalizeRoadmap', () => {
 			searchTerms: ['Cmaj7 voicing'],
 			tools: ['Piano'],
 			recall: 'Which notes make Cmaj7?',
+			recallAnswer: null,
 			kind: 'step'
 		});
 		expect(roadmap.milestones[0].steps[1].recall).toBeNull();
@@ -103,6 +104,7 @@ describe('alignToUnits', () => {
 			searchTerms: [],
 			tools: [],
 			recall: null,
+			recallAnswer: null,
 			kind: 'step' as const
 		};
 		const aligned = alignToUnits(

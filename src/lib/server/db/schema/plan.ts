@@ -49,6 +49,8 @@ export const roadmapSteps = pgTable(
 		tools: text('tools').array(),
 		/** Learning steps end with a recall question ("close the tab: what do you remember?"). */
 		recall: text('recall'),
+		/** A short answer to the recall question, so it can become a flashcard. */
+		recallAnswer: text('recall_answer'),
 		/** 'step', or 'proof' for a proving ground: a real song, lab or piece using what's been learned. */
 		kind: text('kind').notNull().default('step'),
 		doneAt: at('done_at')

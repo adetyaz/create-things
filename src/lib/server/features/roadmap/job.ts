@@ -289,6 +289,7 @@ function stepRows(roadmapId: string, milestones: PlannedMilestone[], start: numb
 			searchTerms: s.searchTerms,
 			tools: s.tools,
 			recall: s.recall,
+			recallAnswer: s.recallAnswer,
 			kind: s.kind
 		}))
 	);

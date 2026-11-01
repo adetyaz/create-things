@@ -12,6 +12,7 @@ export const ACTION_COSTS = {
 	pick: 1,
 	next: 1,
 	voice: 2,
+	quiz: 2,
 	stuck: 1,
 	teach: 1,
 	cards: 1,

@@ -22,7 +22,8 @@ export const cardSource = pgEnum('card_source', [
 	'journal',
 	'pomodoro',
 	'lesson',
-	'manual'
+	'manual',
+	'quiz'
 ]);
 export const cardType = pgEnum('card_type', ['qa', 'explain']);
 export const rating = pgEnum('rating', ['got_it', 'shaky', 'forgot']);
