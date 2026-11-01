@@ -878,6 +878,9 @@ Hold the mic in the PWA or extension and ramble
   → A short summary goes to memory (voice_ideas)
 ```
 
+**How voice works** (1 Nov 2026): `POST /api/voice { audio (base64), mime }`, up to about 3 minutes. In production Workers AI's Whisper turns speech into text, then a text model splits it into ideas; locally (no Workers AI) Gemini does both in **one call** from the audio file. Each idea comes back with a title, its text and a suggested place: new item, step for a Focus item, journal note or learning goal. Nothing is added automatically: approving an idea captures it (and fit-it-in offers where it goes). The transcript and ideas are kept in `voice_captures`; the audio isn't stored until file storage (R2) exists. One `voice_ideas` memory per ramble, in our words (the idea titles), never the transcript. Cost: 2 credits
+
+
 ### Flow 15: Pay for a Pro answer with USDC on Sui
 
 ```
@@ -934,7 +937,7 @@ Shutdown time (set by the user) → pet: "Wrap up today?"
 | 3D pet             | Designed in **Spline**; real-time 3D on capable devices, lightweight pre-rendered fallback on low-power phones and the extension |
 | Audio              | Web Audio (generated noise + mixing), loops in R2                |
 | Assistant memory   | **Walrus Memory** (`@mysten-incubation/memwal` 0.1.12, hosted mainnet relayer; needs `@mysten/sui` + `@mysten/seal` installed) |
-| Voice transcription| Workers AI speech-to-text (Whisper), to confirm                  |
+| Voice transcription| Workers AI speech-to-text (Whisper) in production; Gemini from the audio file locally |
 | Sui reads          | **Tatum** Sui gRPC gateway through `TatumGrpcTransport` (see Hackathon section) + Data API |
 | Crypto payments    | USDC on Sui via **MPP** (`@suimpp/mpp`)                          |
 | Payments           | To decide last                                                   |

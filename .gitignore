@@ -27,3 +27,6 @@ test-results
 # Wrangler local secrets
 .dev.vars
 .neon
+
+# Local test audio and files made by check scripts
+scripts/fixtures/
