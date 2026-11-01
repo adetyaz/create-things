@@ -649,6 +649,14 @@ The chain stays invisible unless you go looking.
 - **Pay with USDC on Sui:** credit packs and per-request **Plus/Pro** AI calls can be paid with USDC on Sui using **MPP** (`@suimpp/mpp`; no x402 package settles on Sui mainnet). Tatum's Sui gRPC endpoint confirms each payment on-chain before credits are added. Card payments (Breakdown §Monetisation) still come later.
 - **SUI price:** paying with SUI is converted to credits at the live rate from **Tatum's Data API**
 
+**Gasless USDC and getting money in (checked 31 Oct 2026)**
+
+- **Gasless stablecoin transfers are built into Sui** (launched May 2026): users can send allowlisted stablecoins, including **USDC** and **USDsui**, without holding SUI for gas. Only simple balance/coin transfers qualify, the minimum is 0.01, and fee-paying transactions get priority when the network is busy ([Sui blog](https://blog.sui.io/sui-launches-gasless-stablecoin-transfers/), [Sui docs](https://docs.sui.io/onchain-finance/choose-payments-model)). Sui's developer page still says testnet, while the announcements say mainnet: **confirm on mainnet before relying on it**, and check whether an MPP payment counts as a qualifying transfer
+- **Sponsored transactions** cover everything else (we pay the gas): **Enoki** (Mysten) runs a gas pool with a fiat billing option, so we don't need to hold SUI; **Shinami** runs a gas station funded in SUI ([Shinami vs Enoki](https://docs.shinami.com/docs/shinami-vs-enoki))
+- **No wallet needed:** Enoki's zkLogin gives a Sui address from a Google sign-in, which fits the planned Google auth, so a scattered user never has to set up a wallet
+- **Fiat on-ramps on Sui** ([Sui docs list](https://docs.sui.io/onchain-finance/asset-custody/fiat-on-ramps)): Coinbase Onramp (SUI, USDC; fee-free USDC inside Slush wallet), Stripe (SUI, USDsui), Banxa (SUI, USDC), plus Onramper, Meld, Alchemy Pay, OnRamp.money, Bridge.xyz and CoinVoyage. **Ramp** reportedly added USDC on Sui in May 2026 (not in Sui's list yet; confirm with Ramp). **Rampnow** isn't on Sui's list; confirm with them directly
+- **Proposed setup** (to decide at H12–H13): Google sign-in → zkLogin address (Enoki) → buy USDC with an on-ramp widget (Coinbase or Stripe) → pay with a gasless USDC transfer (or an Enoki-sponsored MPP payment if MPP doesn't qualify) → Tatum confirms it on-chain → credits arrive. The user never touches gas or SUI
+
 ---
 
 ## Monetisation
@@ -953,6 +961,34 @@ Shutdown time (set by the user) → pet: "Wrap up today?"
 - **Privacy rule:** only providers or tiers that don't train on your data (no Gemini free tier, no `:free` models)
 - Structured JSON output is tested per model before it's used for roadmaps and cards
 - OpenCode Zen's free models can't be used: they only work inside OpenCode
+
+#### Free AI until the app is paid (checked 31 Oct 2026)
+
+Free tiers change without notice, so the app keeps a fallback chain and caps spend per user. Options, in the order we'd use them:
+
+| Option | What's free | Fit | Watch out for |
+| --- | --- | --- | --- |
+| **Workers AI** (production primary) | 10,000 Neurons a day on the free plan, then $0.011 per 1,000 Neurons; shared across models ([pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/)) | Runs next to our Workers, no keys, JSON mode on supported models; already wired | The daily allowance is small for many users; per-model Neuron costs vary |
+| **AI Gateway** (in front of every provider) | Free caching, rate limiting and logs | **Caches identical requests**, so repeated prompts cost nothing | Only helps when the exact same request repeats |
+| **Groq** | Per-model limits, e.g. ~1,000 requests a day on some models ([comparison](https://openrouter.ai/blog/tutorials/free-llm-apis-compared/)) | Fast replies for pet chat | Our key is invalid today; check its data policy before production |
+| **Gemini Flash / Flash-Lite** | Free tier (Pro models left the free tier in April 2026) | Reads images and PDFs; our local default | Free tier may train on prompts: **local only** (privacy rule); production only on a paid key |
+| **Mistral, Cerebras** | Mistral's free plan with usage limits; Cerebras gives signup credits rather than a lasting free tier ([BenchLM](https://benchlm.ai/md/free-tier.md)) | Extra fallbacks | Check each one's training policy against the privacy rule |
+| **OpenRouter `:free`** | ~50 requests a day (1,000 after a $10 purchase) | — | Excluded by the privacy rule |
+
+**Hosting OpenCode in a container** (considered 31 Oct, not recommended):
+
+- Cloudflare Containers need the Workers Paid plan ($5 a month) and bill for every 10 ms a container runs, so an always-on OpenCode server eats the included allowance ([pricing](https://developers.cloudflare.com/containers/pricing/))
+- OpenCode Zen's free models only work inside OpenCode as a coding agent, so routing the app's requests through it isn't allowed, and with our own provider keys it adds nothing over calling the providers directly
+- Keep OpenCode for **local experiments** on the laptop (connected as a provider during development), not for users
+
+**Cheap and efficient by design:**
+
+1. Workers AI first, AI Gateway caching in front of everything, then the free fallbacks
+2. The smallest model that does the job per task (triage and picks on small models; roadmaps and courses on stronger ones)
+3. Per-task reply limits (`maxTokens`: 1,500 for analysis, 6,000 for roadmaps) and short prompts (recall keeps only close memories)
+4. Background work through queues, so bursts are smoothed and retries don't double-charge
+5. Free daily credits per user and spend caps, so no single user can drain a free tier
+6. Free rule-based paths when AI isn't needed (Pick for me's no-AI fallback, week filling, reshuffle and fit-it-in offers)
 
 ### Code layout and module rules
 

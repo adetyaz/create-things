@@ -26,7 +26,7 @@
 - [x] H10. Tatum client (server-only): Sui RPC + Data API (30 Oct: `src/lib/server/tatum`, gRPC over fetch; mainnet + testnet + SUI/USD pass under `wrangler dev`)
 - [ ] H11. Memory receipts read from Sui through Tatum (US-076)
 - [ ] H12. Per-request Pro payment with `@suimpp/mpp`, confirmed via Tatum (US-077). Needs Phase 10 item 79 (Plus/Pro tiers) first
-- [ ] H13. Credit packs in USDC/SUI with the Tatum exchange rate (US-078)
+- [ ] H13. Credit packs in USDC/SUI with the Tatum exchange rate (US-078) (31 Oct: options researched, Breakdown §14 "Gasless USDC and getting money in": protocol gasless USDC, Enoki sponsorship + zkLogin, on-ramps. Confirm gasless on mainnet and whether MPP qualifies)
 - [x] H14. Check whether Tatum Notifications cover Sui: they don't (30 Oct); payments are confirmed through Tatum's Sui gRPC endpoint instead
 - [ ] H15. Verify: run the full demo loop on a fresh account; memories visible on the Walrus dashboard
 - [ ] H16. README matches what's built; repo public
@@ -48,7 +48,7 @@
 ## Phase 1 — Capture + AI foundation
 
 - [ ] 10. Items API; extension capture writes to Postgres (US-006) (30 Oct: `POST/GET /api/items`, `GET /api/items/[id]` built for links + notes as the dev user; screenshots/uploads wait for R2; extension not ported yet)
-- [ ] 11. AI Gateway set up with Workers AI primary and DeepInfra fallback
+- [ ] 11. AI Gateway set up with Workers AI primary and DeepInfra fallback (31 Oct: free-until-paid options and cost rules in Breakdown "AI routing"; turn on Gateway caching)
 - [ ] 12. Test which models return reliable structured JSON; pick defaults per task (model ids in `src/lib/server/analysis/model.ts`; analysis reports which model answered)
 - [x] 13. Analysis queue consumer: analysis + size + difficulty + learning-goal detection (US-010–012) (30 Oct: built — queue wrapper + internal route, metadata, Material palette, Workers AI vision → text → Groq, migration 0001; verified live under `npm run dev` with Gemini on 31 Oct; errors saved on the item; retry via `POST /api/items/[id]/analyze`; migrations 0002–0003; verified through the real queue under `npm run dev:worker` on 31 Oct: learning goal detected)
 - [x] 14. Credit ledger, balances and daily free quota enforced on every AI call; refund on failure (US-062, US-063) (31 Oct: `features/credits`, wired into analysis; verified 31 Oct: an analysis took 2 from the free quota)
