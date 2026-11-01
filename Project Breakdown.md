@@ -912,6 +912,9 @@ Shutdown time (set by the user) → pet: "Wrap up today?"
   → Snack for the pet; summary saved to memory (session_summary / plan_change)
 ```
 
+**How the shutdown works** (1 Nov 2026): `GET /api/plan/shutdown` returns whether it's due (the user's shutdown time has passed today, in their timezone), the steps finished today, today's blocks that weren't done with a suggested new slot each (from tomorrow), and tomorrow's top 3 pre-filled (tomorrow's planned blocks first, then the current step of each Focus item). `POST /api/plan/shutdown { moves, drop, tomorrow, note? }` moves the unfinished blocks, ranks tomorrow (Ivy Lee) and saves one `session_summary` memory in our words. No AI call, so it's free; the snack for the pet comes with the pet (Phase 4)
+
+
 ---
 
 ## Tech Stack
@@ -1147,6 +1150,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/plan/month`                  | GET the month's goals and not-this-month list; POST the review and the 1–3 picks; PATCH to bring one item back |
 | `/api/plan/week`                   | POST the blocks you have (day + time or anchor + place) → the pet's filled week to adjust (free, no AI); PUT to save it |
 | `/api/plan/day`                    | GET a day's blocks in rank order (default today) and the one Today shows |
+| `/api/plan/shutdown`               | GET the wrap-up (done today, what moves, tomorrow's top 3 pre-filled, whether it's due); POST to apply it and save a session summary |
 | `/api/plan/tomorrow`               | POST up to 3 step ids, most important first: tomorrow's top 3 (Ivy Lee) |
 | `/api/plan/slots/[id]`             | PATCH to move a block (day, time or anchor, place); DELETE to unplan it |
 | `/api/plan/reshuffle`              | GET missed blocks with suggested slots and the never-miss-twice pick; POST the moves you OK |

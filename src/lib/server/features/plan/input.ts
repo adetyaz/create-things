@@ -68,6 +68,23 @@ export const reshuffleInput = z.object({
 	firstToday: uuid.optional()
 });
 
+/** Body of POST /api/plan/shutdown: moves for today's unfinished blocks and tomorrow's top 3. */
+export const shutdownInput = z.object({
+	moves: z
+		.array(block.extend({ slotId: uuid }))
+		.max(30)
+		.default([]),
+	drop: z.array(uuid).max(30).default([]),
+	/** Up to 3 steps, most important first (Ivy Lee). */
+	tomorrow: z
+		.array(uuid)
+		.max(3)
+		.default([])
+		.refine((ids) => new Set(ids).size === ids.length, 'Each step once'),
+	/** How the day went, in their words; kept short in memory. */
+	note: z.string().trim().max(500).optional()
+});
+
 /** Body of POST /api/plan/fit. */
 export const fitInput = z.object({ itemId: uuid });
 
@@ -102,4 +119,5 @@ export type SaveWeekInput = z.infer<typeof saveWeekInput>;
 export type HorizonInput = z.infer<typeof horizonInput>;
 export type MoveInput = z.infer<typeof moveInput>;
 export type ReshuffleInput = z.infer<typeof reshuffleInput>;
+export type ShutdownInput = z.infer<typeof shutdownInput>;
 export type ApplyFitInput = z.infer<typeof applyFitInput>;
