@@ -1273,7 +1273,7 @@ Workers AI, R2, KV, Queues and Hyperdrive are Cloudflare **bindings** in `wrangl
 | Prize                       | Amount            | How we compete                                                        |
 | --------------------------- | ----------------- | --------------------------------------------------------------------- |
 | Track 02                    | $500 / $300 / $200 | The whole entry                                                      |
-| Best Walrus Memory          | $500              | "Deepest learning loop. Memories that visibly change the product": the pet's picks, plan changes and answers change because of memory, and it says why. Uses Walrus's own AI too: `withMemWal` around pet chat, `analyze` on summaries, `embed` for fit-it-in |
+| Best Walrus Memory          | $500              | "Deepest learning loop. Memories that visibly change the product": the pet's picks, plan changes and answers change because of memory, and it says why. Uses Walrus's own AI too: `analyze` on rich summaries, `remember` for one-fact memories, `recall` before every AI decision with citations, `embed` for fit-it-in and what's next (pet chat uses our own recall instead of `withMemWal`, see §10) |
 | Best Use of Agent Payments  | $500              | Plus/Pro AI requests paid per call with USDC on Sui via MPP, confirmed through Tatum |
 | Best Tatum AI Builder App   | $500              | Skipped: it's for apps built primarily with ai.tatum.io               |
 

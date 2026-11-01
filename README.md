@@ -2,40 +2,121 @@
 
 > Pick one thing. Start it. Keep what you learn. Don't let your pet starve.
 
-createthings helps scattered people (too many ideas, can't choose, end up doing nothing) pick **one** thing and actually start. It collects what you save, helps you sort it, suggests one thing to focus on, breaks it into 15–30 minute steps, turns what you learn into spaced-review cards, and gives you a 3D pet that eats when you do the work and gets hungry when you don't.
+createthings is an **active partner for scattered people**: people with a long list of things they want to make, learn or try, who keep doing none of them. It turns a pile of saved links and notes into **one clear next step**, plans small steps around real life, **bends the plan when life gets in the way**, and keeps what you learn so it compounds. A **pet** runs alongside it: an accountability agent that remembers your goals, your plans and how you actually work, on **Walrus Memory**, and uses that memory visibly in every suggestion it makes.
 
-The app is a complete digital experience: pomodoros with focus sounds, weather and day/night that match your city, and an interface that gathers dust and cobwebs when you stay away.
+Built for the **Tatum × Walrus "Total Recall" hackathon, Track 02: Smart Agents for Real Life**.
 
-## Status
+---
 
-The product was redesigned in October 2026 (v2). v2 stores data in **Neon Postgres** on **Cloudflare**; Notion is only an optional export.
+## The problem
 
-The v1 app code (Notion as database, Vercel, publish and portfolio) has been removed. What's here now is the v2 foundation: Cloudflare Workers, Neon Postgres with the full schema, and the Walrus Memory and Tatum clients. The browser extension is still the v1 build and needs porting to the new API.
+Five things stop people, usually in this order:
 
-| Doc | What it covers |
-| --- | --- |
-| [Project Breakdown.md](Project%20Breakdown.md) | The full v2 concept, architecture, data model, costs and build order |
-| [user-stories.md](user-stories.md) | 83 user stories with acceptance criteria |
-| [todolist.md](todolist.md) | Build checklist by phase |
-| [workflow.md](workflow.md) | Current status and how the docs fit together |
+1. **Too many options**: saved ideas pile up into guilt.
+2. **No idea where to go next**: no next step, no idea what to search for or which tool to use.
+3. **Nothing pushes them**: a to-do list never tells you to do it.
+4. **Plans break**: something comes up and reshuffling feels like starting over.
+5. **Learning doesn't stick**: the next attempt starts from zero.
 
-## v2 stack
+## What it does (built and tested)
 
-SvelteKit (Svelte 5) PWA · Manifest V3 extension · Cloudflare Workers, R2, KV, Queues, Workers AI, AI Gateway · Neon Postgres via Hyperdrive · Better Auth · Resend · Web Push · 3D pet designed in Spline · Walrus Memory (assistant memory) · Tatum (Sui RPC + Data API) · USDC on Sui via MPP
+The server side below is built and verified live. Each feature has a check script in [`scripts/`](scripts/). The screens come next (see [design-prd.md](design-prd.md)).
 
-## Developing
+| Feature | What happens | Memory it uses or writes |
+| --- | --- | --- |
+| **Capture + analysis** | Save a link or note; AI works out what it is, how big it is, and **what you're trying to do** (learn, make, follow a course, try it out, grow or tend something, build a habit) | Writes `goal` / `learning_goal` |
+| **Pick for me** | Give your time and energy, get **one** thing to start, with a first step and a 2-minute start | **Recalls** your goals and how you work; **cites** the memories it used |
+| **Confirm card** | "Looks like you want to learn jazz piano. Goal: play Autumn Leaves. Right?" One tap to confirm or correct | Corrections are remembered |
+| **Roadmaps as navigation** | Milestones of 15–30 minute steps, each with a 2-minute version, **what to search for** and **which tools**; a goal ("By the end you'll be able to…"); **proving grounds** (real songs, labs, practice exams) | **Recalls** what you know and what tripped you up, so it skips the first and supports the second; re-plans after each milestone (`plan`, `plan_change`) |
+| **Follow a course** | Upload a syllabus (PDF or photos); the roadmap follows its units in order, with class dates in your weekly plan | — |
+| **Try it out** | 2–3 taster sessions, then keep / park / let go | Remembers what you decided and why |
+| **Plans in layers** | Year → half-year → quarter → month (two lists) → week (the pet fills your blocks as "I will … at 8:00 at my desk") → day (tomorrow's top 3) | `plan`, `plan_change`, yearly and monthly reviews |
+| **Reshuffle** | Missed blocks get new slots (never silently); **never miss twice** puts yesterday's step first as its 2-minute version; busy week moves what doesn't fit | `plan_change` |
+| **Fit it in** | A new idea mid-plan is matched to the goal it belongs to **by meaning** and offered: add as a step · swap a block · park it · 5-minute note | **Walrus `embed`**; `idea_merged` / `idea_parked` |
+| **Pet chat** | Talk to the pet; **"I'm stuck"** suggests a break first, then a smaller step or a new angle; **"Teach me this"** gives a short lesson | **Recalls** before every reply and **cites** what it used; saves `stuck_topic` |
+| **Voice ("just yap")** | Ramble out loud; get separate ideas, each with a suggested place | `voice_ideas` (the idea titles, never the transcript) |
+| **Finish + what's next** | Finishing remembers the skills you built and suggests what to do next, with what carries over | `lesson_learned` |
+| **Daily shutdown** | What got done, what moves, tomorrow's top 3 | `session_summary` |
+| **Flashcards + quizzes** | Recall questions become flashcards; spaced review (1·3·7·14·30·60 days); practice quizzes with explanations | Wrong answers → `review_weakness` |
+| **What your pet knows** | See every memory in plain-word groups; delete one or forget everything | Honest deletes (below) |
+| **Credits** | A free daily quota, then credits; reserved atomically, refunded on failure | — |
+
+## How Walrus Memory is used
+
+The pet is an agent whose memory **visibly changes the product**: picks, roadmaps, re-plans, chat answers and next-thing suggestions all recall memories first, and replies say which memories they used.
+
+- **SDK:** `@mysten-incubation/memwal` on **Walrus mainnet** (86+ memories stored during development, 13 of 14 memory types written).
+- **Walrus's own AI:** `analyze` splits rich summaries (goals, reviews, lessons, session summaries) into searchable facts; `remember` stores one-fact memories; `recall` is used before every AI decision; `embed` matches new ideas to goals by meaning (fit-it-in, what's next).
+- **Privacy:** only short summaries in our words go to Walrus, never journal text or voice transcripts. One namespace per user.
+- **Delivery through a queue** (one message at a time, retries, dead-letter queue), so saving a memory never slows the app.
+- **Cost rules** (the relayer allows 500 points an hour per account, shared by the whole app): small events go out as **one daily digest**; one-fact memories use `remember` with **dedupe** and **idempotency keys**; embeddings are **cached**; recall has a distance cutoff. Reasons and sources: [Project Breakdown §13](Project%20Breakdown.md).
+- **Honest deletes:** Walrus storage is append-only and the SDK has no delete. Deleting a memory hides its facts from every recall (blob ids from one bulk status lookup); forgetting everything moves you to a fresh namespace. The app says plainly that the encrypted copy expires on its own.
+- **Why we don't use `withMemWal` for chat:** it saves with `analyze` after every reply (which would use the whole app's allowance at ~50 messages an hour) and can't hide deleted memories. Our recall does the same recall → inject → cite while respecting both.
+
+## How Tatum is used
+
+- **Sui gRPC through Tatum:** Tatum's Sui JSON-RPC endpoint is gone, and its gRPC gateway speaks native gRPC, which the Sui SDK can't use from Workers. [`TatumGrpcTransport`](src/lib/server/integrations/tatum/transport.ts) sends unary gRPC over `fetch` and plugs into the official `SuiGrpcClient`, verified on mainnet and testnet from the Workers runtime.
+- **Data API:** live SUI/USD rate (`/v4/data/rate/symbol`) for paying with SUI.
+- **In progress:** memory receipts (the Walrus Memory account read from Sui through Tatum) and per-request Pro payments in USDC on Sui, confirmed on-chain through Tatum. Proposed no-gas flow: Google sign-in → zkLogin address → gasless USDC transfer → Tatum confirms → credits arrive.
+
+## Architecture
+
+```
+SvelteKit (Svelte 5) PWA ── Cloudflare Workers ──┬─ Neon Postgres (Hyperdrive, Drizzle)
+Browser extension (MV3)                          ├─ Queues: analysis · roadmap · memory (+ dead-letter)
+                                                 ├─ AI: Workers AI → Gemini → Groq fallback chain
+                                                 ├─ Walrus Memory (remember · analyze · recall · embed)
+                                                 └─ Tatum (Sui gRPC · Data API)
+```
+
+- **Thin routes, feature modules:** `src/routes/api` validates with zod and calls `src/lib/server/features/*`. Shared layers (`ai`, `jobs`, `integrations`, `platform`) never import features.
+- **Plug and play:** intents, kinds of practice, plan shapes and planning periods are **registries**: adding one is a single entry, no migration.
+- **Cheap by design:** rule-based features need no AI (week filling, reshuffle, fit-it-in offers, the Pick for me fallback); every AI call has a per-task reply limit and a credit check with refund on failure.
+
+## Run it locally
 
 ```sh
 npm install
-npm run dev          # web app (Vite, with Workers bindings emulated)
-npm run dev:worker   # build, then run in the local Workers runtime
-npm run dev:ext      # extension build in watch mode
+cp .env.example .env        # fill in DATABASE_URL(_UNPOOLED), GEMINI_API_KEY, MEMWAL_*, TATUM_API_KEY
+npm run db:migrate
+npm run dev                 # web app (Workers bindings emulated; AI runs on Gemini locally)
+npm run dev:worker          # or: build and run in the local Workers runtime with real queues
 ```
 
-Copy `.env.example` to `.env` and fill in the keys it lists. The v2 environment variables are listed in [Project Breakdown.md](Project%20Breakdown.md#environment-variables).
+Checks:
 
 ```sh
-npm run check        # type check
+npm run check   # type check
 npm run lint
-npm test             # unit + e2e
+npm test        # unit tests (server + client)
 ```
+
+**Live checks** (with `npm run dev` running; each script prints its cost in credits, AI calls and Walrus points at the top):
+
+| Script | Shows |
+| --- | --- |
+| `check-intents.mjs` | Six different goals understood correctly (learn, make, course, try, tend, habit) |
+| `check-goals.mjs` | Roadmap goal options and proving grounds; switching the goal |
+| `check-course.mjs` | A syllabus read into units; a roadmap that follows them |
+| `check-plan.mjs` · `check-horizons.mjs` | Month, week and day plans; year, half-year and quarter |
+| `check-reshuffle.mjs` · `check-resume.mjs` | Missed blocks, never miss twice, busy week, fit-it-in, stop and continue |
+| `check-chat.mjs` | Pet chat, "I'm stuck", "teach me", citations, deleted memories staying hidden |
+| `check-voice.mjs` | A spoken ramble split into ideas (speaks a sample with Windows' voice) |
+| `check-next.mjs` · `check-shutdown.mjs` · `check-quiz.mjs` | What's next, the daily shutdown, flashcards and quizzes |
+| `check-memories.mjs` · `check-digest.mjs` | What your pet knows, honest deletes, the daily digest and cost rules |
+
+## Docs
+
+| Doc | What it covers |
+| --- | --- |
+| [Project Breakdown.md](Project%20Breakdown.md) | The full concept, principles, features, architecture, data model, API, cost rules and build order |
+| [design-prd.md](design-prd.md) | The design brief: every process, its screens, states, copy and the data each screen gets |
+| [user-stories.md](user-stories.md) | 99 user stories with acceptance criteria |
+| [todolist.md](todolist.md) | The build checklist by phase, with what was verified and when |
+| [pet-state-machine.md](pet-state-machine.md) | The pet's states, activities and reactions, for building the 3D model |
+| [workflow.md](workflow.md) | How the docs fit together and how features are built |
+
+## Status
+
+- **Built and verified:** everything in "What it does" above (server side).
+- **Next:** memory receipts and USDC payments on Sui through Tatum, then the screens from the design PRD, the 3D pet, and sign-in (Google + magic links).
