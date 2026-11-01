@@ -443,6 +443,16 @@ The full state machine for building the model (life states, activities, reaction
 
 Rules: it moves away from your cursor, never sits on text you're typing, goes quiet during pomodoros, and can be shooed or minimised.
 
+**How chat works** (decided 1 Nov 2026):
+
+- `POST /api/chat { mode: chat | stuck | teach, itemId?, stepId?, messages }`; the app sends the last few messages, so nothing is stored per conversation yet
+- Before answering, the pet recalls the memories closest to the latest message (our recall: current namespace, deleted memories hidden, distance cutoff) and puts them in the prompt as context. Each reply says which memories it used, shown as citations
+- **"I'm stuck"** first suggests a short break away from it (focused and diffuse thinking), then a smaller step or a completely different angle. The topic is saved as `stuck_topic` with `remember`
+- **"Teach me this"** gives 3–5 short paragraphs tied to the item and step, and offers to turn it into cards later
+- In plain chat the pet saves a fact only when it learns something lasting about how you work ("prefers video tutorials"), at most one per message, with `remember`
+- Cost: 1 credit per message (free quota first) and 1 Walrus recall point; saving is 5 points and only when there's something worth keeping
+- **Why not `withMemWal`** (the Walrus SDK's chat wrapper): it saves with `analyze` (10 points) after every reply, which would use the whole app's Walrus allowance (500 points an hour, shared) at about 50 messages an hour; and it recalls straight from Walrus, so it would bring back memories the user deleted. Our recall does the same job (recall → inject → cite) while respecting deletes and the cost rules
+
 #### Feeding
 
 Only work on your **Focus items** counts. Saving things never feeds it. Journaling about a Shortlist item prompts "Make this your focus?"
@@ -592,7 +602,7 @@ The pet is an accountability partner that **remembers**. It knows your goals, wh
 
 | Feature       | What it does                                                        | Used for                                             |
 | ------------- | ------------------------------------------------------------------- | ---------------------------------------------------- |
-| `withMemWal`  | Wraps any AI SDK model: recalls relevant memories into the prompt before each reply and saves new facts after | **Pet chat** (the chat model wrapped), so every answer uses what the pet knows. Model: Groq once its key works; locally Gemini, or OpenCode running on the laptop and connected as a provider (decided 31 Oct) |
+| `withMemWal`  | Wraps any AI SDK model: recalls relevant memories into the prompt before each reply and saves new facts after | **Not used for pet chat** (1 Nov): it saves with `analyze` after every reply and can't hide deleted memories. Pet chat does the same recall → inject → cite with our recall instead (§10 "How chat works"). Chat model: Workers AI in production; locally Gemini, or OpenCode on the laptop |
 | `analyze`     | The relayer extracts individual facts from text and stores each one | Turning our **summaries** (session notes, plan changes) into memories |
 | `embed`       | Embedding vector only, nothing stored                               | **Fit-it-in**: matching a new idea to the right Focus item |
 
@@ -615,6 +625,7 @@ The pet is an accountability partner that **remembers**. It knows your goals, wh
   - **Delete one:** it's marked deleted and the Walrus blob ids of its facts are looked up from its stored job ids (reads only). Recall then **leaves those facts out**. Nothing is re-sent and nothing new is stored, so it costs no storage and no rate limit
   - The old encrypted data is never read again and disappears when its storage ends. **The app says this plainly** ("removed from what your pet uses; the encrypted copy on Walrus expires on its own"), never just "deleted"
   - Each memory records the namespace it was sent to (`memories.namespace`) and, once deleted, its facts' blob ids (`memories.blob_ids`). If a future SDK adds deletion, those can be erased properly
+  - **Edge cases:** a memory deleted while Walrus is still processing it has no blob ids yet, so recall looks them up again later; deleting a small event that's already in a day's digest also hides that digest (the app says so)
 - Memory is part of the assistant: guide/actions stay free; recalls inside chat count toward the chat quota
 
 #### Cost rules for Walrus and Tatum (and why)
