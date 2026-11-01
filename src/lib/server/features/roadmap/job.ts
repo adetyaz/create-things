@@ -12,6 +12,7 @@ import { OutOfCreditsError, withCredits } from '$lib/server/features/credits/ser
 import { remember } from '$lib/server/features/memory/service';
 import { recallMemories } from '$lib/server/features/memory/recall';
 import { intentOf } from '$lib/server/features/intents/registry';
+import { shortTitle } from '$lib/server/features/items/title';
 import { unitsOf } from '$lib/server/features/courses/service';
 import { alignToUnits, normalizeRoadmap, type PlannedMilestone } from './normalize';
 import { isTasters, ROADMAP_SYSTEM, replanPrompt, roadmapPrompt } from './prompt';
@@ -291,12 +292,6 @@ function stepRows(roadmapId: string, milestones: PlannedMilestone[], start: numb
 			kind: s.kind
 		}))
 	);
-}
-
-/** Page titles can be long ("GitHub - owner/repo: a long description"); memories keep the name. */
-function shortTitle(title: string): string {
-	const name = title.split(/: | \| | — /)[0].trim();
-	return name.length > 80 ? `${name.slice(0, 77)}...` : name;
 }
 
 /** Tasters are one milestone of 2–3 sessions, whatever shape the model replied in. */

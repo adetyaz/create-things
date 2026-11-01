@@ -590,6 +590,8 @@ The pet is an accountability partner that **remembers**. It knows your goals, wh
    - Stop and continue: pause the current item with progress kept, and the pet reminds you where you left off
 2. **Builds and keeps a proper plan.** Focus steps can be placed on days. The pet tracks everything you said you'd do and adjusts the plan when you capture something new or skip a day.
 3. **Suggests what's next and how it connects.** "After the website, try the motion course next month. Your layout skills carry over." Knowledge from finished items and cards feeds the next item's roadmap.
+   - **How it works:** finishing an item (`POST /api/items/[id]/finish`, offered when its roadmap is complete) marks it done and remembers what it built (`lesson_learned` with its skills, via `analyze`). The suggestion (`GET /api/items/[id]/next`) ranks the Shortlist and current goals by **skills in common** and **closeness in meaning** (cached embeddings, cost rule 4), then the AI picks one from the top few with a reason and the skills that carry over. 1 credit; if the AI fails, the best-ranked one is suggested with its shared skills. Accepting it is just Start
+   - The next roadmap skips what they know because its plan recalls the finished item's `lesson_learned` memory
 4. **Gets better visibly.** Pick for me, roadmaps, "I'm stuck" answers and nudges all use what it remembers, and the pet says so ("Last Tuesday kerning tripped you up…").
 
 **Voice mode ("just yap")**
@@ -1117,6 +1119,8 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/triage`                      | Keep (→ Shortlist) / let go (→ Archived) / later |
 | `/api/focus/pick`                  | Suggest one Shortlist item from time, energy and recalled memories; cites the memories used |
 | `/api/focus`, `/api/focus/decide`, `/api/focus/pause` | Current Focus items; Start / Not today / Let it go; pause back to the Shortlist |
+| `/api/items/[id]/finish`           | POST { note? }: mark done, remember what it built, and return the next-thing suggestion |
+| `/api/items/[id]/next`             | GET: what to do next after this item and what carries over (1 credit) |
 | `/api/items/[id]/tasters`          | POST { choice: keep / park / let_go, intent?, until?, note? } after the taster sessions |
 | `/api/courses`                     | POST a syllabus (PDF or up to 10 photos, base64) → a course item with its units in order |
 | `/api/items/[id]/understanding`    | GET the confirm card (intent, kind of practice, goal, date, and the choices); PUT to confirm or change it |
