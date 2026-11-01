@@ -5,7 +5,7 @@ import { resolveShape } from '$lib/server/features/plan/shapes';
 
 export const ROADMAP_SYSTEM = `You plan projects and learning as navigation for a scattered person: there must always be a clear next step, small enough to start today. Every step takes 15–30 minutes and is an action to DO, not a topic to study. Skip what they already know. Reply with one JSON object only.`;
 
-const STEP_SHAPE = `{ "title": "imperative, specific action", "minutes": 15-30, "twoMinute": "the tiniest way to start, under 2 minutes", "searchTerms": ["2-3 exact things to type into a search engine"], "tools": ["0-3 tools or apps needed"], "recall": "learning goals only: one question to answer from memory after the step, else omit" }`;
+const STEP_SHAPE = `{ "title": "imperative, specific action", "minutes": 15-30, "twoMinute": "the tiniest way to start, under 2 minutes", "searchTerms": ["2-3 exact things to type into a search engine"], "tools": ["0-3 tools or apps needed"], "recall": "learning goals only: one question to answer from memory after the step, else omit", "recallAnswer": "the short correct answer to that question, else omit" }`;
 
 /** How brains learn (Learning How to Learn), applied to skill roadmaps. */
 const LEARNING_RULES = [

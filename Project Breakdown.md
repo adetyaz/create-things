@@ -408,6 +408,11 @@ A roadmap works like navigation: it always answers "what now?", including when s
 - Reviews due appear on Today, **capped at 5 per day** (adjustable)
 - Each card links to its source item, step or journal entry
 - **Knowledge library:** browse everything learned, by item or topic
+- **How it works** (1 Nov 2026):
+  - Roadmap steps now come with a short `recallAnswer` next to their recall question. Finishing a step with a recall question creates a flashcard (question/answer; an "explain it back" card when an older step has no answer)
+  - `GET /api/reviews` returns today's due cards, mixed across items (interleaved), up to the daily cap (default 5). `POST /api/reviews/[id] { rating }` sets the next date: **Got it** moves up the ladder 1 → 3 → 7 → 14 → 30 → 60 days, **Shaky** repeats the same gap, **Forgot** goes back to 1 day. Free
+  - **Quizzes:** finishing a milestone of a learning goal returns `quizReady`. `POST /api/items/[id]/quiz { milestone? }` makes 5–8 multiple-choice questions (including "which comes next") from that milestone's steps and recall questions, with a couple from earlier milestones mixed in; each has its explanation, so answers are explained right away. 2 credits. `POST /api/items/[id]/quiz/result { wrong[] }` turns wrong answers into flashcards and saves one `review_weakness` memory (`remember`) naming the topics
+  - `GET /api/cards` is the knowledge library: every card, grouped by item
 
 ### 10. The Pet
 
@@ -1128,6 +1133,9 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/items/[id]/finish`           | POST { note? }: mark done, remember what it built, and return the next-thing suggestion |
 | `/api/items/[id]/next`             | GET: what to do next after this item and what carries over (1 credit) |
 | `/api/items/[id]/tasters`          | POST { choice: keep / park / let_go, intent?, until?, note? } after the taster sessions |
+| `/api/reviews`                     | GET today's due cards (interleaved, capped); `POST /api/reviews/[id] { rating: got_it / shaky / forgot }` |
+| `/api/items/[id]/quiz`             | POST: a practice quiz for a milestone (2 credits); `/quiz/result` POST { wrong[] } → flashcards + a review_weakness memory |
+| `/api/cards`                       | GET the knowledge library, grouped by item |
 | `/api/courses`                     | POST a syllabus (PDF or up to 10 photos, base64) → a course item with its units in order |
 | `/api/items/[id]/understanding`    | GET the confirm card (intent, kind of practice, goal, date, and the choices); PUT to confirm or change it |
 | `/api/items/[id]/roadmap` (PATCH)   | Choose or write the goal: re-plans toward it (a fresh roadmap if nothing is done yet, else the milestones ahead) |

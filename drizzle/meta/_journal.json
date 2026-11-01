@@ -92,6 +92,13 @@
       "when": 1793482760396,
       "tag": "0012_memory_namespaces",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793553162644,
+      "tag": "0013_cards_and_quizzes",
+      "breakpoints": true
     }
   ]
 }

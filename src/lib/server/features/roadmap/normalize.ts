@@ -7,6 +7,7 @@ export interface PlannedStep {
 	searchTerms: string[];
 	tools: string[];
 	recall: string | null;
+	recallAnswer: string | null;
 	/** 'proof' for a proving ground at the end of a milestone. */
 	kind: 'step' | 'proof';
 }
@@ -86,6 +87,7 @@ function step(value: unknown, kind: PlannedStep['kind']): PlannedStep {
 		searchTerms: list(s.searchTerms).map(text).filter(Boolean).slice(0, 4),
 		tools: list(s.tools).map(text).filter(Boolean).slice(0, 4),
 		recall: text(s.recall) || null,
+		recallAnswer: text(s.recallAnswer).slice(0, 400) || null,
 		kind
 	};
 }

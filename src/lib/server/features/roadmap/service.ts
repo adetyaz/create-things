@@ -8,6 +8,8 @@ import { items, projects, roadmaps, roadmapSteps } from '$lib/server/db/schema';
 import { enqueue, type EnqueueResult } from '$lib/server/jobs';
 import { milestonesAhead } from './job';
 import { isTasters } from './prompt';
+import { intentOf } from '$lib/server/features/intents/registry';
+import { cardFromStep } from '$lib/server/features/cards/service';
 
 type Platform = App.Platform | undefined;
 type Step = typeof roadmapSteps.$inferSelect;
@@ -131,6 +133,8 @@ export type CompleteResult =
 			decide: TasterDecision | null;
 			/** The roadmap is complete: offer to finish the item (POST /api/items/[id]/finish). */
 			readyToFinish: boolean;
+			/** A learning goal's milestone just finished: offer a practice quiz (POST /api/items/[id]/quiz). */
+			quizReady: boolean;
 	  }
 	| { status: 'not_found' };
 
@@ -197,18 +201,28 @@ export async function completeStep(
 						}
 					: null;
 			const readyToFinish = !wasDone && progress === 'complete' && !isTasters(found.intent);
+			const quizReady =
+				!wasDone && milestoneDone && intentOf(found.intent).learning && !isTasters(found.intent);
 			return {
 				itemId: found.itemId,
 				view: view(roadmap, steps),
 				milestoneDone,
 				replan,
 				decide,
-				readyToFinish
+				readyToFinish,
+				quizReady,
+				newlyDone: wasDone ? null : found.step
 			};
 		})
 	);
 	if (!result) return { status: 'not_found' };
 
+	// Its recall question becomes a flashcard, due tomorrow.
+	if (result.newlyDone) {
+		await cardFromStep(platform, userId, result.itemId, result.newlyDone).catch((e) =>
+			console.error('[roadmap] flashcard failed', e)
+		);
+	}
 	if (result.replan) {
 		await enqueue(platform, 'roadmap', { itemId: result.itemId, mode: 'replan' }).catch((e) =>
 			console.error('[roadmap] replan enqueue failed', e)
@@ -220,7 +234,8 @@ export async function completeStep(
 		milestoneDone: result.milestoneDone,
 		replanning: result.replan,
 		decide: result.decide,
-		readyToFinish: result.readyToFinish
+		readyToFinish: result.readyToFinish,
+		quizReady: result.quizReady
 	};
 }
 
