@@ -35,13 +35,22 @@
 
 ## Next — Sources and the extension (before the UI; decided 2 Nov 2026)
 
-> Are.na was a founding request; the extension is the main way to capture. Details: [Project Breakdown.md](Project%20Breakdown.md) §1, §2, §2b.
+> Are.na was a founding request; the extension is the main way to capture. Details: [Project Breakdown.md](Project%20Breakdown.md) §1, §2, §2b, §2c.
 
-- [ ] E1. Port the extension to v2: capture links and notes to `/api/items`; device connection token until sign-in; save as do this / keep as reference; "I want to…" quick add; remove Notion and publishing copy (US-006)
-- [ ] E2. Screenshots and uploads from the extension: analysed once with the vision model; stored when R2 exists (#6)
-- [ ] E3. "Save to createthings" button on X posts (US-104)
-- [ ] E4. Badge: reviews due now; pet mood once the pet exists (US-058)
-- [ ] S1. References: `reference` item status, triage choice, references shown on goals and steps (US-100)
+- [x] E1. Port the extension to v2: capture links and notes to `/api/items`; device connection token until sign-in; save as do this / keep as reference; "I want to…" quick add; remove Notion and publishing copy (US-006)
+- [x] E2. Screenshots and uploads from the extension: analysed once with the vision model; stored when R2 exists (#6)
+- [x] E3. "Save to createthings" button on X posts (US-104)
+- [x] E4. Badge: reviews due now; pet mood once the pet exists (US-058)
+- [ ] E5. Right-click: save link / image / selected text / page, each with "keep as reference" (US-105)
+- [ ] E6. Shortcuts: Alt+Shift+S saves the page, Alt+Shift+A picks an area (US-106)
+- [ ] E7. On-page toast after every save: "Keep as reference instead · Undo"; `DELETE /api/items/[id]` (hides its memories) and a switch to reference (US-107)
+- [ ] E8. Site saver registry; X moved onto it; Pinterest, Are.na, YouTube (timestamp), Instagram, Dribbble / Behance, Reddit, GitHub, article reader text (US-108)
+- [ ] E9. Offline waiting list in the extension; out-of-credits and revoked-token messages (US-109)
+- [ ] E10. Popup shows today's #1; "fits your goal" offer after a save (US-107 AC-03)
+- [ ] C1. Calendar: ICS link → busy times; day and week plans skip them (US-111)
+- [ ] C2. Calendar: private ICS feed of your blocks (US-111)
+- [ ] C3. Settings → Connections endpoint: accounts, last sync, extension devices with last used (US-110; the screen comes with the UI)
+- [~] S1. References: `reference` item status, triage choice, references shown on goals and steps (US-100)
 - [ ] S2. Source adapters registry + `source_connections` + `collections` / `collection_items`; Are.na tables moved onto them (was 73b)
 - [ ] S3. Are.na connect with OAuth (PKCE, read; write only with write-back) and channel list (was 71, 72; US-008)
 - [ ] S4. Are.na import per channel mode (do / curated / references) through a queue within rate limits (was 72)
