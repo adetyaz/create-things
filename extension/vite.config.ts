@@ -5,6 +5,9 @@ import tailwindcss from '@tailwindcss/vite';
 import fs from 'fs';
 
 export default defineConfig({
+	// Build relative to extension/, whichever folder the command runs from (npm run build:ext runs it
+	// from the project root).
+	root: __dirname,
 	plugins: [
 		tailwindcss(),
 		svelte(),
@@ -47,7 +50,8 @@ export default defineConfig({
 			input: {
 				'popup/index': resolve(__dirname, 'src/popup/index.html'),
 				'service-worker': resolve(__dirname, 'src/background/service-worker.ts'),
-				screenshot: resolve(__dirname, 'src/content/screenshot.ts')
+				screenshot: resolve(__dirname, 'src/content/screenshot.ts'),
+				'x-save': resolve(__dirname, 'src/content/x-save.ts')
 			},
 			output: {
 				entryFileNames: '[name].js',

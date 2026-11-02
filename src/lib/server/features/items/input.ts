@@ -10,8 +10,15 @@ const palette = z.object({
 
 const common = {
 	title: z.string().trim().min(1).max(200).optional(),
-	palette: palette.optional()
+	palette: palette.optional(),
+	/** Keep as a reference (a collection, never a task) instead of something to do. */
+	asReference: z.boolean().optional(),
+	/** A short note added to any capture ("for the contact page"). */
+	note: z.string().trim().max(10_000).optional()
 };
+
+/** About 6 MB of image as base64. */
+const MAX_IMAGE_BASE64 = 8_000_000;
 
 const httpUrl = z.url().refine((value) => /^https?:\/\//i.test(value), 'must be an http(s) URL');
 
@@ -20,12 +27,20 @@ export const captureInput = z.discriminatedUnion('captureType', [
 	z.object({ captureType: z.literal('url'), sourceUrl: httpUrl, ...common }),
 	z.object({
 		captureType: z.literal('note'),
-		note: z.string().trim().min(1).max(10_000),
+		...common,
+		note: z.string().trim().min(1).max(10_000)
+	}),
+	/** A screenshot from the extension: analysed once; stored when file storage (R2) exists. */
+	z.object({
+		captureType: z.literal('screenshot'),
+		image: z.string().min(1).max(MAX_IMAGE_BASE64),
+		mime: z.enum(['image/png', 'image/jpeg', 'image/webp']),
+		sourceUrl: httpUrl.optional(),
 		...common
 	})
 ]);
 
 export type CaptureInput = z.infer<typeof captureInput>;
 
-/** Capture types that exist but need storage that isn't set up yet. */
-export const IMAGE_CAPTURE_TYPES = ['screenshot', 'upload'] as const;
+/** Capture types that still need file storage (R2): uploads. */
+export const IMAGE_CAPTURE_TYPES = ['upload'] as const;

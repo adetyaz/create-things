@@ -4,7 +4,7 @@
  */
 import { and, eq } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
-import { analyses, items } from '$lib/server/db/schema';
+import { analyses, items, pendingImages } from '$lib/server/db/schema';
 import { scrapeMetadata, type UrlMetadata } from '$lib/server/integrations/scraper/metadata';
 import {
 	fetchImage,
@@ -66,9 +66,14 @@ async function analyze(
 		db.select().from(items).where(eq(items.id, job.itemId))
 	);
 	if (!item) return { status: 'skipped', itemId: job.itemId, reason: 'item not found' };
-	if (item.status !== 'inbox') {
+	// New captures are Inbox; references are analysed too (their palette and type matter), once.
+	if (item.status !== 'inbox' && item.status !== 'reference') {
 		return { status: 'skipped', itemId: item.id, reason: `already ${item.status}` };
 	}
+	const [done] = await withDb(platform, (db) =>
+		db.select({ id: analyses.id }).from(analyses).where(eq(analyses.itemId, item.id)).limit(1)
+	);
+	if (done) return { status: 'skipped', itemId: item.id, reason: 'already analysed' };
 
 	// 1. Page metadata (links only). Failure is fine: the model works from what it has.
 	let meta: UrlMetadata | null = null;
@@ -77,12 +82,10 @@ async function analyze(
 	}
 
 	// 2. One image download serves both the palette and the vision model.
-	let image: FetchedImage | null = null;
+	let image: FetchedImage | null = await pendingImage(platform, item.id);
 	let palette = job.palette ?? null;
-	if (meta?.image) {
-		image = await fetchImage(meta.image).catch(() => null);
-		if (image && !palette) palette = paletteFromImageBytes(image.bytes);
-	}
+	if (!image && meta?.image) image = await fetchImage(meta.image).catch(() => null);
+	if (image && !palette) palette = paletteFromImageBytes(image.bytes);
 
 	// 3. Pay for the AI call from today's free quota or bought credits.
 	let charge: Reservation;
@@ -144,7 +147,8 @@ async function breakdownAndSave(
 			const updated = await tx
 				.update(items)
 				.set({
-					status: 'ready',
+					// References stay references; new captures become Ready.
+					status: item.status === 'reference' ? 'reference' : 'ready',
 					title,
 					author: item.author ?? (meta?.author || null),
 					size: analysis.size,
@@ -156,11 +160,13 @@ async function breakdownAndSave(
 					analysisError: null,
 					lastActiveAt: new Date()
 				})
-				// Only from inbox, so a duplicate delivery can't analyse an item twice.
-				.where(and(eq(items.id, item.id), eq(items.status, 'inbox')))
+				// Only from its current status, so a duplicate delivery can't analyse an item twice.
+				.where(and(eq(items.id, item.id), eq(items.status, item.status)))
 				.returning({ id: items.id });
 			if (updated.length === 0) return false;
 
+			// The screenshot has done its job (until R2 stores images for good).
+			await tx.delete(pendingImages).where(eq(pendingImages.itemId, item.id));
 			await tx.insert(analyses).values({
 				itemId: item.id,
 				summary: analysis.summary,
@@ -190,13 +196,17 @@ async function breakdownAndSave(
 		return { status: 'skipped', itemId: item.id, reason: 'already analysed' };
 	}
 
-	// The pet remembers what you want to make or learn. A failed save never undoes the analysis.
-	await remember(platform, item.userId, {
-		type: intentOf(analysis.intent).memoryType,
-		summary: goalSummary(title, analysis),
-		sourceType: 'item',
-		sourceId: item.id
-	}).catch((e) => console.error('[analysis] remember failed for', item.id, e));
+	// The pet remembers what you want to make or learn (a reference isn't a goal, so it's skipped;
+	// what references say about your taste goes into the weekly "drawn to" memory instead).
+	// A failed save never undoes the analysis.
+	if (item.status !== 'reference') {
+		await remember(platform, item.userId, {
+			type: intentOf(analysis.intent).memoryType,
+			summary: goalSummary(title, analysis),
+			sourceType: 'item',
+			sourceId: item.id
+		}).catch((e) => console.error('[analysis] remember failed for', item.id, e));
+	}
 
 	return { status: 'done', itemId: item.id, model: result.model, skipped: result.skipped };
 }
@@ -213,4 +223,17 @@ function goalSummary(title: string, analysis: AnalysisData): string {
 		? ` Skills: ${analysis.skills.slice(0, 4).join(', ')}.`
 		: '';
 	return `${kind}: ${title}${detail ? ` (${detail})` : ''}. ${analysis.summary}${goal}${skills}`;
+}
+
+/** A screenshot sent with the capture, waiting in Postgres until file storage exists. */
+async function pendingImage(
+	platform: App.Platform | undefined,
+	itemId: string
+): Promise<FetchedImage | null> {
+	const [row] = await withDb(platform, (db) =>
+		db.select().from(pendingImages).where(eq(pendingImages.itemId, itemId))
+	);
+	return row
+		? { mime: row.mime, bytes: Uint8Array.from(atob(row.data), (c) => c.charCodeAt(0)) }
+		: null;
 }

@@ -8,7 +8,7 @@ export const DEV_USER_ID = 'dev-user';
  * The signed-in user's id. Every route gets the user from here, so adding Better Auth later
  * changes this one function: read the session from `event`, throw 401 when there is none.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function currentUserId(event: RequestEvent): string {
-	return optionalEnv('DEV_USER_ID') ?? DEV_USER_ID;
+	// A device connection token (the extension) names the user; otherwise the dev user.
+	return event.locals.userId ?? optionalEnv('DEV_USER_ID') ?? DEV_USER_ID;
 }

@@ -4,11 +4,11 @@ import { currentUserId } from '$lib/server/platform/user';
 import { captureInput, IMAGE_CAPTURE_TYPES } from '$lib/server/features/items/input';
 import { captureItem, listItems } from '$lib/server/features/items/service';
 
-/** POST /api/items: save a capture (Status: Inbox) and queue its analysis. */
+/** POST /api/items: save a capture (Inbox, or Reference) and queue its analysis. */
 export const POST: RequestHandler = async (event) => {
 	const body = await event.request.json().catch(() => error(400, 'Send a JSON body'));
 	if ((IMAGE_CAPTURE_TYPES as readonly string[]).includes(body?.captureType)) {
-		error(501, 'Image captures need R2 storage, which is not set up yet');
+		error(501, 'Uploads need R2 storage, which is not set up yet (screenshots work)');
 	}
 	const input = validate(captureInput, body);
 	return json(await captureItem(event.platform, currentUserId(event), input), { status: 201 });

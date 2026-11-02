@@ -1,7 +1,7 @@
 /** Items: capture, list, read and retry. Routes call these; other features reuse them. */
 import { and, desc, eq } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
-import { analyses, items } from '$lib/server/db/schema';
+import { analyses, items, pendingImages } from '$lib/server/db/schema';
 import { enqueue, type EnqueueResult } from '$lib/server/jobs';
 import type { CaptureInput } from './input';
 
@@ -9,29 +9,39 @@ type Platform = App.Platform | undefined;
 export type Item = typeof items.$inferSelect;
 export type Analysis = typeof analyses.$inferSelect;
 
-/** Saves a capture (Status: Inbox) and queues its analysis. */
+/** Saves a capture (Inbox, or Reference) and queues its analysis. */
 export async function captureItem(
 	platform: Platform,
 	userId: string,
 	input: CaptureInput
 ): Promise<{ item: Item; analysis: EnqueueResult }> {
-	const sourceUrl = input.captureType === 'url' ? input.sourceUrl : null;
-	const note = input.captureType === 'note' ? input.note : null;
+	const sourceUrl = input.captureType === 'note' ? null : (input.sourceUrl ?? null);
+	const note = input.note ?? null;
 	const host = sourceUrl ? new URL(sourceUrl).hostname : null;
 
-	const [item] = await withDb(platform, (db) =>
-		db
-			.insert(items)
-			.values({
-				userId,
-				title: input.title ?? host ?? note!.slice(0, 60),
-				titleFromUser: !!input.title,
-				captureType: input.captureType,
-				sourceUrl,
-				note,
-				platform: host?.replace(/^www\./, '') ?? null
-			})
-			.returning()
+	const item = await withDb(platform, (db) =>
+		db.transaction(async (tx) => {
+			const [item] = await tx
+				.insert(items)
+				.values({
+					userId,
+					title: input.title ?? host ?? note?.slice(0, 60) ?? 'Screenshot',
+					titleFromUser: !!input.title,
+					captureType: input.captureType,
+					status: input.asReference ? 'reference' : 'inbox',
+					sourceUrl,
+					note,
+					platform: host?.replace(/^www\./, '') ?? null
+				})
+				.returning();
+			// Until file storage exists, a screenshot waits here for its analysis, then is deleted.
+			if (input.captureType === 'screenshot') {
+				await tx
+					.insert(pendingImages)
+					.values({ itemId: item.id, mime: input.mime, data: input.image });
+			}
+			return item;
+		})
 	);
 
 	const analysis = await enqueue(platform, 'analysis', {

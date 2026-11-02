@@ -74,3 +74,17 @@ export const analyses = pgTable('analyses', {
 	model: text('model'),
 	createdAt: createdAt()
 });
+
+/**
+ * A screenshot or upload waiting to be analysed, until file storage (R2) exists: kept just long
+ * enough for the analysis job to read it, then deleted.
+ */
+export const pendingImages = pgTable('pending_images', {
+	itemId: uuid('item_id')
+		.primaryKey()
+		.references(() => items.id, { onDelete: 'cascade' }),
+	mime: text('mime').notNull(),
+	/** Base64 bytes. */
+	data: text('data').notNull(),
+	createdAt: createdAt()
+});
