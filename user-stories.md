@@ -86,6 +86,13 @@
 | US-102 | Have the pet notice what I'm drawn to  | Next  | `[ ]`  |
 | US-103 | Share what I made back to Are.na       | Next  | `[ ]`  |
 | US-104 | Save X posts in one click              | Next  | `[ ]`  |
+| US-105 | Save a link, image or text by right-click | Next  | `[ ]`  |
+| US-106 | Save with a shortcut, no popup         | Next  | `[ ]`  |
+| US-107 | Undo or switch a save from the page    | Next  | `[ ]`  |
+| US-108 | Save from the sites I use              | Next  | `[ ]`  |
+| US-109 | Keep saving when I'm offline           | Next  | `[ ]`  |
+| US-110 | See and manage my connections          | Next  | `[ ]`  |
+| US-111 | Plan around my calendar                | Next  | `[ ]`  |
 
 ### US-006 — Capture from the browser extension
 
@@ -191,6 +198,63 @@
 - AC-01 A "Save to createthings" button on posts on x.com (extension) and the phone share sheet
 - AC-02 Saves the post's link and text, as do this or keep as reference
 - AC-03 Later: import existing bookmarks and folders through the official X API, if its pricing allows
+
+### US-105 — Save a link, image or text by right-click
+
+> As someone reading the web, I want to right-click a link, an image or some text and save it so that I keep the exact thing, not the whole page.
+
+- AC-01 Right-click a link saves that link; an image saves the image (analysed with the vision model); selected text saves as a note with the page as its source; the page itself saves the page
+- AC-02 Each menu has "Save" and "Keep as reference"
+- AC-03 Shows the on-page toast (US-107)
+
+### US-106 — Save with a shortcut, no popup
+
+> As someone in the middle of something, I want a key press to save the page so that I never leave what I'm doing.
+
+- AC-01 Alt+Shift+S saves the page; Alt+Shift+A starts picking an area
+- AC-02 The shortcuts can be changed in the browser's shortcut settings
+- AC-03 Shows the on-page toast (US-107)
+
+### US-107 — Undo or switch a save from the page
+
+> As someone who saves quickly, I want to undo a save or keep it as a reference right from the page so that a wrong click costs nothing.
+
+- AC-01 After any save, a toast for 6 seconds: "Saved. Keep as reference instead · Undo"
+- AC-02 Undo removes the item and hides any memory it made; switching makes it a reference
+- AC-03 If the item fits a goal, the pet says so afterwards and offers to add it (fit-it-in)
+
+### US-108 — Save from the sites I use
+
+> As someone who saves from Pinterest, YouTube and others, I want a Save button right on the post so that saving takes one click wherever I am.
+
+- AC-01 Site savers for X, Pinterest, Are.na, YouTube (with the time I'm at), Instagram, Dribbble, Behance, Reddit, GitHub; articles save their reader-mode text
+- AC-02 Each site is one file in a registry; adding a site needs no other change
+- AC-03 Alt-click keeps as reference; nothing is read until I click
+
+### US-109 — Keep saving when I'm offline
+
+> As someone on a patchy connection, I want my saves kept until I'm back online so that nothing gets lost.
+
+- AC-01 If the app can't be reached, the save waits in the extension and the toast says so
+- AC-02 Waiting saves send on their own when the app is reachable, oldest first
+- AC-03 Out of credits: the save happens, analysis waits; a revoked token sends me back to Connect without losing waiting saves
+
+### US-110 — See and manage my connections
+
+> As someone with several accounts, I want one place to see what's connected so that I know what flows in and can stop it.
+
+- AC-01 Settings → Connections lists accounts (Are.na, Pinterest, X, calendar, wallet), places I save from, and extension devices
+- AC-02 Each account shows connected or not, last sync and what it brings in; Connect / Disconnect
+- AC-03 Extension devices: create a token, see when each was last used, revoke
+- AC-04 Disconnecting stops new imports; what came in stays
+
+### US-111 — Plan around my calendar
+
+> As someone with classes and meetings, I want my plans to know when I'm busy so that blocks never land on a meeting.
+
+- AC-01 Paste an ICS link from any calendar; only busy times are kept, never titles
+- AC-02 Daily and weekly plans skip busy times; refreshed at most hourly
+- AC-03 A private ICS link of my blocks to add to my calendar; moving a block moves it there
 
 ### US-095 — Connect Pinterest boards
 

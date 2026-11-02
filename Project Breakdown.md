@@ -119,14 +119,49 @@ Every feature is judged by these:
 
 ### 1. Capture
 
-**Browser extension** (v1 build exists; being ported to v2, decided 2 Nov 2026)
+**Browser extension** (ported to v2 on 2 Nov 2026: connect, save page, screenshot, pick area, "I want to…", keep as reference, X button, badge)
 
-- Screenshot (full page or selected area), current page URL, pasted URL, image upload, note
-- Optional quick note on every capture; **"I want to…"** quick add
-- **Save as:** do this (default) or keep as reference (§2b)
-- **"Save to createthings" on X posts:** a small button on every post on x.com, saving the post's link and text (X bookmarks, step one)
-- Badge shows the pet's mood and how many reviews are due; clicking it opens the app
-- **Port to v2:** the v1 popup saves to Notion and talks about publishing; v2 posts to `/api/items`. Until sign-in exists, the extension uses a per-device connection token from the app's settings. Screenshots and uploads are analysed once (the image goes to the vision model) and stored when file storage (R2) exists; links and notes work fully today
+*Ways to save* (every one asks the same question: do this, or keep as reference):
+
+| Way | What it saves | Status |
+| --- | --- | --- |
+| Popup | The page, a screenshot, a picked area, or "I want to…" | Built |
+| Right-click a link | That link (not the page you're on) | Next (E5) |
+| Right-click an image | The image, analysed with the vision model | Next (E5) |
+| Right-click selected text | The text as a note, with the page as its source | Next (E5) |
+| Right-click the page | The page | Next (E5) |
+| Shortcut **Alt+Shift+S** | The page, no popup; **Alt+Shift+A** picks an area | Next (E6) |
+| Site savers | A small Save button on posts and pins on sites people save from (below) | X built; more next (E8) |
+
+*After every save, a small toast on the page* (bottom corner, 6 seconds): **"Saved. Keep as reference instead · Undo"**. Undo removes the item (and hides any memory it made); the switch turns it into a reference. If the item fits a goal, the toast later says so ("Fits your riso goal. Add it?"), using fit-it-in. Free: no AI call beyond the analysis the save already pays for.
+
+*Site savers* are a registry like the intents: each site is one small file (where its posts are, how to read the link, the text and the image). Adding a site is adding a file.
+
+| Site | What it saves | Status |
+| --- | --- | --- |
+| X | Post link + text | Built |
+| Pinterest | Pin image + its link + board name | Next |
+| Are.na | Block (until the account is connected; then sync does it) | Next |
+| YouTube | Video link + the time you're at ("watch from 4:12") | Next |
+| Instagram | Post link + caption (images need the post open) | Next |
+| Dribbble / Behance | Shot image + link + designer | Next |
+| Reddit | Post link + title + text | Next |
+| GitHub | Repo link + description (a "try" or "learn" item) | Next |
+| Articles (any page) | Reader-mode text, so analysis reads the article, not the menus | Next |
+
+*The flow:*
+
+1. **First time:** install → the popup says "Connect to createthings" → the app's Settings → Connections shows a one-time token → paste it → connected (after sign-in exists: one "Sign in with createthings" button instead)
+2. **Saving:** any way above → toast → the item appears in the inbox (or references) and is analysed
+3. **Popup, once connected:** today's #1 at the top ("Next: 25 min on the zine layout"), then the save buttons; a link to open the app
+4. **Badge:** how many reviews are due now; the pet's mood once the pet exists
+5. **When things go wrong:**
+   - *Offline or the app is down:* saves wait in the extension and send when it's back (the toast says "Saved on this device; sends when you're online")
+   - *Out of credits:* the save still happens; analysis waits until the free quota returns (the toast says so)
+   - *Token revoked or wrong:* the popup goes back to Connect; nothing is lost from the waiting list
+   - *Pages it can't read* (browser pages, the store): Save page is greyed out; a screenshot still works
+
+Privacy: the extension reads only what you click. Site savers add a button; nothing is collected in the background.
 
 **PWA capture**
 
@@ -173,6 +208,40 @@ A collection is a group of things that mean something together: an Are.na channe
 5. **Keep it growing:** when a sync brings in new items, the pet notices ("3 new pins fit your zine idea")
 
 Accepted ideas are saved as `expansion` memories. Finding the thread and sparking ideas use the free quota, then credits.
+
+### 2c. Connections: what plugs into createthings
+
+Everything is one of three kinds, all in **Settings → Connections**:
+
+**1. Accounts you connect** (sign in once; createthings pulls from them on its own)
+
+| Account | How it connects | What comes in | What goes out | Status |
+| --- | --- | --- | --- | --- |
+| Are.na | OAuth (PKCE) | Channels → items, references, collections; daily sync | A "made with createthings" block, opt-in | Next (S2–S8) |
+| Pinterest | Our own library or MCP | Boards → collections; daily sync | Nothing | Later (S9) |
+| X bookmarks | Official X API, if pricing allows | Bookmarks and folders | Nothing | Check first (S10) |
+| Calendar | ICS link (any calendar), Google Calendar later | Busy times, so plans go around them | Your blocks as a calendar feed | Next (C1–C2) |
+| Sui wallet | zkLogin or your own wallet | Payments, receipts | USDC payments | Hackathon (H12–H13) |
+
+**2. Places you save from** (no account; you send things in)
+
+| Place | How |
+| --- | --- |
+| Browser extension | Popup, right-click, shortcut, site savers (§1) |
+| Phone | Share sheet into the PWA (Phase 8) |
+| In the app | Quick add, voice ramble, course import (PDF, photos, text) |
+
+**3. Behind the scenes** (users never connect these; they power the app)
+
+Walrus Memory (the pet's memory), Tatum (receipts and Sui calls), Workers AI and Gemini (AI), Neon (data), Cloudflare (hosting, queues, cron).
+
+**The connections screen:** one row per account with its state (connected, last sync, what it brings in), a Connect / Disconnect button, and, for the extension, the device tokens (create, see where each was last used, revoke). Disconnecting stops new imports; what already came in stays.
+
+**The calendar gap** (found 2 Nov 2026): plans today only know the blocks you give them; they can't see your real busy times, so a block can land on a meeting.
+
+- **C1. Read busy times:** paste an ICS link (Google, Apple, Outlook all give one). The daily and weekly plans skip times that are busy; a class from a course is busy too. Read only, refreshed when the plan is read (at most hourly); only start, end and "busy" are kept, never titles
+- **C2. Your blocks as a calendar:** a private ICS link of your planned blocks, so they show up in the calendar you already use. Moving a block in createthings moves it there
+- **Later:** Google Calendar OAuth for two-way changes, if people ask
 
 ### 3. Analyze (exists, changed)
 
@@ -774,11 +843,13 @@ Open PWA or extension
 ### Flow 2: Capture
 
 ```
-Extension / share sheet / quick add
-  → Item saved (Status: Inbox) → analysis job queued
-  → Worker: metadata + colors + vision/text model via AI Gateway
-  → Analysis saved, size + difficulty set, Status: Ready
-  → Pet sniffs the new card next time you open the app
+Extension (popup / right-click / Alt+Shift+S / site saver) / share sheet / quick add
+  → Item saved (Inbox, or Reference) → analysis job queued
+  → Toast on the page: "Saved. Keep as reference instead · Undo"
+  → Worker: metadata + colors + vision/text model
+  → Analysis saved, size + difficulty set, Status: Ready (references stay references)
+  → If it fits a goal: "Fits your riso goal. Add it?"
+  → Offline: the save waits in the extension and sends when back online
 ```
 
 ### Flow 3: Are.na import
