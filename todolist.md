@@ -24,7 +24,7 @@
 - [x] H8. Next-thing suggestions that carry knowledge forward (US-075) (verified live 1 Nov: after Beginner Guitar it suggested jazz piano chords with what carries over; finishing the walrus-memory project remembered its skills and suggested the portfolio site; duplicate titles are skipped; `POST /api/items/[id]/finish`, `GET /api/items/[id]/next`)
 - [x] H9. "What your pet knows": list, delete, forget all (US-076) (31 Oct: Walrus can't erase memories, the SDK has no delete. Delete one leaves its facts out of recall (blob ids from its job ids, nothing re-sent); forget all moves to a fresh namespace; the app says the encrypted copy expires on its own. See Breakdown §13) (verified live 31 Oct: 86 memories listed in 4 groups; deleting one hid its fact from recall with one bulk lookup and showed the honest note. "Forget everything" built but not run live, by choice: it wipes what the pet uses)
 - [x] H10. Tatum client (server-only): Sui RPC + Data API (30 Oct: `src/lib/server/tatum`, gRPC over fetch; mainnet + testnet + SUI/USD pass under `wrangler dev`)
-- [ ] H11. Memory receipts read from Sui through Tatum (US-076)
+- [x] H11. Memory receipts read from Sui through Tatum (US-076) (verified live 2 Nov: the MemWalAccount object on Sui mainnet read through Tatum's gRPC gateway, with its last change and Suiscan links; cached 10 minutes; the latest memory's Walrus blob id shown with a Walruscan link; `GET /api/memories/receipts`)
 - [ ] H12. Per-request Pro payment with `@suimpp/mpp`, confirmed via Tatum (US-077). Needs Phase 10 item 79 (Plus/Pro tiers) first
 - [ ] H13. Credit packs in USDC/SUI with the Tatum exchange rate (US-078) (31 Oct: options researched, Breakdown §14 "Gasless USDC and getting money in": protocol gasless USDC, Enoki sponsorship + zkLogin, on-ramps. Confirm gasless on mainnet and whether MPP qualifies)
 - [x] H14. Check whether Tatum Notifications cover Sui: they don't (30 Oct); payments are confirmed through Tatum's Sui gRPC endpoint instead
@@ -150,6 +150,7 @@
 - [ ] 73c. Suggested collections: saves grouped by meaning (Walrus `embed`), kept in one tap (US-093)
 - [ ] 73d. Build from a collection: thread, ideas, make one, learn what's behind it, keep growing; `expansion` memories (US-094)
 - [ ] 73e. Pinterest adapter on the library or MCP built for createthings (US-095)
+- [ ] 73f. X bookmarks: "Save to createthings" on any post (extension + share sheet); then check X API pricing for a full bookmarks + folders import as a source adapter
 - [ ] 74. Notion scheduled export (US-024)
 - [ ] 75. Obsidian zip download (US-025)
 
@@ -176,6 +177,7 @@
 
 - [ ] Recurring plan shape: tend something over time (US-096) and build a habit (US-097)
 - [ ] More intents, kinds and sources from the possible-later lists (Breakdown §3b), one registry entry each
+- [ ] Showcase: shareable pet card, opt-in pet park, earned vs limited accessories, community goals, accountability pairs (Breakdown §10 "Showcase")
 - [ ] Bears (first species drop)
 - [ ] Desktop app (Tauri or Electron)
 - [ ] General notes

@@ -216,6 +216,7 @@ Possible later kinds: maths and logic, sport, care work. Each is a registry entr
 | Brain dump at onboarding | Several things | Phase 2 |
 | Are.na channel | Collection | Phase 9 |
 | Pinterest board (through a library or MCP built for createthings) | Collection | Phase 9 |
+| X (Twitter) bookmarks: a "Save to createthings" button on any post (extension) and the phone share sheet first; full import of bookmarks and folders through the official X API if its pricing allows (folders become collections). Not reading the bookmarks page by script (against X's rules) | One thing, then collections | Save button soon; import Phase 9 |
 | A collection made in the app (§2b) | Collection | Phase 9 |
 
 Possible later sources: YouTube or Spotify playlists, browser bookmark folders, Notion pages, GitHub repos, Kindle or Readwise highlights, podcast episodes, Instagram or TikTok saves, newsletters, photos of handwritten notes.
@@ -518,6 +519,19 @@ Hunger is **calculated** from the time since the pet was last fed. There's no ni
 - **Items belong to your account** and work on any pet, except one signature item that stays with a dead pet's memorial
 - **Shared attachment points** (head, face, neck, back, hand) on every species, so one hat fits all. Occasional species-only premium items, such as dragon armor.
 
+#### Showcase: well-fed pets, not a leaderboard (decided 2 Nov 2026)
+
+No ranking of people: show care and personality, never a score (principles 11, 12, 15).
+
+- **Pet card:** a shareable card with the 3D pet, its name, growth stage, a care line ("Well fed for 42 days"), its signature accessory and, if the user wants, their year's "who I'm becoming". Share to X and Instagram
+- **Pet park** (opt-in): other people's pets wander in a shared space in no order; tap one to see its card; wave or toss a toy (cosmetic only, never feeds or helps)
+- **Earned vs limited accessories:** earned items are badges of real behaviour ("never missed twice for 30 days" → a scarf) and **can't be bought**; limited editions are seasonal drops bought with credits and numbered ("#132 of 500"). Effort is the prestige
+- **Community goals:** cooperative milestones ("everyone's pets ate 10,000 meals this week → a winter hat for every pet")
+- **Accountability pairs:** optionally share your pet's mood (never goals or memories) with a friend who can nudge you
+- **Guardrails:** everything opt-in; only the pet and chosen fields are public; pet names moderated; a neglected pet is never shown publicly
+- **Option:** limited editions as account-bound (non-tradeable) items on Sui, proving the edition number, with the receipt read through Tatum; crypto details stay behind "details"
+- **When:** after the pet (Phases 4 and 6); the pet card first
+
 #### Micro-interactions
 
 | Moment                          | Pet does                                                        |
@@ -664,6 +678,7 @@ Checked 31 Oct 2026 against the Walrus Memory relayer docs, the `@mysten-incubat
 The chain stays invisible unless you go looking.
 
 - **Memory receipts:** Settings shows your memory's Sui account, how many memories are stored and when they last changed, read through **Tatum's Sui RPC**, with an explorer link
+  - **How it works** (1 Nov 2026): `GET /api/memories/receipts` reads the Walrus Memory account object on Sui mainnet through Tatum's gRPC gateway (its type, owner and version; it's a shared object, so the version jumps and isn't a count), then the transaction that last changed it (digest and time), with Suiscan links. The account isn't changed when a memory is saved: memories are Walrus blobs, so the receipt also shows your latest memory's blob with a Walruscan link (one relayer lookup, no Tatum call). Your count and namespace come from our database. The on-chain part is cached for 10 minutes, so it's 2 Tatum calls at most every 10 minutes (cost rule 8). The account is the app's memory account; your namespace keeps your memories apart
 - **Pay with USDC on Sui:** credit packs and per-request **Plus/Pro** AI calls can be paid with USDC on Sui using **MPP** (`@suimpp/mpp`; no x402 package settles on Sui mainnet). Tatum's Sui gRPC endpoint confirms each payment on-chain before credits are added. Card payments (Breakdown §Monetisation) still come later.
 - **SUI price:** paying with SUI is converted to credits at the live rate from **Tatum's Data API**
 
@@ -1167,6 +1182,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/choose`                      | Help me choose: compare options for a step (web search) |
 | `/api/ideas/fit`                   | Suggest how a new idea fits the current plan    |
 | `/api/voice`                       | Upload a voice ramble → transcript → ideas      |
+| `/api/memories/receipts`           | GET the memory receipt: the Walrus Memory account on Sui read through Tatum (type, owner, version, last change with time), plus how many of your memories reached Walrus |
 | `/api/memories`                    | GET what the pet knows, grouped; `DELETE /api/memories/[id]` removes one (its facts are left out of recall); `POST /api/memories/forget { confirm: true }` forgets all. Receipts from Sui come with H11 |
 | `/api/pay/sui/*`                   | MPP payment, confirmation via Tatum             |
 | Queue consumers                    | analysis, arena-import, notion-export, notify   |
