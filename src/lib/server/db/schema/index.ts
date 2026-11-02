@@ -7,6 +7,7 @@
  */
 export * from './enums';
 export * from './settings';
+export * from './devices';
 export * from './items';
 export * from './plan';
 export * from './knowledge';

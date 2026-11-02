@@ -8,7 +8,8 @@ export const itemStatus = pgEnum('item_status', [
 	'focus',
 	'paused',
 	'done',
-	'archived'
+	'archived',
+	'reference'
 ]);
 export const captureType = pgEnum('capture_type', ['screenshot', 'url', 'upload', 'note', 'voice']);
 export const itemSize = pgEnum('item_size', ['afternoon', 'weekend', 'week', 'month']);

@@ -184,15 +184,14 @@ async function captureSelection() {
 		dataUrl: croppedDataUrl
 	});
 
-	if (saveResponse?.success) {
-		showSavedToast(
-			saveResponse.pageId || '',
-			saveResponse.apiBase || 'https://create-things.vercel.app'
-		);
-	}
+	showSavedToast(
+		saveResponse?.success
+			? 'Saved to createthings'
+			: `Couldn't save: ${saveResponse?.error ?? 'unknown error'}`
+	);
 }
 
-function showSavedToast(pageId: string, apiBase: string) {
+function showSavedToast(message: string) {
 	const toast = document.createElement('div');
 	toast.id = 'ct-saved-toast';
 	Object.assign(toast.style, {
@@ -231,26 +230,7 @@ function showSavedToast(pageId: string, apiBase: string) {
 	});
 
 	const text = document.createElement('span');
-	text.textContent = 'Saved to Notion';
-
-	const viewBtn = document.createElement('button');
-	viewBtn.textContent = 'View';
-	Object.assign(viewBtn.style, {
-		marginLeft: '4px',
-		padding: '5px 14px',
-		background: '#1D9E75',
-		color: '#ffffff',
-		border: 'none',
-		borderRadius: '6px',
-		fontSize: '12px',
-		fontWeight: '600',
-		cursor: 'pointer',
-		flexShrink: '0'
-	});
-	viewBtn.addEventListener('click', () => {
-		window.open(pageId ? `${apiBase}/inspiration/${pageId}` : `${apiBase}/`, '_blank');
-		toast.remove();
-	});
+	text.textContent = message;
 
 	const closeBtn = document.createElement('button');
 	closeBtn.textContent = '×';
@@ -269,7 +249,6 @@ function showSavedToast(pageId: string, apiBase: string) {
 
 	toast.appendChild(icon);
 	toast.appendChild(text);
-	toast.appendChild(viewBtn);
 	toast.appendChild(closeBtn);
 	document.body.appendChild(toast);
 

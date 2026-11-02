@@ -5,7 +5,10 @@ import type { Bindings } from '$lib/server/platform/bindings';
 declare global {
 	namespace App {
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			/** Set from a device connection token (the extension), until sign-in exists. */
+			userId?: string;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		interface Platform {
