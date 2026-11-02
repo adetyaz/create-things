@@ -808,6 +808,8 @@ The chain stays invisible unless you go looking.
 
 ## Monetisation
 
+> Prices, payment fees and the path to $1M: [pricing.md](pricing.md).
+
 ### Free for everyone
 
 - Capture, triage, Focus, Today, roadmaps viewing, journal, reviewing cards, pomodoro, starter sounds, the pet (feeding, the journal check, levels 1–2), body sliders, weather
