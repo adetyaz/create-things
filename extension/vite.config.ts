@@ -51,7 +51,7 @@ export default defineConfig({
 				'popup/index': resolve(__dirname, 'src/popup/index.html'),
 				'service-worker': resolve(__dirname, 'src/background/service-worker.ts'),
 				screenshot: resolve(__dirname, 'src/content/screenshot.ts'),
-				'x-save': resolve(__dirname, 'src/content/x-save.ts')
+				'site-save': resolve(__dirname, 'src/content/site-save.ts')
 			},
 			output: {
 				entryFileNames: '[name].js',

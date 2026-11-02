@@ -243,6 +243,35 @@ Walrus Memory (the pet's memory), Tatum (receipts and Sui calls), Workers AI and
 - **C2. Your blocks as a calendar:** a private ICS link of your planned blocks, so they show up in the calendar you already use. Moving a block in createthings moves it there
 - **Later:** Google Calendar OAuth for two-way changes, if people ask
 
+### 2d. Social accounts: X, Pinterest, Are.na (decided 2 Nov 2026)
+
+What you already do on these sites should land in createthings without extra work, and whole boards, folders and channels come in as collections (§2b). Each site is a source adapter (S2), so more sites can follow the same pattern.
+
+**Your choices, per site** (popup → Settings; later in the app's Connections):
+- **Copy as you go:** off by default; switch it on per site
+- **What copies become:** *ask me each time* (default), *reference*, or *to-do*. Any single save can still be switched afterwards (toast, Recent saves)
+
+| | X | Pinterest | Are.na |
+| --- | --- | --- | --- |
+| **Copy as you go** | Bookmarking a post on X also saves it here | Saving a pin to a board also saves it here, into that board's collection | Daily sync does it (real account connection) |
+| **Bring in what you have** | On your bookmarks page: "Import into createthings" reads them as the page scrolls; each bookmark folder becomes a collection | On a board: "Import this board" → a collection | Connect once, choose channels; they stay in sync (S3–S5) |
+| **How it connects** | The extension reads the page you're on; no X API fees (the paid API stays an option, S10) | The extension now; the Pinterest library or MCP later for background sync (S9) | Are.na OAuth + API |
+
+**The prompt when a copy arrives** (the toast, when "ask me" is on): *"From your X bookmarks: [card]. Do this · Keep as reference · Fit into a goal · Later"*. Do this → Inbox; Keep as reference → references; Fit into a goal → fit-it-in (§5); Later → Inbox, no reminder. With *reference* or *to-do* chosen, the toast just says where it went, with the switch and Undo.
+
+**No duplicates:** every imported thing keeps its site id (post id, pin id, block id); bringing it in again updates it instead of adding a copy.
+
+**Analysis of imports: cost options** (one full analysis = 2 credits, one AI call, more with an image; numbers for 300 bookmarks):
+
+| Option | How | 300 bookmarks |
+| --- | --- | --- |
+| A. Full, all at once | Every item gets the full analysis | ~600 credits, 300 calls |
+| B. Light, in bulk | One AI call reads 10 items from their text (post text, title, alt text): title, intent, kind, skills, one-line summary; no images | ~30 credits, 30 calls |
+| C. When you use it | Nothing until you triage, link to a goal or start an item; then the full analysis | Only what you touch |
+| D. One after another | "Analyse next" / "Analyse 20" at your pace, the cost shown first | You choose |
+
+**Recommended mix:** B on import (the cost shown before it starts: "Import 300 bookmarks: a quick read costs about 30 credits. Go / Skip"), C for the full analysis, D whenever you want to go through them, plus one "what connects these" thread per collection (§2b, 1 call). Single saves keep the full analysis straight away. Walrus: no memory per imported item; one `expansion` memory per import ("brought in 300 X bookmarks: mostly type design and riso"), so the 500-points-an-hour limit is never at risk.
+
 ### 3. Analyze (exists, changed)
 
 Runs automatically after every capture, through a queue.

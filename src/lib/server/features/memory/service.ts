@@ -274,6 +274,30 @@ export async function deletedBlobIds(platform: Platform, userId: string): Promis
 	return new Set(rows.flatMap((r) => r.blobIds ?? []));
 }
 
+/** Deletes every memory made from one thing (an undone save, an item turned into a reference). */
+export async function forgetSource(
+	platform: Platform,
+	userId: string,
+	sourceType: string,
+	sourceId: string
+): Promise<number> {
+	const rows = await withDb(platform, (db) =>
+		db
+			.select({ id: memories.id })
+			.from(memories)
+			.where(
+				and(
+					eq(memories.userId, userId),
+					eq(memories.sourceType, sourceType),
+					eq(memories.sourceId, sourceId),
+					isNull(memories.deletedAt)
+				)
+			)
+	);
+	for (const row of rows) await deleteMemory(platform, userId, row.id);
+	return rows.length;
+}
+
 /** Forgets everything: every memory marked deleted and a fresh, empty namespace. */
 export async function forgetAll(
 	platform: Platform,

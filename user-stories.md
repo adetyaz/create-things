@@ -93,6 +93,10 @@
 | US-109 | Keep saving when I'm offline           | Next  | `[ ]`  |
 | US-110 | See and manage my connections          | Next  | `[ ]`  |
 | US-111 | Plan around my calendar                | Next  | `[ ]`  |
+| US-112 | Have my X bookmarks copied as I go     | Next  | `[ ]`  |
+| US-113 | Bring in my X bookmarks and folders    | Next  | `[ ]`  |
+| US-114 | Have my Pinterest saves and boards come in | Next  | `[ ]`  |
+| US-115 | Choose how imports are analysed        | Next  | `[ ]`  |
 
 ### US-006 — Capture from the browser extension
 
@@ -255,6 +259,41 @@
 - AC-01 Paste an ICS link from any calendar; only busy times are kept, never titles
 - AC-02 Daily and weekly plans skip busy times; refreshed at most hourly
 - AC-03 A private ICS link of my blocks to add to my calendar; moving a block moves it there
+
+### US-112 — Have my X bookmarks copied as I go
+
+> As someone who bookmarks on X all day, I want each bookmark to land in createthings and ask me what to do with it so that bookmarks stop disappearing.
+
+- AC-01 An option per site, off until I switch it on
+- AC-02 Bookmarking a post on X (X's own button) also saves it here
+- AC-03 What it becomes is my choice: ask me each time (default), reference, or to-do
+- AC-04 With "ask me": a prompt with Do this · Keep as reference · Fit into a goal · Later; always with Undo
+
+### US-113 — Bring in my X bookmarks and folders
+
+> As someone with hundreds of old bookmarks, I want to bring them in at once so that they can finally be used.
+
+- AC-01 On my X bookmarks page, "Import into createthings" reads them as the page scrolls; I can stop any time
+- AC-02 Each bookmark folder becomes a collection
+- AC-03 Importing again adds only new bookmarks; nothing is duplicated
+- AC-04 No X API fees; the paid API stays an option
+
+### US-114 — Have my Pinterest saves and boards come in
+
+> As a Pinterest user, I want pins I save and boards I choose to come in so that what I pin can be built from.
+
+- AC-01 Copy as you go: saving a pin also saves it here, into that board's collection (same choices as US-112)
+- AC-02 On a board, "Import this board" brings it in as a collection
+- AC-03 Nothing duplicated; background sync later through the Pinterest library or MCP (US-095)
+
+### US-115 — Choose how imports are analysed
+
+> As someone importing a lot, I want to control what analysis costs so that one import doesn't use all my credits.
+
+- AC-01 Before an import: the cost of a quick read (light, in bulk: about 1 credit per 10 items) with Go / Skip
+- AC-02 The full analysis happens when I use an item (triage, link to a goal, start)
+- AC-03 "Analyse next" / "Analyse 20" lets me go through them at my pace, cost shown first
+- AC-04 One "what connects these" per collection; one memory per import, never one per item
 
 ### US-095 — Connect Pinterest boards
 
