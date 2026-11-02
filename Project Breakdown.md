@@ -119,11 +119,14 @@ Every feature is judged by these:
 
 ### 1. Capture
 
-**Browser extension** (exists)
+**Browser extension** (v1 build exists; being ported to v2, decided 2 Nov 2026)
 
 - Screenshot (full page or selected area), current page URL, pasted URL, image upload, note
-- Optional quick note on every capture
+- Optional quick note on every capture; **"I want to…"** quick add
+- **Save as:** do this (default) or keep as reference (§2b)
+- **"Save to createthings" on X posts:** a small button on every post on x.com, saving the post's link and text (X bookmarks, step one)
 - Badge shows the pet's mood and how many reviews are due; clicking it opens the app
+- **Port to v2:** the v1 popup saves to Notion and talks about publishing; v2 posts to `/api/items`. Until sign-in exists, the extension uses a per-device connection token from the app's settings. Screenshots and uploads are analysed once (the image goes to the vision model) and stored when file storage (R2) exists; links and notes work fully today
 
 **PWA capture**
 
@@ -132,13 +135,26 @@ Every feature is judged by these:
 
 ### 2. Are.na Import
 
-- Connect Are.na and choose channels. **Import only**: nothing is written back.
-- Per channel, choose **"triage these"** (default) or **"already curated"** (goes straight to Shortlist)
-- Block mapping: Image → upload, Link → url, Text → note, Media → url, Attachment → url
-- Sync on demand and daily; already-imported block IDs are skipped
-- A channel can also be kept **as a collection** (§2b), so it can be built from as a whole
+**Are.na is a founding request, so it comes right after the hackathon wrap-up, before the UI** (decided 2 Nov 2026).
+
+- **Connect** with Are.na's OAuth (v3 API, PKCE): `read` scope to import; `write` only if write-back is switched on. Tokens don't expire; stored encrypted in `source_connections`
+- **Choose channels**, and for each one what its blocks are:
+  - **Things to do** (default): blocks go to triage
+  - **Already curated**: straight to the Shortlist
+  - **References**: kept as a collection, never tasks (§2b)
+- **Block mapping:** Image → its image, Link → url, Text → note, Embed / Attachment → url
+- **Sync** on demand and daily (one Cloudflare Cron Trigger); known block ids are skipped; imports go through a queue so Are.na's rate limits hold (per minute: 30 without an account, 120 free, 300 Premium, 600 Supporter)
+- **Link a channel to a goal:** new blocks in it become references for that goal; its roadmap reads the channel's thread ("your channel leans toward two-colour prints, so start with a two-colour test")
+- **Write back** (opt-in, needs `write`): finishing an item can add a block to a "made with createthings" channel (what you made and its link), always with your OK first
+- **What you're drawn to:** once a week, one `expansion` memory summarises what you saved and where ("saved 9 blocks to 'riso' this week: grainy two-colour prints"), so picks, chat and what's next can use it (one memory a week, never one per block)
+- **The same pattern for every source:** Pinterest boards and X bookmarks work the same way (references, linking to a goal, what you're drawn to) as plug-in source adapters
 
 ### 2b. Collections: build from a group of things
+
+**References** (decided 2 Nov 2026): most saved things aren't things to *do*. A typeface, a palette or a layout you love can be **kept as a reference**: it lives in a collection, never enters the to-do funnel, never goes stale and never counts as unfinished. Reference items have status `reference`.
+
+- References feed the work: a roadmap step can point at them ("study these 3 before sketching"), and a project space shows the references linked to it
+- A collection can be **linked to a goal** (an Are.na channel, a Pinterest board or an in-app collection), so new references flow into that goal
 
 A collection is a group of things that mean something together: an Are.na channel, a Pinterest board, or a group in the app. A curriculum is an ordered collection.
 
@@ -243,7 +259,7 @@ Possible later sources: YouTube or Spotify playlists, browser bookmark folders, 
 
 ### 4. Sort: Triage
 
-- One card at a time: **Keep** (→ Shortlist), **Let go** (→ Archived), **Later** (stays Ready)
+- One card at a time: **Do this** (→ Shortlist), **Keep as reference** (→ a collection, §2b), **Let go** (→ Archived), **Later** (stays Ready)
 - Prompt appears when more than ~10 items are unsorted ("Sort 12 new things, about 2 min")
 - End screen frames letting go as progress ("Kept 3, let go of 8")
 
@@ -1101,7 +1117,7 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | -------------------- | ----------------------------------------------------------------------- |
 | `users`, `sessions`, `accounts` | Managed by Better Auth                                       |
 | `user_settings`      | user_id, focus_limit, daily_review_cap, liveliness, tone, pomodoro (focus/break/long), sounds_on, quiet_hours, timezone (for quiet hours and local time), shutdown_time, weekly_plan_day + weekly_plan_time (default Sunday 18:00), memory_namespace_version (bumped when memories are deleted, see §13), weather_mode (auto/city/off), city, runaway_days, death_days, timeline_changed_at, rest_until |
-| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, plan_error (why the last roadmap job failed), saved_at, last_active_at, parked_until (not this month, or parked by fit-it-in), intent + practice_kind (registry ids, §3b; replaces is_learning_goal), intent_confirmed_at, goal, target_date |
+| `items`              | id, user_id, title, source_url, author, platform, capture_type (screenshot/url/upload/note/voice), image_key, note, status (inbox/ready/shortlist/focus/paused/done/archived/reference), size, difficulty, is_learning_goal, arena_block_id, title_from_user, analysis_error, plan_error (why the last roadmap job failed), saved_at, last_active_at, parked_until (not this month, or parked by fit-it-in), intent + practice_kind (registry ids, §3b; replaces is_learning_goal), intent_confirmed_at, goal, target_date |
 | `analyses`           | id, item_id, summary, technique, colors (palette + notes), typography, layout, mood[], style, components, for_developers, for_creators, brief, skills[] (feeds the roadmap), attribution, model |
 | `roadmaps`           | id, item_id, style (project/skill), skills, resources, progress, goal ("by the end you'll be able to…"), goal_options (the 2–3 suggested) |
 | `roadmap_steps`      | id, roadmap_id, milestone, position, title, minutes, two_minute (smallest start), search_terms[], tools[], recall (learning steps: the recall question that ends the step), kind (step / proof: a proving ground), done_at |
@@ -1118,10 +1134,10 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `ai_usage_daily`     | user_id, date, free_used                                                |
 | `arena_connections`  | user_id, token (encrypted), last_sync_at                                |
 | `arena_channels`     | id, user_id, slug, mode (triage/curated)                                |
-| `collections`        | id, user_id, title, source (registry id: arena, pinterest, app, curriculum…), external_id, ordered, suggested (grouped by the app, not yet kept), kept_at, thread (what connects it), created_at |
+| `collections`        | id, user_id, title, source (registry id: arena, pinterest, x, app), external_id (e.g. the Are.na channel id), mode (do / curated / references), goal_item_id (the goal it feeds, optional), suggested (grouped by the app, not yet kept), kept_at, thread (what connects it), last_synced_at, created_at |
 | `collection_items`   | collection_id, item_id, position                                        |
 | `course_units`       | id, item_id, position, title, topics[], unit_date (a course's units in order, read from its syllabus) |
-| `source_connections` | id, user_id, source (registry id), config (encrypted tokens and settings), last_synced_at (one row per connected service) |
+| `source_connections` | id, user_id, source (registry id), token_encrypted, scopes, write_back (on/off), last_synced_at (one row per connected service; replaces `arena_connections`) |
 | `exports`            | user_id, target (notion), token (encrypted), last_run_at                |
 | `push_subscriptions` | id, user_id, endpoint, keys                                             |
 | `plan_slots`         | id, user_id, step_id, day, start_time, anchor (e.g. "after coffee"), place, position (the day's rank: 1–3 is tomorrow's top 3), missed_at (a Focus step placed in a time block) |
@@ -1164,7 +1180,9 @@ Postgres tables (main columns only). The Drizzle schema is `src/lib/server/db/sc
 | `/api/store/*`                     | Catalog, buy with credits                       |
 | `/api/credits/*`                   | Balance and today's free usage (`GET /api/credits`); history and checkout later |
 | `/api/weather`                     | City weather (KV cached)                        |
-| `/api/arena/*`                     | Connect, channels, import, sync                 |
+| `/api/sources/[source]`            | Connect (OAuth start/callback), disconnect, list channels or boards; `POST /api/sources/[source]/sync` imports now |
+| `/api/collections`                 | List collections; set a channel's mode (do / curated / references) and the goal it feeds |
+| `/api/extension/token`             | Create or revoke a device connection token for the extension (until sign-in exists) |
 | `/api/export/*`                    | Notion connect + run, Obsidian zip              |
 | `/api/push/*`                      | Subscribe / unsubscribe                         |
 | `/api/webhooks/payments`           | Add credits after confirmed payment             |

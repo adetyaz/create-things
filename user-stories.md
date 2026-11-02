@@ -2,7 +2,7 @@
 
 **v2.0 · October 2026** · Source of truth: [Project Breakdown.md](Project%20Breakdown.md)
 
-99 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
+104 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
 
 ## Keys
 
@@ -81,6 +81,11 @@
 | US-093 | Have my saves grouped for me           | 9     | `[ ]`  |
 | US-094 | Build from a collection                | 9     | `[ ]`  |
 | US-095 | Connect Pinterest boards               | 9     | `[ ]`  |
+| US-100 | Keep things as references              | Next  | `[ ]`  |
+| US-101 | Link a board to a goal                 | Next  | `[ ]`  |
+| US-102 | Have the pet notice what I'm drawn to  | Next  | `[ ]`  |
+| US-103 | Share what I made back to Are.na       | Next  | `[ ]`  |
+| US-104 | Save X posts in one click              | Next  | `[ ]`  |
 
 ### US-006 — Capture from the browser extension
 
@@ -90,6 +95,8 @@
 - AC-02 Optional quick note on every capture
 - AC-03 Saved to our database (Status: Inbox) in under 3 seconds; images to R2
 - AC-04 Analysis is queued automatically
+- AC-05 Save as "do this" or "keep as reference" (US-100)
+- AC-06 Works with the v2 API through a device connection token until sign-in exists
 
 ### US-007 — Capture from my phone
 
@@ -143,6 +150,47 @@
 - AC-03 Make one (becomes a Make item whose roadmap uses the collection as references) or learn what's behind it (the shared skills become a Learn goal)
 - AC-04 When new items arrive in the collection, the pet tells me which ideas they fit
 - AC-05 Accepted ideas are remembered (`expansion`); uses the free quota, then credits
+
+### US-100 — Keep things as references
+
+> As someone who saves lots of inspiration, I want to keep things as references so that not everything I save becomes a task I feel guilty about.
+
+- AC-01 Triage and capture offer: do this, keep as reference, let go, later
+- AC-02 References live in collections; they never go stale, nag, or count as unfinished
+- AC-03 A roadmap step can point at references, and the project space shows the ones linked to it
+- AC-04 Are.na channels, Pinterest boards and X bookmarks can come in as references
+
+### US-101 — Link a board to a goal
+
+> As someone whose Are.na channel is the research for a project, I want to link it to that goal so that what I keep saving feeds the work.
+
+- AC-01 Link a collection (Are.na channel, Pinterest board, in-app collection) to a goal
+- AC-02 New blocks in a linked channel become references for that goal
+- AC-03 The goal's roadmap reads the collection's thread when it's planned or re-planned
+
+### US-102 — Have the pet notice what I'm drawn to
+
+> As someone who saves more than I make, I want the pet to notice what I keep saving so that its suggestions match what actually excites me.
+
+- AC-01 Once a week, one memory summarises what I saved and where
+- AC-02 Pick for me, what's next and chat can use it ("You keep saving riso work. Want to make one?")
+- AC-03 One memory a week, never one per block
+
+### US-103 — Share what I made back to Are.na
+
+> As an Are.na user, I want to add what I made to a channel so that my making shows up where my inspiration lives.
+
+- AC-01 Optional, needs Are.na write access, switched on in settings
+- AC-02 Finishing an item offers to add a block (what I made and its link) to a "made with createthings" channel
+- AC-03 Nothing is posted without my OK
+
+### US-104 — Save X posts in one click
+
+> As someone who bookmarks posts on X, I want to save them to createthings straight from the post so that they join my plans instead of disappearing.
+
+- AC-01 A "Save to createthings" button on posts on x.com (extension) and the phone share sheet
+- AC-02 Saves the post's link and text, as do this or keep as reference
+- AC-03 Later: import existing bookmarks and folders through the official X API, if its pricing allows
 
 ### US-095 — Connect Pinterest boards
 
