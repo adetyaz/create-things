@@ -44,3 +44,6 @@ export type CaptureInput = z.infer<typeof captureInput>;
 
 /** Capture types that still need file storage (R2): uploads. */
 export const IMAGE_CAPTURE_TYPES = ['upload'] as const;
+
+/** PUT /api/items/[id]/reference: switch a fresh save between "do this" and "keep as reference". */
+export const referenceInput = z.object({ reference: z.boolean() });

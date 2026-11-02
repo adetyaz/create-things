@@ -1,8 +1,9 @@
 /** Items: capture, list, read and retry. Routes call these; other features reuse them. */
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
 import { analyses, items, pendingImages } from '$lib/server/db/schema';
 import { enqueue, type EnqueueResult } from '$lib/server/jobs';
+import { forgetSource } from '$lib/server/features/memory/service';
 import type { CaptureInput } from './input';
 
 type Platform = App.Platform | undefined;
@@ -95,6 +96,55 @@ export async function retryAnalysis(
 	);
 	if (!item) return null;
 	return { itemId: item.id, analysis: await enqueue(platform, 'analysis', { itemId: item.id }) };
+}
+
+/** Statuses where a save can still be undone: nothing has been planned or done with it yet. */
+const UNDOABLE = ['inbox', 'ready', 'reference'] as const;
+
+/**
+ * Undoes a save (the extension's toast): removes the item and hides any memory it made.
+ * Null if it isn't theirs or is already in use (shortlisted, planned, done: archive those instead).
+ * An analysis still running finds the item gone and refunds its credits.
+ */
+export async function undoCapture(
+	platform: Platform,
+	userId: string,
+	id: string
+): Promise<{ removed: true; hiddenMemories: number } | null> {
+	const [item] = await withDb(platform, (db) =>
+		db
+			.delete(items)
+			.where(and(eq(items.id, id), eq(items.userId, userId), inArray(items.status, UNDOABLE)))
+			.returning({ id: items.id })
+	);
+	if (!item) return null;
+	return { removed: true, hiddenMemories: await forgetSource(platform, userId, 'item', id) };
+}
+
+/**
+ * Switches a fresh save between "do this" and "keep as reference". A reference isn't a goal, so
+ * its goal memory is hidden. Back to "do this": Ready if analysed, else Inbox (the goal memory
+ * comes with the next analysis or plan, not re-sent here, to save Walrus calls).
+ * Null if it isn't theirs or is already in use.
+ */
+export async function setReference(
+	platform: Platform,
+	userId: string,
+	id: string,
+	reference: boolean
+): Promise<Item | null> {
+	const current = await getItemWithAnalysis(platform, userId, id);
+	if (!current || !(UNDOABLE as readonly string[]).includes(current.item.status)) return null;
+	const status = reference ? 'reference' : current.analysis ? 'ready' : 'inbox';
+	const [item] = await withDb(platform, (db) =>
+		db
+			.update(items)
+			.set({ status, lastActiveAt: new Date() })
+			.where(and(eq(items.id, id), eq(items.status, current.item.status)))
+			.returning()
+	);
+	if (item && reference) await forgetSource(platform, userId, 'item', id);
+	return item ?? null;
 }
 
 export type TriageDecision = 'keep' | 'let_go' | 'later';

@@ -1,10 +1,9 @@
 /**
- * Content script — injected into pages for area screenshot selection.
- * Listens for START_AREA_SELECT message from the popup/background.
- *
- * UX: Injects a dark overlay, user draws a selection box, confirms,
- * then the selected area is captured and sent to background for saving.
+ * Page script on every page: the area picker (Alt+Shift+A or the popup's Pick area) and the toast
+ * shown after any save, with "Keep as reference instead" and Undo.
+ * Type-only imports: content scripts can't load shared chunks.
  */
+import type { ToastMessage } from '../background/service-worker';
 
 let overlay: HTMLDivElement | null = null;
 let selectionBox: HTMLDivElement | null = null;
@@ -178,85 +177,126 @@ async function captureSelection() {
 
 	const croppedDataUrl = await cropImage(response.dataUrl, rect);
 
-	// Send to background for saving — wait for the result
-	const saveResponse = await chrome.runtime.sendMessage({
-		type: 'SAVE_AREA_SCREENSHOT',
-		dataUrl: croppedDataUrl
-	});
-
-	showSavedToast(
-		saveResponse?.success
-			? 'Saved to createthings'
-			: `Couldn't save: ${saveResponse?.error ?? 'unknown error'}`
-	);
+	// The worker saves it and shows the toast.
+	void chrome.runtime.sendMessage({ type: 'SAVE_AREA_SCREENSHOT', dataUrl: croppedDataUrl });
 }
 
-function showSavedToast(message: string) {
-	const toast = document.createElement('div');
-	toast.id = 'ct-saved-toast';
-	Object.assign(toast.style, {
+/** How long the toast stays, unless the pointer is on it. */
+const TOAST_MS = 6000;
+
+function styled<K extends keyof HTMLElementTagNameMap>(
+	tag: K,
+	style: Partial<CSSStyleDeclaration>,
+	text?: string
+): HTMLElementTagNameMap[K] {
+	const el = document.createElement(tag);
+	Object.assign(el.style, style);
+	if (text) el.textContent = text;
+	return el;
+}
+
+const linkButton: Partial<CSSStyleDeclaration> = {
+	background: 'none',
+	border: 'none',
+	padding: '0',
+	color: '#6d28d9',
+	font: 'inherit',
+	fontWeight: '600',
+	cursor: 'pointer',
+	textDecoration: 'underline'
+};
+
+/** "Saved. Keep as reference instead · Undo" (or the error), bottom right, for 6 seconds. */
+function showToast(message: ToastMessage) {
+	document.getElementById('ct-saved-toast')?.remove();
+	const toast = styled('div', {
 		position: 'fixed',
 		bottom: '24px',
 		right: '24px',
 		zIndex: '2147483647',
+		maxWidth: '360px',
 		background: '#ffffff',
 		border: '1px solid #e5e7eb',
 		borderRadius: '12px',
 		boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-		padding: '14px 18px',
+		padding: '12px 14px',
 		display: 'flex',
 		alignItems: 'center',
-		gap: '12px',
+		gap: '10px',
 		fontFamily: 'system-ui, -apple-system, sans-serif',
 		fontSize: '13px',
+		lineHeight: '1.4',
 		color: '#111827',
 		transition: 'opacity 0.3s ease'
 	});
+	toast.id = 'ct-saved-toast';
+	toast.setAttribute('role', 'status');
 
-	const icon = document.createElement('span');
-	icon.textContent = '✓';
-	Object.assign(icon.style, {
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center',
-		width: '22px',
-		height: '22px',
-		background: '#D1FAE5',
-		color: '#065F46',
-		borderRadius: '50%',
-		fontSize: '12px',
-		fontWeight: '700',
-		flexShrink: '0'
-	});
+	const body = styled('span', { flex: '1' });
+	const close = styled(
+		'button',
+		{ ...linkButton, color: '#9ca3af', textDecoration: 'none', fontSize: '16px' },
+		'×'
+	);
+	close.setAttribute('aria-label', 'Close');
+	close.addEventListener('click', () => toast.remove());
+	toast.append(body, close);
 
-	const text = document.createElement('span');
-	text.textContent = message;
+	let timer = 0;
+	const dismissLater = () => {
+		clearTimeout(timer);
+		timer = window.setTimeout(() => {
+			toast.style.opacity = '0';
+			setTimeout(() => toast.remove(), 300);
+		}, TOAST_MS);
+	};
+	toast.addEventListener('mouseenter', () => clearTimeout(timer));
+	toast.addEventListener('mouseleave', dismissLater);
 
-	const closeBtn = document.createElement('button');
-	closeBtn.textContent = '×';
-	Object.assign(closeBtn.style, {
-		marginLeft: '2px',
-		background: 'none',
-		border: 'none',
-		color: '#9ca3af',
-		fontSize: '16px',
-		cursor: 'pointer',
-		padding: '0 2px',
-		lineHeight: '1',
-		flexShrink: '0'
-	});
-	closeBtn.addEventListener('click', () => toast.remove());
+	const say = (text: string) => body.replaceChildren(text);
 
-	toast.appendChild(icon);
-	toast.appendChild(text);
-	toast.appendChild(closeBtn);
+	if (!message.ok) {
+		say(`Couldn't save: ${message.error}`);
+	} else {
+		const { item } = message;
+		let reference = message.reference;
+		const render = () => {
+			const switchButton = styled(
+				'button',
+				linkButton,
+				reference ? 'Make it a to-do instead' : 'Keep as reference instead'
+			);
+			const undo = styled('button', linkButton, 'Undo');
+			switchButton.addEventListener('click', async () => {
+				say('Switching…');
+				const res = await chrome.runtime.sendMessage({
+					type: 'SET_REFERENCE',
+					itemId: item.id,
+					reference: !reference
+				});
+				if (!res?.success) return say(`Couldn't switch: ${res?.error ?? 'unknown error'}`);
+				reference = !reference;
+				render();
+				dismissLater();
+			});
+			undo.addEventListener('click', async () => {
+				say('Undoing…');
+				const res = await chrome.runtime.sendMessage({ type: 'UNDO_SAVE', itemId: item.id });
+				say(res?.success ? 'Removed' : `Couldn't undo: ${res?.error ?? 'unknown error'}`);
+				dismissLater();
+			});
+			body.replaceChildren(
+				reference ? 'Kept as a reference. ' : 'Saved. ',
+				switchButton,
+				' · ',
+				undo
+			);
+		};
+		render();
+	}
+
 	document.body.appendChild(toast);
-
-	// Auto-dismiss after 8 seconds
-	setTimeout(() => {
-		toast.style.opacity = '0';
-		setTimeout(() => toast.remove(), 300);
-	}, 8000);
+	dismissLater();
 }
 
 function cropImage(
@@ -288,11 +328,19 @@ function cropImage(
 	});
 }
 
-// Listen for messages from popup or background
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-	if (message.type === 'START_AREA_SELECT') {
-		createOverlay();
-		sendResponse({ started: true });
-	}
-	return false;
-});
+// Added again on pages opened before install; listen only once.
+const page = window as Window & { __createthingsPage?: boolean };
+if (!page.__createthingsPage) {
+	page.__createthingsPage = true;
+	chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+		if (message.type === 'START_AREA_SELECT') {
+			createOverlay();
+			sendResponse({ started: true });
+		}
+		if (message.type === 'SHOW_SAVED') {
+			showToast(message as ToastMessage);
+			sendResponse({ shown: true });
+		}
+		return false;
+	});
+}
