@@ -4,6 +4,8 @@ import { withDb } from '$lib/server/db';
 import { analyses, items, pendingImages } from '$lib/server/db/schema';
 import { enqueue, type EnqueueResult } from '$lib/server/jobs';
 import { forgetSource } from '$lib/server/features/memory/service';
+import { dev } from '$app/environment';
+import { optionalEnv } from '$lib/server/platform/env';
 import type { CaptureInput } from './input';
 
 type Platform = App.Platform | undefined;
@@ -15,7 +17,7 @@ export async function captureItem(
 	platform: Platform,
 	userId: string,
 	input: CaptureInput
-): Promise<{ item: Item; analysis: EnqueueResult }> {
+): Promise<{ item: Item; analysis: EnqueueResult | 'skipped (SKIP_ANALYSIS)' }> {
 	const sourceUrl = input.captureType === 'note' ? null : (input.sourceUrl ?? null);
 	const note = input.note ?? null;
 	const host = sourceUrl ? new URL(sourceUrl).hostname : null;
@@ -45,6 +47,11 @@ export async function captureItem(
 		})
 	);
 
+	// Dev only: save without analysing (no AI, credits or Walrus) to try the ways of saving.
+	// Analyse one later with POST /api/items/[id]/analyze. A screenshot's image waits until then.
+	if (dev && optionalEnv('SKIP_ANALYSIS') === '1') {
+		return { item, analysis: 'skipped (SKIP_ANALYSIS)' };
+	}
 	const analysis = await enqueue(platform, 'analysis', {
 		itemId: item.id,
 		palette: input.palette ?? null
@@ -81,7 +88,7 @@ export function getItemWithAnalysis(
 	});
 }
 
-/** Re-queues analysis for an item still in the inbox. Null if there's no such inbox item. */
+/** Re-queues analysis for an item not yet analysed (inbox or reference). Null if there's none. */
 export async function retryAnalysis(
 	platform: Platform,
 	userId: string,
@@ -91,7 +98,13 @@ export async function retryAnalysis(
 		db
 			.update(items)
 			.set({ analysisError: null })
-			.where(and(eq(items.id, id), eq(items.userId, userId), eq(items.status, 'inbox')))
+			.where(
+				and(
+					eq(items.id, id),
+					eq(items.userId, userId),
+					inArray(items.status, ['inbox', 'reference'])
+				)
+			)
 			.returning({ id: items.id })
 	);
 	if (!item) return null;

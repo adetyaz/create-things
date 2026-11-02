@@ -3,7 +3,7 @@
  * shown after any save, with "Keep as reference instead" and Undo.
  * Type-only imports: content scripts can't load shared chunks.
  */
-import type { ToastMessage } from '../background/service-worker';
+import type { Shown, ToastMessage } from '../background/service-worker';
 
 let overlay: HTMLDivElement | null = null;
 let selectionBox: HTMLDivElement | null = null;
@@ -131,15 +131,38 @@ function onMouseUp(e: MouseEvent) {
 	showConfirmButton();
 }
 
+/** Button size, roughly, for keeping it on screen. */
+const BUTTON_W = 90;
+const BUTTON_H = 32;
+
+/**
+ * Where the Capture button goes: below the box, or above it when the box reaches the bottom of
+ * the screen, or inside it when it fills the screen; never off the edges.
+ */
+function buttonSpot(box: HTMLDivElement): { left: number; top: number } {
+	const x = parseInt(box.style.left);
+	const y = parseInt(box.style.top);
+	const w = parseInt(box.style.width);
+	const h = parseInt(box.style.height);
+	const gap = 12;
+	let top = y + h + gap;
+	if (top + BUTTON_H > window.innerHeight - 8) top = y - gap - BUTTON_H;
+	if (top < 8) top = y + h - BUTTON_H - gap;
+	const left = Math.min(Math.max(x + w / 2 - BUTTON_W / 2, 8), window.innerWidth - BUTTON_W - 8);
+	return { left, top: Math.min(Math.max(top, 8), window.innerHeight - BUTTON_H - 8) };
+}
+
 function showConfirmButton() {
 	if (!selectionBox || !overlay) return;
 
 	confirmBtn = document.createElement('button');
 	confirmBtn.textContent = 'Capture';
+	const { left, top } = buttonSpot(selectionBox);
 	Object.assign(confirmBtn.style, {
 		position: 'fixed',
-		left: `${parseInt(selectionBox.style.left) + parseInt(selectionBox.style.width) / 2 - 40}px`,
-		top: `${parseInt(selectionBox.style.top) + parseInt(selectionBox.style.height) + 12}px`,
+		left: `${left}px`,
+		top: `${top}px`,
+		boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
 		zIndex: '2147483647',
 		background: '#1D9E75',
 		color: 'white',
@@ -206,7 +229,107 @@ const linkButton: Partial<CSSStyleDeclaration> = {
 	textDecoration: 'underline'
 };
 
-/** "Saved. Keep as reference instead · Undo" (or the error), bottom right, for 6 seconds. */
+/** The saved image, small; click to see it bigger and check it's what you meant. */
+function thumbnail(src: string): HTMLImageElement {
+	const img = styled('img', {
+		width: '56px',
+		height: '56px',
+		objectFit: 'cover',
+		borderRadius: '8px',
+		border: '1px solid #e5e7eb',
+		cursor: 'zoom-in',
+		flexShrink: '0'
+	});
+	img.src = src;
+	img.alt = 'What was saved';
+	img.title = 'Click to see it bigger';
+	let big = false;
+	img.addEventListener('click', () => {
+		big = !big;
+		Object.assign(img.style, {
+			width: big ? '100%' : '56px',
+			height: big ? 'auto' : '56px',
+			maxHeight: big ? '60vh' : '56px',
+			objectFit: big ? 'contain' : 'cover',
+			cursor: big ? 'zoom-out' : 'zoom-in'
+		});
+		img.title = big ? 'Click to make it small' : 'Click to see it bigger';
+	});
+	return img;
+}
+
+const KIND_LABEL: Record<Shown['kind'], string> = { link: 'Link', text: 'Text', image: 'Image' };
+
+/** A square saying what kind of thing it is, when there's no image to show. */
+function kindBadge(kind: Shown['kind']): HTMLSpanElement {
+	return styled(
+		'span',
+		{
+			width: '56px',
+			height: '56px',
+			borderRadius: '8px',
+			background: '#f5f3ff',
+			color: '#6d28d9',
+			fontSize: '11px',
+			fontWeight: '600',
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			flexShrink: '0'
+		},
+		KIND_LABEL[kind]
+	);
+}
+
+/** What was saved: its image (or kind), title and where it's from. */
+function savedCard(shown: Shown): HTMLDivElement {
+	const card = styled('div', {
+		display: 'flex',
+		flexWrap: 'wrap',
+		gap: '10px',
+		alignItems: 'center'
+	});
+	if (shown.image) {
+		const img = thumbnail(shown.image);
+		// Some sites block their images from loading elsewhere: show the kind instead.
+		img.addEventListener('error', () => img.replaceWith(kindBadge(shown.kind)));
+		card.append(img);
+	} else {
+		card.append(kindBadge(shown.kind));
+	}
+	const words = styled('div', { flex: '1', minWidth: '0' });
+	const title = styled(
+		'div',
+		{
+			fontWeight: '600',
+			display: '-webkit-box',
+			webkitLineClamp: '2',
+			webkitBoxOrient: 'vertical',
+			overflow: 'hidden'
+		},
+		shown.title
+	);
+	words.append(title);
+	if (shown.detail) {
+		words.append(
+			styled(
+				'div',
+				{
+					color: '#6b7280',
+					fontSize: '12px',
+					whiteSpace: 'nowrap',
+					overflow: 'hidden',
+					textOverflow: 'ellipsis'
+				},
+				shown.detail
+			)
+		);
+	}
+	card.append(words);
+	return card;
+}
+
+/** What was saved, then "Saved. Keep as reference instead · Undo" (or the error), for 6 seconds. */
 function showToast(message: ToastMessage) {
 	document.getElementById('ct-saved-toast')?.remove();
 	const toast = styled('div', {
@@ -214,14 +337,15 @@ function showToast(message: ToastMessage) {
 		bottom: '24px',
 		right: '24px',
 		zIndex: '2147483647',
-		maxWidth: '360px',
+		maxWidth: 'calc(100vw - 48px)',
 		background: '#ffffff',
 		border: '1px solid #e5e7eb',
 		borderRadius: '12px',
 		boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+		width: '340px',
 		padding: '12px 14px',
 		display: 'flex',
-		alignItems: 'center',
+		flexDirection: 'column',
 		gap: '10px',
 		fontFamily: 'system-ui, -apple-system, sans-serif',
 		fontSize: '13px',
@@ -232,6 +356,7 @@ function showToast(message: ToastMessage) {
 	toast.id = 'ct-saved-toast';
 	toast.setAttribute('role', 'status');
 
+	const row = styled('div', { display: 'flex', alignItems: 'center', gap: '10px' });
 	const body = styled('span', { flex: '1' });
 	const close = styled(
 		'button',
@@ -240,7 +365,9 @@ function showToast(message: ToastMessage) {
 	);
 	close.setAttribute('aria-label', 'Close');
 	close.addEventListener('click', () => toast.remove());
-	toast.append(body, close);
+	row.append(body, close);
+	if (message.ok) toast.append(savedCard(message.shown));
+	toast.append(row);
 
 	let timer = 0;
 	const dismissLater = () => {

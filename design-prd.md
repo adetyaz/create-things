@@ -64,6 +64,7 @@ Design for someone who:
 | 15 | **You can't buy your way out** | Paid things are cosmetic or extra AI, never progress. |
 | 16 | **Plan in layers, act on one thing** | Year → quarter → month → week → day, but Today shows only #1. |
 | 17 | **Learn the way brains learn** | Breaks are framed as part of thinking; recall beats rereading. |
+| 18 | **Everything you see explains itself** (2 Nov 2026) | Every number, badge, dot and state says what it is and leads to it: the badge's 5 opens the 5 reviews; "Saved to your inbox" links to the inbox; every save shows what was saved. Nothing appears without a way to see why and act on it. |
 
 ## A5. Voice and tone
 
@@ -209,17 +210,26 @@ Each process lists the data the server already provides. Field names are given s
 
 ---
 
-## C2. Capture — *Built* (links and notes; screenshots and uploads wait for file storage)
+## C2. Capture — *Built* (links, notes, screenshots and images; uploads wait for file storage)
 
-**Goal:** save anything in seconds; analysis happens in the background.
+**Goal:** save anything in seconds, see exactly what was saved, and undo a wrong save in one tap; analysis happens in the background.
 
-**Entry points:** extension (screenshot, URL, note), PWA share sheet, quick add on Today, **"I want to…"** sentence (typed now, spoken later).
+**Entry points:**
+- **Extension:** popup (save page, screenshot, pick area, "I want to…"), right-click a link / image / selected text / the page, **Alt+Shift+S** (save page) and **Alt+Shift+A** (pick area), and a Save button on posts on X, Pinterest, Are.na, YouTube, Instagram, Dribbble, Behance, Reddit and GitHub
+- **App:** quick add on Today, **"I want to…"** sentence (typed, or spoken as a voice ramble), course import (PDF, photos, pasted text)
+- **Phone:** PWA share sheet
 
-**Flow:** save → item appears as **Inbox** with an "analysing" state → when ready (usually seconds), status becomes **Ready** and the card fills in (title, colours, summary, intent, size). The pet sniffs the new card next time the app opens.
+**Every save shows what was saved** (one pattern everywhere, extension toast and in-app alike):
+- A small card: a **thumbnail** (the screenshot, the saved image, or the page's own preview image) or, with no image, a square saying the kind (Link, Text, Image); the **title**; a detail line (the site, the start of a note or the selected text, "Watch from 4:12")
+- Clicking the thumbnail shows it bigger, so a screenshot can be checked
+- Under it: **"Saved. Keep as reference instead · Undo"** (or "Kept as a reference. Make it a to-do instead · Undo"); stays 6 seconds, longer while hovered
+- Voice and course import show their own review step instead (what was heard / the units found) before anything is saved
 
-**Data:** `POST /api/items` → `{ item, analysis: 'queued' | 'running inline (dev)' }`. Then `GET /api/items/[id]` → `{ item, analysis }`.
+**Flow:** save → card + Undo → item appears as **Inbox** (or **Reference**) with an "analysing" state → when ready (usually seconds), status becomes **Ready** and the card fills in (title, colours, summary, intent, size). The pet sniffs the new card next time the app opens.
 
-**States:** analysing; ready; **analysis failed** (`item.analysisError`, retry via `POST /api/items/[id]/analyze`); **out of credits** (saved, "waiting for credits").
+**Data:** `POST /api/items` → `{ item, analysis: 'queued' | 'running inline (dev)' }`. Then `GET /api/items/[id]` → `{ item, analysis }`. Undo: `DELETE /api/items/[id]`. Switch: `PUT /api/items/[id]/reference { reference }`.
+
+**States:** analysing; ready; **analysis failed** (`item.analysisError`, retry via `POST /api/items/[id]/analyze`); **out of credits** (saved, "waiting for credits"); **couldn't save** (the reason, e.g. not connected); **offline** (extension: "Saved on this device; sends when you're online").
 
 **Copy:** quick add placeholder: *"What do you want to make, learn or try?"*
 

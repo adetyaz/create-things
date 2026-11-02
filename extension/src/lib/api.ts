@@ -69,6 +69,47 @@ export function capture(input: Capture) {
 	});
 }
 
+/** A save as the popup's Recent saves list shows it. */
+export interface RecentSave {
+	id: string;
+	title: string;
+	status: string;
+	captureType: string;
+	platform: string | null;
+	size: string | null;
+	analysisError: string | null;
+	note: string | null;
+}
+
+/** The latest saves, newest first (until the app has an inbox screen). */
+export async function recentSaves(limit = 8): Promise<RecentSave[]> {
+	const { items } = await api<{ items: RecentSave[] }>('/api/items');
+	return items.slice(0, limit);
+}
+
+/** A flashcard due for review (from a finished step's recall question, a quiz, …). */
+export interface ReviewCard {
+	id: string;
+	prompt: string;
+	answer: string;
+	itemTitle: string | null;
+}
+
+export type Rating = 'got_it' | 'shaky' | 'forgot';
+
+/** Today's reviews (up to the daily cap) and how many are due in all. */
+export function dueReviews() {
+	return api<{ cards: ReviewCard[]; dueTotal: number }>('/api/reviews');
+}
+
+/** Rates a card; its next review date moves out (got it) or comes back soon (forgot). */
+export function rateReview(cardId: string, rating: Rating) {
+	return api<{ card: unknown }>(`/api/reviews/${cardId}`, {
+		method: 'POST',
+		body: JSON.stringify({ rating })
+	});
+}
+
 /** Undoes a save (the toast's Undo): the item goes, and any memory it made is hidden. */
 export function undoSave(itemId: string) {
 	return api<{ removed: true }>(`/api/items/${itemId}`, { method: 'DELETE' });

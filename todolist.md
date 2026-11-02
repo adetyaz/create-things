@@ -35,18 +35,18 @@
 
 ## Next — Sources and the extension (before the UI; decided 2 Nov 2026)
 
-> Are.na was a founding request; the extension is the main way to capture. Details: [Project Breakdown.md](Project%20Breakdown.md) §1, §2, §2b, §2c.
+> Are.na was a founding request; the extension is the main way to capture. Details: [Project Breakdown.md](Project%20Breakdown.md) §1, §2, §2b, §2c, §2d.
 
 - [x] E1. Port the extension to v2: capture links and notes to `/api/items`; device connection token until sign-in; save as do this / keep as reference; "I want to…" quick add; remove Notion and publishing copy (US-006)
 - [x] E2. Screenshots and uploads from the extension: analysed once with the vision model; stored when R2 exists (#6)
 - [x] E3. "Save to createthings" button on X posts (US-104)
 - [x] E4. Badge: reviews due now; pet mood once the pet exists (US-058)
-- [ ] E5. Right-click: save link / image / selected text / page, each with "keep as reference" (US-105)
-- [ ] E6. Shortcuts: Alt+Shift+S saves the page, Alt+Shift+A picks an area (US-106)
-- [ ] E7. On-page toast after every save: "Keep as reference instead · Undo"; `DELETE /api/items/[id]` (hides its memories) and a switch to reference (US-107)
-- [ ] E8. Site saver registry; X moved onto it; Pinterest, Are.na, YouTube (timestamp), Instagram, Dribbble / Behance, Reddit, GitHub, article reader text (US-108)
+- [x] E5. Right-click: save link / image / selected text / page, each with "keep as reference" (US-105)
+- [x] E6. Shortcuts: Alt+Shift+S saves the page, Alt+Shift+A picks an area (US-106)
+- [x] E7. On-page toast after every save: "Keep as reference instead · Undo"; `DELETE /api/items/[id]` (hides its memories) and a switch to reference (US-107)
+- [~] E8. Site saver registry; X moved onto it; Pinterest, Are.na, YouTube (timestamp), Instagram, Dribbble / Behance, Reddit, GitHub, article reader text (US-108) (2 Nov: registry + all sites built, X / Dribbble / Pinterest saves confirmed; article text left)
 - [ ] E9. Offline waiting list in the extension; out-of-credits and revoked-token messages (US-109)
-- [ ] E10. Popup shows today's #1; "fits your goal" offer after a save (US-107 AC-03)
+- [ ] E10. Popup shows today's #1 (2 Nov: popup already shows Recent saves and today's reviews, the badge number); "fits your goal" offer after a save (US-107 AC-03)
 - [ ] C1. Calendar: ICS link → busy times; day and week plans skip them (US-111)
 - [ ] C2. Calendar: private ICS feed of your blocks (US-111)
 - [ ] C3. Settings → Connections endpoint: accounts, last sync, extension devices with last used (US-110; the screen comes with the UI)
@@ -58,6 +58,13 @@
 - [ ] S6. Link a collection to a goal: new blocks become its references; roadmaps read the thread (US-101)
 - [ ] S7. Write back to Are.na on finishing, opt-in (US-103)
 - [ ] S8. Weekly "what you're drawn to" `expansion` memory (US-102; H3's last type)
+- [ ] X1. Per-site choices in the extension: copy as you go (off by default), what copies become (ask me / reference / to-do) (US-112)
+- [ ] X2. No duplicates: imported items keep their site id (post, pin, block); importing again updates (new migration)
+- [ ] X3. X bookmarks copied as you go, with the "ask me" prompt: Do this · Keep as reference · Fit into a goal · Later (US-112)
+- [ ] X4. X bookmarks import from the bookmarks page; folders become collections (needs S2) (US-113)
+- [ ] X5. Pinterest saves copied as you go into the board's collection; "Import this board" (needs S2) (US-114)
+- [ ] X6. Light bulk analysis (10 items per AI call, text only), cost shown before an import; full analysis when used; "Analyse next / 20" (US-115)
+- [ ] X7. One `expansion` memory per import; "what connects these" per collection (US-115, US-094)
 - [ ] S9. Pinterest adapter on the library or MCP built for createthings (was 73e; US-095)
 - [ ] S10. Check X API pricing; bookmarks + folders import as a source adapter if it works (was 73f)
 

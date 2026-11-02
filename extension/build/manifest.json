@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "createthings",
-	"description": "Save anything to createthings in one click: pages, screenshots, X posts and \"I want to\u2026\" ideas. Your pet helps you start.",
+	"description": "Save anything to createthings in one click: pages, screenshots, posts from the sites you use and \"I want to\u2026\" ideas. Your pet helps you start.",
 	"version": "0.3.0",
 	"icons": {
 		"16": "icons/icon16.png",
@@ -31,8 +31,20 @@
 			"all_frames": false
 		},
 		{
-			"matches": ["https://x.com/*", "https://twitter.com/*"],
-			"js": ["x-save.js"],
+			"matches": [
+				"https://x.com/*",
+				"https://twitter.com/*",
+				"https://*.pinterest.com/*",
+				"https://www.are.na/*",
+				"https://are.na/*",
+				"https://www.youtube.com/*",
+				"https://www.instagram.com/*",
+				"https://dribbble.com/*",
+				"https://www.behance.net/*",
+				"https://www.reddit.com/*",
+				"https://github.com/*"
+			],
+			"js": ["site-save.js"],
 			"run_at": "document_idle",
 			"all_frames": false
 		}
