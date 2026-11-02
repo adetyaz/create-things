@@ -33,6 +33,25 @@
 - [ ] H17. Blog post (what it does, Tatum + Walrus, how it learned over time)
 - [ ] H18. 2–3 min demo video; X + LinkedIn posts; submit the form
 
+## Next — Sources and the extension (before the UI; decided 2 Nov 2026)
+
+> Are.na was a founding request; the extension is the main way to capture. Details: [Project Breakdown.md](Project%20Breakdown.md) §1, §2, §2b.
+
+- [ ] E1. Port the extension to v2: capture links and notes to `/api/items`; device connection token until sign-in; save as do this / keep as reference; "I want to…" quick add; remove Notion and publishing copy (US-006)
+- [ ] E2. Screenshots and uploads from the extension: analysed once with the vision model; stored when R2 exists (#6)
+- [ ] E3. "Save to createthings" button on X posts (US-104)
+- [ ] E4. Badge: reviews due now; pet mood once the pet exists (US-058)
+- [ ] S1. References: `reference` item status, triage choice, references shown on goals and steps (US-100)
+- [ ] S2. Source adapters registry + `source_connections` + `collections` / `collection_items`; Are.na tables moved onto them (was 73b)
+- [ ] S3. Are.na connect with OAuth (PKCE, read; write only with write-back) and channel list (was 71, 72; US-008)
+- [ ] S4. Are.na import per channel mode (do / curated / references) through a queue within rate limits (was 72)
+- [ ] S5. Daily sync with a Cloudflare Cron Trigger; known blocks skipped (was 73; US-009)
+- [ ] S6. Link a collection to a goal: new blocks become its references; roadmaps read the thread (US-101)
+- [ ] S7. Write back to Are.na on finishing, opt-in (US-103)
+- [ ] S8. Weekly "what you're drawn to" `expansion` memory (US-102; H3's last type)
+- [ ] S9. Pinterest adapter on the library or MCP built for createthings (was 73e; US-095)
+- [ ] S10. Check X API pricing; bookmarks + folders import as a source adapter if it works (was 73f)
+
 ## Phase 0 — Platform move
 
 - [ ] 1. Switch to `@sveltejs/adapter-cloudflare`; add `wrangler.toml` with R2, KV, Queues, Hyperdrive, Workers AI bindings (31 Oct: adapter-cloudflare 7.2.9 with `wrangler.jsonc`: Hyperdrive, Workers AI, three queues + DLQs, `env.local`. Left: R2 and KV bindings, which come with #6)
@@ -143,9 +162,9 @@
 
 ## Phase 9 — Integrations
 
-- [ ] 71. Confirm Are.na API endpoints, auth and limits
-- [ ] 72. Are.na connect, channel modes, queued import (US-008)
-- [ ] 73. Daily Are.na sync (US-009)
+- [ ] 71. Confirm Are.na API endpoints, auth and limits (moved to S3–S5, 2 Nov)
+- [ ] 72. Are.na connect, channel modes, queued import (US-008) (moved to S3–S5, 2 Nov)
+- [ ] 73. Daily Are.na sync (US-009) (moved to S3–S5, 2 Nov)
 - [ ] 73b. Sources as plug-in adapters (`features/sources/registry.ts`, `source_connections`); Are.na moved onto it
 - [ ] 73c. Suggested collections: saves grouped by meaning (Walrus `embed`), kept in one tap (US-093)
 - [ ] 73d. Build from a collection: thread, ideas, make one, learn what's behind it, keep growing; `expansion` memories (US-094)
