@@ -60,15 +60,29 @@
 - [ ] S8. Weekly "what you're drawn to" `expansion` memory (US-102; H3's last type)
 - [ ] X1. Per-site choices in the extension: copy as you go (off by default), what copies become (ask me / reference / to-do) (US-112)
 - [ ] X2. No duplicates: imported items keep their site id (post, pin, block); importing again updates (new migration)
-- [ ] X3. X bookmarks copied as you go, with the "ask me" prompt: Do this · Keep as reference · Fit into a goal · Later (US-112)
+- [ ] X3. X bookmarks copied as you go, with the "ask me" prompt: Do this · Keep as reference · Fit into a goal · Later; saved without analysis, analysed only on Do this (US-112)
 - [ ] X4. X bookmarks import from the bookmarks page; folders become collections (needs S2) (US-113)
 - [ ] X5. Pinterest saves copied as you go into the board's collection; "Import this board" (needs S2) (US-114)
-- [ ] X6. Light bulk analysis (10 items per AI call, text only), cost shown before an import; full analysis when used; "Analyse next / 20" (US-115)
+- [ ] X6. Imports saved without analysis; full analysis when used (Do this, triage, goal, start); "Analyse next / 20" with the cost shown; light bulk read later if needed (US-115)
 - [ ] X7. One `expansion` memory per import; "what connects these" per collection (US-115, US-094)
-- [ ] S9. Pinterest adapter on the library or MCP built for createthings (was 73e; US-095)
+- [ ] S9. Pinterest connection with the official API v5 (OAuth; apply for Pinterest's app review early), boards → collections, daily sync; library or MCP as fallback (was 73e; US-095)
 - [ ] S10. Check X API pricing; bookmarks + folders import as a source adapter if it works (was 73f)
 
-## Phase 0 — Platform move
+## Next — The pet, the journal and templates (decided 3 Nov 2026)
+
+> The pet exists in the product; the UI only makes it visible. Details: [Project Breakdown.md](Project%20Breakdown.md) §3c, §7, §10; [design-prd.md](design-prd.md) B2, B10, C1, C27.
+
+- [ ] P1. The pet on the server: pet record (species, breed, name, tone), feed events, food sizes, daily food limit, hunger worked out from the last meal, feed history API (US-041, US-042, US-121)
+- [ ] P2. Feed from what's built: step done (meal), item finished (feast), review session and cards (snack), quiz (US-041)
+- [ ] P3. Journal API: entries about anything (Focus item, any goal, the day), one-line check-ins, voice notes into the journal; feeding by depth with the free check (rules first, small AI only when unclear) (US-120)
+- [ ] P4. Templates registry (user types) + the user's template and rhythm in settings, per-goal rhythm (new migration; check applied migrations first) (US-116, US-117)
+- [ ] P5. Rhythm-aware hunger (missed check-ins) as an option alongside days (US-117)
+- [ ] P6. The pet in the extension popup: mood, why, feed history, one-tap check-in; badge shows the mood (US-121)
+- [ ] P7. Onboarding API: types → template, "describe yourself" → suggested template, pet with personality sample lines (US-116, US-118)
+- [ ] P8. Experiments registry + stable placement + outcome events; switched on with sign-in (US-119)
+- [ ] P9. Rest mode, running away and coming home (3 days of activity) (US-043, US-044)
+
+
 
 - [ ] 1. Switch to `@sveltejs/adapter-cloudflare`; add `wrangler.toml` with R2, KV, Queues, Hyperdrive, Workers AI bindings (31 Oct: adapter-cloudflare 7.2.9 with `wrangler.jsonc`: Hyperdrive, Workers AI, three queues + DLQs, `env.local`. Left: R2 and KV bindings, which come with #6)
 - [ ] 2. Neon project + Hyperdrive config; confirm ORM (Drizzle) works through Hyperdrive (30 Oct: Neon project linked via `neon.ts`, Drizzle + `pg` read/write pass through local Hyperdrive emulation. Left: real Hyperdrive config, needs `wrangler login`)

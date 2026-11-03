@@ -12,7 +12,7 @@
 - **Part C** goes process by process. Each one has: what it's for, how the user gets there, the screens and steps, every state (empty, loading, error, success), example copy, the data the screen receives from the server, and edge cases.
 - **Part D** lists open questions only the product owner can answer, and an appendix of data shapes.
 - **Build status** is marked on every process: **Built** (the server is done and tested; only the screens are missing), **Designed** (rules decided, not built yet) or **Later**.
-- **Visual direction is open.** The previous "Zine" look (yellow/black, brutalist) is retired, and the product owner will give a new direction. This PRD defines behaviour, hierarchy and content, not a visual style. Where a visual idea is part of the product itself (dust, cobwebs, weather, the 3D pet), it's described as a requirement.
+- **Visual direction is open.** The previous "Zine" look (yellow/black, brutalist) is retired. **There will be 5 visual themes at launch** (3 Nov 2026); the product owner is briefing them directly. Every screen must work in all five, so build on shared tokens (colour, type, spacing, radius, motion), never on one theme's look. This PRD defines behaviour, hierarchy and content, not a visual style. Where a visual idea is part of the product itself (dust, cobwebs, weather, the 3D pet), it's described as a requirement.
 
 ---
 
@@ -113,7 +113,7 @@ Extra flags an item can carry:
 
 ## B2. The pet (present on almost every screen)
 
-The full model spec (life states, activities, reactions, animation list) is in [pet-state-machine.md](pet-state-machine.md). Design needs:
+The full model spec (life states, activities, reactions, animation list) is in [pet-state-machine.md](pet-state-machine.md). **The pet exists in the product, not only on screen:** its state, meals, hunger and feed history live on the server; the design makes them visible. Design needs:
 
 - **A room on Today** (its home: bed, bowl, toys, memorial shelf) and **a roaming mode** on other screens where it walks along edges.
 - **Rules:** it moves away from the cursor, never covers text being typed, goes quiet during focus sessions, can be **minimised** or **shooed**.
@@ -131,6 +131,21 @@ The full model spec (life states, activities, reactions, animation list) is in [
 | 30–59 | Ran away | Empty bed, pawprints |
 | 60+ | Died | Skeleton, the pet becomes a memorial |
 
+- **Personality** (set by species and breed: a golden retriever is eager to help, a husky is dramatic, a cat is sarcastic, a dragon is proud and blunt) plus a **tone slider** from gentle to savage. Personality changes **how** the pet says things, never **what** it advises. Every bubble, nudge and chat reply is written in it.
+- **What feeds it** (only real work on Focus items; saving never feeds it):
+
+| Action | Food |
+|---|---|
+| Pomodoro completed / stopped after 10+ min | Meal / snack |
+| Roadmap step done | Meal |
+| Journal entry about Focus work | Snack or meal, by depth |
+| Check-in ("did 5 minutes") | Snack |
+| Card created / review session finished | Snack |
+| Focus item finished | Feast |
+
+- **Daily food limit**, so one marathon day can't cover a week. A full pet says so (*"I'm stuffed, come back tomorrow"*).
+- **Feed history, always visible** (principle 18): tapping the pet or its bowl shows what fed it and when (*"Ate: step done, Tue · journal, Wed · reviews, Thu"*) and why it's hungry (*"Last fed 3 days ago"*). Hunger never looks random.
+- **Hunger follows your rhythm** (proposed, B10): measured in missed check-ins, not days, so someone who checks in weekly isn't punished on day 3.
 - **Feeding moments** need a satisfying animation: food flies from the completed thing (step card, pomodoro timer, journal) into the pet's mouth, happy hop. Sizes: snack, meal, feast.
 - **Species at launch:** dog, cat, fluffy monster, dragon, each with breeds. 3D, fluffy↔tough sliders, accessories on shared attachment points (head, face, neck, back, hand).
 - **Micro-interactions:** see Breakdown §10 (cursor nearby → ears perk; drag → wriggle; typing → walks over and "reads"; long idle → bats at a card; late night → sleepy, suggests stopping).
@@ -188,6 +203,37 @@ Every screen needs: **empty** (always with a way forward, often the pet suggesti
 
 ---
 
+## B10. User types and templates — *Designed (3 Nov 2026); options tested with A/B variants*
+
+Different people use the app differently: making jewelry, learning a concept and following a course each need their own rhythm, prompts and idea of "done". A **template** is a bundle of starting settings picked in onboarding; **everything in it stays editable**, and each goal can override it.
+
+**A template sets:** check-in rhythm (daily, every N days, weekly, chosen days, and a time) · journal prompts · what feeds the pet · what "done" looks like (proof, proving grounds) · plans (weekly plan day, daily shutdown on/off) · reviews (on/off, daily cap) · likely goals (intents) · suggested sources · how lenient the pet is.
+
+| User type | Rhythm | Journal prompt | Feeds the pet | Reviews |
+|---|---|---|---|---|
+| Jewelry / crafts | Every 2 days | What did you make? Photo of the piece | Pieces, techniques | Off |
+| Photography | Daily photo or weekly shoot | What did you shoot? One you're proud of, and why | Shots logged, challenges | Off |
+| Illustration / art | Daily sketch | What did you draw? What's still hard? | Sketches, pieces | Off |
+| Designer (UI, brand) | Weekly | What did you design? What did you borrow from? | Pieces, reference studies | Off |
+| Music (instrument) | Daily practice | What did you practise, at what tempo, what's still rough? | Practice sessions, songs | On |
+| Writing | Daily | How many words? What surprised you? | Words, pieces | Off |
+| Learning a concept | Daily, short | Explain it in two lines, as if to a friend | Sessions, explanations | On |
+| Following a course | The class schedule | What from today's class is still fuzzy? | Classes prepped, units | On + quizzes |
+| Exam / certification (e.g. cloud engineer) | Daily 25 min | What did you build or break in the lab? | Labs, practice exams | On + quizzes |
+| Language | Daily | Three new words, used in a sentence | Practice sessions | On |
+| Fitness / habit | Daily one-tap check-in | Did it? How did it feel? | Check-ins | Off |
+| Garden / tending | Weekly + seasonal | What changed? What needs doing? | Tend sessions, harvests | Off |
+| Explorer ("I'm scattered") | Weekly | What did you try? Keep, park or let go? | Tasters | Off |
+| Custom | You choose | Your own prompts | You choose | You choose |
+
+**Editing:** Settings → Your rhythm (template, check-in rhythm and time, prompts, reviews, pet leniency); each goal has its own rhythm (*"jewelry every 2 days, cloud cert daily"*). Changing a template never deletes anything.
+
+**Tested, not guessed (A/B variants):** where there's no clear right answer, new users get one of a few variants as their *defaults*, and we keep what works better (first step done, check-ins kept, coming back after a week). They can always change their own settings. First experiments: how onboarding asks (pick types / describe in a sentence / both), a short or full template list, one type or several, hunger counted in days or in missed check-ins, gentle or firmer default pet timeline.
+
+**Design:** every variant needs its own screen state (e.g. the type grid, the sentence box, or both); template cards with an illustration per type; a plain-words summary (*"You'll check in every 2 days at 7pm. Your pet eats when you log a piece. Weekly plan on Sundays."*); a rhythm picker (Daily · Every [2] days · Weekly · Pick days, plus a time).
+
+---
+
 # Part C — Processes
 
 Each process lists the data the server already provides. Field names are given so the designer knows exactly what can be shown.
@@ -196,17 +242,20 @@ Each process lists the data the server already provides. Field names are given s
 
 ## C1. Onboarding — *Designed* (auth is built last)
 
-**Goal:** from first open to "one thing picked" in under 3 minutes.
+**Goal:** from first open to "one thing picked" in under 3 minutes, with an app that already fits how this person works.
 
 **Steps:**
 
-1. Sign in: magic link or Google; optional 2FA later in settings.
-2. **"What's on your mind?"**: add 3–5 things they want to do (type, paste links, or import Are.na). Each becomes an item.
-3. Pick a species and breed, name it, set fluffy↔tough.
-4. Choose the pet's timeline (defaults: runs away after 30 days, dies after 60; minimums 10 and 21 shown).
-5. Land on **Today**: pet in its room, bubble: "Let's pick one thing."
+1. **Sign in:** magic link or Google; optional 2FA later in settings.
+2. **"What brings you here?"** Pick 1–3 user types (B10 cards), or describe yourself in a sentence (*"I make silver rings and want to sell them"*) and the app suggests a template.
+3. **Your rhythm, in plain words:** the template's summary (*"You'll check in every 2 days at 7pm…"*) with everything changeable on the spot: rhythm (daily / every N days / weekly / pick days), time, reviews on or off.
+4. **Meet your pet:** pick a species and breed. **Each choice shows its personality**: the pet animates and says the same advice in its own voice (golden retriever: *"Let's go! Just 5 minutes on the chords?"*; cat: *"Five minutes. Even you can manage that."*), and the **tone slider** (gentle ↔ savage) changes the sample line live. Then name it and set fluffy↔tough.
+5. **How lenient is it?** The pet's timeline, explained gently, in check-ins for the chosen rhythm (defaults: runs away after 30 days' worth, dies after 60; minimums 10 and 21 shown). Rest mode mentioned.
+6. **"What's on your mind?":** add 3–5 things (type, paste links, voice, import a course or Are.na). Each becomes an item; the confirm card checks the first one.
+7. **Land on Today:** the pet in its room, a bubble in its personality: *"Let's pick one thing."*
+8. **Install the extension** (an optional card on Today, not a step): connect it in one tap once sign-in exists.
 
-**States:** skipping the brain-dump is allowed (empty Today with "Save your first idea"). Timeline step must explain consequences gently.
+**States:** every step after sign-in can be skipped with sensible defaults (template: Explorer; pet: the default species). Skipping the brain dump gives an empty Today with "Save your first idea". The timeline step explains consequences gently, never threatening.
 
 ---
 
@@ -496,7 +545,7 @@ Data: `POST /api/items/[id]/finish { note? }` → `{ item, next: { item, reason,
 
 ---
 
-## C16. Daily shutdown — *Designed*
+## C16. Daily shutdown — *Built (server); screen not built*
 
 **Goal:** stop the day with a clear plan for tomorrow.
 
@@ -504,7 +553,7 @@ Data: `POST /api/items/[id]/finish { note? }` → `{ item, next: { item, reason,
 
 ---
 
-## C17. Knowledge review, flashcards and quizzes — *Designed*
+## C17. Knowledge review, flashcards and quizzes — *Built (server); in the extension popup; app screen not built*
 
 **Goal:** what they learn comes back until it sticks.
 
@@ -512,6 +561,7 @@ Data: `POST /api/items/[id]/finish { note? }` → `{ item, next: { item, reason,
 - **Daily review:** "3 reviews due" on Today (capped at 5/day) → one card at a time → **Got it / Shaky / Forgot** → next date set → snack. Cards from different topics are mixed.
 - **Practice quizzes:** 5–10 questions at the end of a milestone and in the days before a target date (exam prep). Answers explained immediately; wrong answers become cards.
 - **Knowledge library:** everything learned, by item or topic.
+- **In the extension popup** (built): the badge shows today's reviews; the popup's Reviews box explains them (*"5 to review today: quick questions from steps you finished, so they stick"*) and runs them right there (question → Show answer → Forgot / Shaky / Got it).
 
 ---
 
@@ -578,11 +628,14 @@ Sections: account (sign-in, optional 2FA) · pet (timeline, rest mode, livelines
 
 ---
 
-## C24. Collections, Are.na and Pinterest — *Later*
+## C24. Collections and social accounts (X, Pinterest, Are.na) — *Designed (3 Nov 2026); built after the extension work*
 
-- The app **groups similar saves for you** and suggests a collection (*"You've saved 9 riso posters. Keep them together?"*): one tap keeps, one ignores. Never a chore.
-- Are.na channels and Pinterest boards arrive as ready-made collections.
+- **Collections:** the app **groups similar saves for you** and suggests one (*"You've saved 9 riso posters. Keep them together?"*): one tap keeps, one ignores. Never a chore. Are.na channels, Pinterest boards and X bookmark folders arrive as ready-made collections.
 - **Build from a collection:** find the thread (what connects it) · spark 3–5 ideas (each showing which items it came from) · make one · learn what's behind it · new items that fit are noticed.
+- **Copy as you go** (per site, off until switched on): bookmarking on X or saving a pin also saves it here. What copies become is the user's choice: **ask me each time** (default), reference, or to-do. "Ask me" shows the prompt: *"From your X bookmarks: [card]. Do this · Keep as reference · Fit into a goal · Later"*, with Undo.
+- **Bring in what you have:** on the X bookmarks page, "Import into createthings" (folders become collections); on a Pinterest board, "Import this board"; Are.na and later Pinterest connect as real accounts (choose channels or boards; daily sync).
+- **Cost, always shown:** copies and imports are saved **without analysis** (free); the full analysis runs when the user picks Do this, triages, links to a goal or starts it. Going through an import: "Analyse next" / "Analyse 20" with the cost shown first.
+- **Settings → Connections:** each account's state (connected, last sync, what it brings in), Connect / Disconnect, per-site choices, extension devices.
 
 ---
 
@@ -592,7 +645,7 @@ When a step needs a tool choice (*"Figma or Penpot?"*): 2–4 options side by si
 
 ---
 
-## C26. Voice ("just yap") — *In build*
+## C26. Voice ("just yap") — *Built (server); screen not built*
 
 Hold the mic (PWA or extension) and ramble → transcribed → split into separate ideas → each sorted (new item · step for a Focus item · journal note · learning goal) → each goes through **fit-it-in** (C10) → the user approves what's added. A short summary is remembered. Audio and transcript stay private.
 
@@ -600,16 +653,63 @@ Hold the mic (PWA or extension) and ramble → transcribed → split into separa
 
 ---
 
+## C27. Journal and project space — *Designed (3 Nov 2026); not built*
+
+**Goal:** writing down what you did is quick, feeds the pet, and turns into learning.
+
+**What you journal is up to you:** a Focus item, any goal, or your day in general. The template sets the default (a crafts template opens on today's piece; a learning template on what you learned), and the journal can be pointed anywhere. **What feeds the pet** stays real work: entries about a goal you're working on.
+
+**Ways to journal** (all land in the same journal, linked to whatever it's about):
+- **Typed entry** in the project space or from the pet's actions
+- **One-line check-in** (*"did 5 minutes on the chords"*), one tap from Today, the pet, the popup or a nudge
+- **End of a pomodoro:** *"What did you do?"* (C15)
+- **Daily shutdown line** (C16)
+- **Voice ramble** (C26): journal notes are one of its destinations
+
+**Prompts** come from the user's template (B10) and the step: *"What did you make? Photo of the piece"* for crafts, *"Explain it in two lines"* for learning a concept. Never more than one prompt at a time; a blank entry is always allowed.
+
+**Feeding:** an entry about Focus work feeds the pet, snack or meal by depth. A free check decides: simple rules first (mentions the item or step, length), a small AI check only when unclear. Shown right away in the feed animation and history (B2).
+
+**Learning:** "what I learned" entries can suggest flashcards (Approve / Skip), so journal → cards → reviews (C17). Entries about a Shortlist item ask *"Make this your focus?"*.
+
+**Project space:** one page per Focus item: the roadmap, its journal, linked references, photos of what you made, the proof pieces.
+
+**Privacy:** journal text stays in the app. The pet's memory gets short summaries only (*"Practised ii-V-I, still slow on the F"*), never the entry itself.
+
+**Design:** the check-in is a single line with a send button; the journal reads like a dated timeline with photos; each entry shows what it fed (*"+ meal for Mochi"*).
+
+---
+
+## C28. Browser extension — *Built (capture, popup, reviews); more in build*
+
+**Goal:** save from anywhere, see exactly what was saved, and see what the pet wants from you, without opening the app.
+
+- **Connect:** paste a token now (made in Settings → Connections); one "Sign in with createthings" button once sign-in exists.
+- **Popup**, top to bottom:
+  - **Today's reviews** (the badge number), explained and doable right there (C17)
+  - **Today's #1** with its 2-minute version (next)
+  - **Save:** this page / screenshot / pick an area / "I want to…", with a note and "keep as a reference"
+  - **Recent saves:** the last 8, each with its state (*Inbox · not analysed yet*, *Ready to sort*, *Reference*) and Undo
+  - **The pet** (next): mood and why (*"Mochi is peckish: last fed 3 days ago"*), one-tap check-in
+- **Saving anywhere:** right-click (link, image, selected text, page), Alt+Shift+S and Alt+Shift+A, Save buttons on posts (X, Pinterest, Are.na, YouTube, Instagram, Dribbble, Behance, Reddit, GitHub). Every save shows the toast with **what was saved** (C2).
+- **Badge:** today's reviews; the pet's mood once shown; *!* when not connected. Every badge state is explained in the popup (principle 18).
+- **When things go wrong:** offline (saves wait and send later; the popup shows what's waiting), out of credits (the save happens; analysis waits for the free quota), disconnected (back to Connect, nothing lost).
+- **Settings in the popup:** per-site copy as you go and what copies become (C24).
+
+---
+
 # Part D — Open questions and appendix
 
 ## D1. Open questions for the product owner
 
-1. **Visual direction** for v2 (the Zine theme is retired).
+1. **Visual direction** for v2 (the Zine theme is retired): **5 launch themes**, briefed by the product owner. Open: their names and looks, whether the user picks one in onboarding or Settings, and whether themes affect the pet's room and the living interface (weather, dust).
 2. **Navigation model**: bottom tabs on mobile (e.g. Today · Plan · Inbox · Pet · Me) or a single Today hub with sheets?
 3. **The pet's default species** for first impressions and marketing screens.
 4. **How much of the plan to show on Today**: only #1 (current principle) or a collapsed list.
 5. **Payments**: user's own wallet vs app-managed zkLogin address (affects C20 copy).
 6. **Desktop layout**: does the pet's room stay large on wide screens, or become a side panel?
+7. ~~User types, blending, hunger counting, "describe yourself"~~ → decided 3 Nov 2026: test the options as A/B variants (B10).
+8. ~~Journal scope~~ → decided 3 Nov 2026: users journal whatever they choose; the template sets the default (C27).
 
 ## D2. Item fields (for every item card)
 
@@ -629,4 +729,4 @@ Hold the mic (PWA or extension) and ramble → transcribed → split into separa
 
 | Built (server ready, screens needed) | Designed (rules set) | Later |
 |---|---|---|
-| Capture (links, notes), analysis, triage, Pick for me, Focus, confirm card, roadmaps (goals, proving grounds, re-plan), month/week/day + year/half/quarter plans, reshuffle, fit-it-in, courses, tasters, pet chat, finish + next, what your pet knows, credits | Onboarding, auth, pomodoro + sounds, shutdown, reviews/flashcards/quizzes, pet life and neglect visuals, weather, notifications/digest, payments, voice (in build) | Collections, Are.na/Pinterest, help me choose, desktop app |
+| Capture (links, notes, screenshots, images), the extension (saving everywhere, the toast with what was saved, popup with reviews and recent saves), analysis, triage, Pick for me, Focus, confirm card, roadmaps (goals, proving grounds, re-plan), month/week/day + year/half/quarter plans, reshuffle, fit-it-in, courses, tasters, pet chat, finish + next, reviews/flashcards/quizzes, daily shutdown, voice, what your pet knows, credits | Onboarding with user types and templates, auth, the pet's life and feeding (server next), journal and project space, pomodoro + sounds, neglect visuals, weather, notifications/digest, payments, collections and social accounts | Help me choose, desktop app |

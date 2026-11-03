@@ -218,7 +218,7 @@ Everything is one of three kinds, all in **Settings → Connections**:
 | Account | How it connects | What comes in | What goes out | Status |
 | --- | --- | --- | --- | --- |
 | Are.na | OAuth (PKCE) | Channels → items, references, collections; daily sync | A "made with createthings" block, opt-in | Next (S2–S8) |
-| Pinterest | Our own library or MCP | Boards → collections; daily sync | Nothing | Later (S9) |
+| Pinterest | Official API v5 (OAuth; needs Pinterest's app review), with our library or MCP as a fallback | Boards → collections; daily sync | Nothing | Later (S9) |
 | X bookmarks | Official X API, if pricing allows | Bookmarks and folders | Nothing | Check first (S10) |
 | Calendar | ICS link (any calendar), Google Calendar later | Busy times, so plans go around them | Your blocks as a calendar feed | Next (C1–C2) |
 | Sui wallet | zkLogin or your own wallet | Payments, receipts | USDC payments | Hackathon (H12–H13) |
@@ -255,7 +255,7 @@ What you already do on these sites should land in createthings without extra wor
 | --- | --- | --- | --- |
 | **Copy as you go** | Bookmarking a post on X also saves it here | Saving a pin to a board also saves it here, into that board's collection | Daily sync does it (real account connection) |
 | **Bring in what you have** | On your bookmarks page: "Import into createthings" reads them as the page scrolls; each bookmark folder becomes a collection | On a board: "Import this board" → a collection | Connect once, choose channels; they stay in sync (S3–S5) |
-| **How it connects** | The extension reads the page you're on; no X API fees (the paid API stays an option, S10) | The extension now; the Pinterest library or MCP later for background sync (S9) | Are.na OAuth + API |
+| **How it connects** | The extension reads the page you're on; no X API fees (the paid API stays an option, S10) | The extension now; then the official Pinterest API (v5, OAuth, read boards and pins; free, but the app needs Pinterest's review for full access) for background sync (S9) | Are.na OAuth + API |
 
 **The prompt when a copy arrives** (the toast, when "ask me" is on): *"From your X bookmarks: [card]. Do this · Keep as reference · Fit into a goal · Later"*. Do this → Inbox; Keep as reference → references; Fit into a goal → fit-it-in (§5); Later → Inbox, no reminder. With *reference* or *to-do* chosen, the toast just says where it went, with the switch and Undo.
 
@@ -270,7 +270,7 @@ What you already do on these sites should land in createthings without extra wor
 | C. When you use it | Nothing until you triage, link to a goal or start an item; then the full analysis | Only what you touch |
 | D. One after another | "Analyse next" / "Analyse 20" at your pace, the cost shown first | You choose |
 
-**Recommended mix:** B on import (the cost shown before it starts: "Import 300 bookmarks: a quick read costs about 30 credits. Go / Skip"), C for the full analysis, D whenever you want to go through them, plus one "what connects these" thread per collection (§2b, 1 call). Single saves keep the full analysis straight away. Walrus: no memory per imported item; one `expansion` memory per import ("brought in 300 X bookmarks: mostly type design and riso"), so the 500-points-an-hour limit is never at risk.
+**Decided (3 Nov 2026): nothing copied or imported is analysed until you choose it.** A copy (X bookmark, Pinterest save) or an imported item is saved without analysis; the full analysis runs when you pick **Do this** in the prompt, or later triage, link to a goal or start it (option C). Keep as reference, Later and imports cost nothing. For going through a big import: "Analyse next" / "Analyse 20" (D), with the cost shown first; the light bulk read (B, about 1 credit per 10) stays an option to offer once imports are real. One "what connects these" per collection (§2b, 1 call). Single saves from the popup, right-click and site buttons keep the full analysis straight away. Walrus: no memory per imported item; one `expansion` memory per import ("brought in 300 X bookmarks: mostly type design and riso"), so the 500-points-an-hour limit is never at risk.
 
 ### 3. Analyze (exists, changed)
 
@@ -354,6 +354,22 @@ Possible later sources: YouTube or Spotify playlists, browser bookmark folders, 
 - Re-plans add support around the course but never reorder or drop its units
 - **Class dates** from the syllabus go into the plan: the weekly plan puts practice blocks before each class, and exam dates become the target date
 - **How it works:** `POST /api/courses` takes a PDF or up to 10 photos/screenshots. Gemini reads them once (the file isn't stored until R2 storage exists) and returns the course title, its units in order (topics and dates where given) and any exam date. That becomes an item with the course intent (exam date as the target date) and its units in `course_units`. Its roadmap has one milestone per unit, in order, with the unit's title; re-plans keep the remaining units in order. Week proposals mark blocks that come before a unit's class. Reading a syllabus costs 3 credits
+
+### 3c. User types, templates and rhythm (decided 3 Nov 2026)
+
+People use the app in different ways: making jewelry, learning a concept and following a course each need their own rhythm, prompts and idea of "done". In onboarding they pick a **user type** (one or more, or describe themselves in a sentence), which gives them a **template**: a bundle of starting settings, **all editable** later, with any goal able to override it.
+
+- **A template sets:** check-in rhythm (daily, every N days, weekly, chosen days, plus a time) · journal prompts and what the journal opens on · what feeds the pet · what "done" looks like (proof, proving grounds) · plans (weekly plan day, daily shutdown on/off) · reviews (on/off, daily cap) · likely intents · suggested sources · pet leniency
+- **First user types:** jewelry / crafts, photography, illustration / art, designer, music, writing, learning a concept, following a course, exam / certification (e.g. cloud engineer), language, fitness / habit, garden / tending, explorer ("I'm scattered"), custom. The full table is in [design-prd.md](design-prd.md) B10
+- **A registry like the intents** (`features/templates/registry.ts`): adding a user type is one entry; templates live in code, the user's choice and edits in their settings (one migration)
+- **Rhythm and hunger:** the pet's hunger can be counted in missed check-ins instead of days, so a weekly user isn't punished on day 3 (tested, below)
+
+**Tested, not guessed (A/B variants).** Where there's no clear right answer, new users get one of a few variants as their *defaults*; we keep what works better. They can always change their own settings.
+
+- **First experiments:** how onboarding asks (pick types / describe in a sentence / both) · short or full template list · one type or several · hunger in days or in missed check-ins · gentle or firmer default pet timeline
+- **What "works better" means:** onboarding finished, first step done, check-ins kept in the first two weeks, coming back after 7 and 30 days
+- **How:** an experiments registry (`features/experiments/registry.ts`: id, variants, share of users); each user is placed by a stable hash of their id, so it never changes; the variant and a few events are stored in our own database. No third-party tracking
+- **Needs real users,** so it switches on with sign-in; until then every variant can be tried by hand
 
 ### 4. Sort: Triage
 
@@ -477,7 +493,10 @@ A roadmap works like navigation: it always answers "what now?", including when s
 ### 7. Learn: Project Space + Journal (exists)
 
 - Project page per Focus item: editor with headings, images, embeds; linked inspirations alongside
-- Journal: dated entries about what you tried, what worked, what you learned
+- Journal: dated entries about what you tried, what worked, what you learned. **What you journal is up to you** (a Focus item, any goal, or your day); the template sets the default. **Ways in:** typed, one-line check-in, end of a pomodoro, the daily shutdown line, voice. Prompts come from the template and the step
+- **Feeding:** entries about a goal you're working on feed the pet, snack or meal by depth; a free check decides (rules first, a small AI check only when unclear)
+- **Learning:** "what I learned" entries can suggest flashcards (Approve / Skip)
+- **Privacy:** journal text stays in the app; the pet's memory gets short summaries only
 - AI reflection prompts after a session ("What was harder than expected?")
 - **v1 scope:** notes are focused on your Focus work. General notes (any page, linked to anything) come later.
 - **Export:** automatic one-way export to Notion on a schedule; Obsidian export as a downloadable zip of Markdown files

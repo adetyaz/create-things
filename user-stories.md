@@ -69,6 +69,41 @@
 
 ---
 
+### US-116 — Start with a template that fits how I work
+
+> As someone who makes jewelry (or studies for a cloud exam, or follows a course), I want onboarding to set the app up for my kind of work so that it fits me from day one.
+
+- AC-01 "What brings you here?": pick one or more user types, or describe myself in a sentence
+- AC-02 The template's settings shown in plain words (rhythm, prompts, what feeds the pet, reviews), each changeable on the spot
+- AC-03 Everything stays editable in Settings; each goal can have its own rhythm
+- AC-04 Changing the template never deletes anything
+
+### US-117 — Set my own rhythm
+
+> As someone who works on things every few days, I want to choose how often I check in so that the app and my pet match my real pace.
+
+- AC-01 Daily, every N days, weekly, or chosen days, plus a time
+- AC-02 Per goal: "jewelry every 2 days, cloud cert daily"
+- AC-03 Nudges, prompts and the pet's hunger follow the rhythm
+
+### US-118 — Meet my pet's personality before choosing it
+
+> As a new user, I want to see how each pet talks before I pick it so that I choose one I'll enjoy hearing from.
+
+- AC-01 Each species and breed animates and says the same advice in its own voice
+- AC-02 The tone slider (gentle ↔ savage) changes the sample line live
+- AC-03 Then I name it and set fluffy ↔ tough
+
+### US-119 — Get the version of the app that works best (system)
+
+> As the product owner, I want new users to get different default options and see which works better so that onboarding, rhythm and the pet are tuned on evidence.
+
+- AC-01 Experiments registry: id, variants, share of users; a stable placement per user
+- AC-02 Variants only change defaults; users can always change their own settings
+- AC-03 Outcomes measured in our own database: onboarding finished, first step done, check-ins kept, return after 7 and 30 days; no third-party tracking
+
+---
+
 ## 02 · Capture
 
 | ID     | Story                                  | Phase | Status |
@@ -651,6 +686,25 @@
 
 - AC-01 Download a zip of Markdown files with front matter
 - AC-02 One file per item, journal entry set and knowledge card set, with links between them
+
+---
+
+### US-120 — Journal about whatever I choose
+
+> As someone with a messy life, I want to write about my project, any goal or just my day so that the journal is mine, not a form.
+
+- AC-01 The journal opens on my template's default (today's piece, what I learned) and can be pointed at anything
+- AC-02 Ways in: typed, one-line check-in, end of a pomodoro, the daily shutdown line, voice
+- AC-03 Entries about a goal I'm working on feed my pet, snack or meal by depth (free check)
+- AC-04 Each entry shows what it fed; "what I learned" entries can suggest flashcards
+
+### US-121 — See why my pet is hungry
+
+> As someone who cares about my pet, I want to see what fed it and when so that its mood never feels random.
+
+- AC-01 Tapping the pet or its bowl shows its feed history and the time since the last meal
+- AC-02 Shown in the app and the extension popup ("Mochi is peckish: last fed 3 days ago")
+- AC-03 A full pet says so when the daily limit is reached
 
 ---
 
