@@ -1,12 +1,12 @@
 # createthings — User Stories
 
-**v2.0 · October 2026** · Source of truth: [Project Breakdown.md](Project%20Breakdown.md)
+**v2.0 · October 2026 · statuses updated 3 November 2026** · Source of truth: [Project Breakdown.md](Project%20Breakdown.md)
 
-104 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
+121 stories across 16 areas. Every story is written for one user: someone scattered, with too many things they want to do.
 
 ## Keys
 
-- **Status:** `[ ]` not started · `[~]` partly exists in the old code and needs porting or changing · `[x]` done
+- **Status** (updated 3 Nov 2026): `[ ]` not started · `[~]` partly built · `[s]` server built and verified, screens still needed · `[x]` works for a user end to end today
 - **Phase:** the build phase in Project Breakdown.md
 
 ---
@@ -17,9 +17,13 @@
 | ------ | ----------------------------- | ----- | ------ |
 | US-001 | Sign in                       | 0     | `[ ]`  |
 | US-002 | Brain-dump what's on my mind  | 2     | `[ ]`  |
-| US-003 | Choose and name my pet        | 4     | `[ ]`  |
+| US-003 | Choose and name my pet        | 4     | `[s]`  |
 | US-004 | Set my pet's timeline         | 6     | `[ ]`  |
 | US-005 | Adjust my settings            | 2     | `[~]`  |
+| US-116 | Start with a template that fits how I work | Next | `[ ]` |
+| US-117 | Set my own rhythm | Next | `[ ]` |
+| US-118 | Meet my pet's personality before choosing it | Next | `[ ]` |
+| US-119 | Get the version of the app that works best (system) | Next | `[ ]` |
 
 ### US-001 — Sign in
 
@@ -112,19 +116,19 @@
 | US-007 | Capture from my phone                  | 8     | `[ ]`  |
 | US-008 | Connect Are.na channels                | 9     | `[ ]`  |
 | US-009 | Keep Are.na in sync                    | 9     | `[ ]`  |
-| US-089 | Say what I want in a sentence          | 3     | `[ ]`  |
+| US-089 | Say what I want in a sentence          | 3     | `[~]`  |
 | US-093 | Have my saves grouped for me           | 9     | `[ ]`  |
 | US-094 | Build from a collection                | 9     | `[ ]`  |
 | US-095 | Connect Pinterest boards               | 9     | `[ ]`  |
-| US-100 | Keep things as references              | Next  | `[ ]`  |
+| US-100 | Keep things as references              | Next  | `[~]`  |
 | US-101 | Link a board to a goal                 | Next  | `[ ]`  |
 | US-102 | Have the pet notice what I'm drawn to  | Next  | `[ ]`  |
 | US-103 | Share what I made back to Are.na       | Next  | `[ ]`  |
-| US-104 | Save X posts in one click              | Next  | `[ ]`  |
-| US-105 | Save a link, image or text by right-click | Next  | `[ ]`  |
-| US-106 | Save with a shortcut, no popup         | Next  | `[ ]`  |
-| US-107 | Undo or switch a save from the page    | Next  | `[ ]`  |
-| US-108 | Save from the sites I use              | Next  | `[ ]`  |
+| US-104 | Save X posts in one click              | Next  | `[x]`  |
+| US-105 | Save a link, image or text by right-click | Next  | `[x]`  |
+| US-106 | Save with a shortcut, no popup         | Next  | `[x]`  |
+| US-107 | Undo or switch a save from the page    | Next  | `[~]`  |
+| US-108 | Save from the sites I use              | Next  | `[~]`  |
 | US-109 | Keep saving when I'm offline           | Next  | `[ ]`  |
 | US-110 | See and manage my connections          | Next  | `[ ]`  |
 | US-111 | Plan around my calendar                | Next  | `[ ]`  |
@@ -345,10 +349,10 @@
 
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
-| US-010 | See an analysis of what I saved        | 1     | `[~]`  |
-| US-011 | Know how big and hard something is     | 1     | `[ ]`  |
-| US-012 | Have learning goals recognised         | 1     | `[~]`  |
-| US-088 | Confirm what I'm trying to do          | 3     | `[ ]`  |
+| US-010 | See an analysis of what I saved        | 1     | `[s]`  |
+| US-011 | Know how big and hard something is     | 1     | `[s]`  |
+| US-012 | Have learning goals recognised         | 1     | `[s]`  |
+| US-088 | Confirm what I'm trying to do          | 3     | `[s]`  |
 
 ### US-010 — See an analysis of what I saved
 
@@ -393,7 +397,7 @@
 
 | ID     | Story                      | Phase | Status |
 | ------ | -------------------------- | ----- | ------ |
-| US-013 | Triage my pile quickly     | 2     | `[ ]`  |
+| US-013 | Triage my pile quickly     | 2     | `[s]`  |
 
 ### US-013 — Triage my pile quickly
 
@@ -410,15 +414,15 @@
 
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
-| US-014 | Open to one clear thing                | 2     | `[ ]`  |
-| US-015 | Let the app pick for me                | 2     | `[ ]`  |
-| US-016 | Stay limited to a few things           | 2     | `[ ]`  |
-| US-079 | Never miss twice                       | Hackathon | `[ ]`  |
-| US-080 | Close the day with a shutdown          | 3     | `[ ]`  |
-| US-084 | Pick what matters this month           | Hackathon | `[ ]`  |
-| US-085 | Plan my week in one go                 | Hackathon | `[ ]`  |
-| US-086 | Know tomorrow's top 3 before I sleep   | Hackathon | `[ ]`  |
-| US-099 | Plan my year, half-year and quarter    | 3     | `[ ]`  |
+| US-014 | Open to one clear thing                | 2     | `[s]`  |
+| US-015 | Let the app pick for me                | 2     | `[s]`  |
+| US-016 | Stay limited to a few things           | 2     | `[~]`  |
+| US-079 | Never miss twice                       | Hackathon | `[s]`  |
+| US-080 | Close the day with a shutdown          | 3     | `[s]`  |
+| US-084 | Pick what matters this month           | Hackathon | `[s]`  |
+| US-085 | Plan my week in one go                 | Hackathon | `[s]`  |
+| US-086 | Know tomorrow's top 3 before I sleep   | Hackathon | `[s]`  |
+| US-099 | Plan my year, half-year and quarter    | 3     | `[s]`  |
 
 ### US-014 — Open to one clear thing
 
@@ -509,17 +513,17 @@
 
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
-| US-017 | Get steps small enough to start        | 3     | `[~]`  |
-| US-018 | Get a learning path for a skill        | 3     | `[ ]`  |
-| US-019 | Get unstuck                            | 6     | `[ ]`  |
-| US-020 | Get taught one thing                   | 6     | `[ ]`  |
-| US-081 | Always know the next step              | 3     | `[ ]`  |
-| US-082 | Start with a 2-minute version          | 3     | `[ ]`  |
+| US-017 | Get steps small enough to start        | 3     | `[s]`  |
+| US-018 | Get a learning path for a skill        | 3     | `[s]`  |
+| US-019 | Get unstuck                            | 6     | `[s]`  |
+| US-020 | Get taught one thing                   | 6     | `[s]`  |
+| US-081 | Always know the next step              | 3     | `[s]`  |
+| US-082 | Start with a 2-minute version          | 3     | `[s]`  |
 | US-083 | Help me choose between tools           | 6     | `[ ]`  |
-| US-087 | Learn in a way that sticks             | 3     | `[~]`  |
-| US-090 | Work toward a real goal                | 3     | `[ ]`  |
-| US-091 | Follow my course                       | 3     | `[ ]`  |
-| US-092 | Try something before committing        | 3     | `[ ]`  |
+| US-087 | Learn in a way that sticks             | 3     | `[s]`  |
+| US-090 | Work toward a real goal                | 3     | `[s]`  |
+| US-091 | Follow my course                       | 3     | `[s]`  |
+| US-092 | Try something before committing        | 3     | `[s]`  |
 | US-096 | Tend something over time               | Later | `[ ]`  |
 | US-097 | Build a habit                          | Later | `[ ]`  |
 
@@ -642,11 +646,13 @@
 
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
-| US-021 | Work in a project space                | 3     | `[~]`  |
-| US-022 | Journal what I'm learning              | 3     | `[~]`  |
+| US-021 | Work in a project space                | 3     | `[ ]`  |
+| US-022 | Journal what I'm learning              | 3     | `[ ]`  |
 | US-023 | Get reflection prompts                 | 3     | `[ ]`  |
 | US-024 | Export to Notion                       | 9     | `[ ]`  |
 | US-025 | Download as an Obsidian vault          | 9     | `[ ]`  |
+| US-120 | Journal about whatever I choose | Next | `[ ]` |
+| US-121 | See why my pet is hungry | Next | `[s]`  |
 
 ### US-021 — Work in a project space
 
@@ -767,12 +773,12 @@
 
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
-| US-031 | Turn completed steps into cards        | 5     | `[ ]`  |
+| US-031 | Turn completed steps into cards        | 5     | `[s]`  |
 | US-032 | Turn journal entries into cards        | 5     | `[ ]`  |
-| US-033 | Review cards on a schedule             | 5     | `[ ]`  |
+| US-033 | Review cards on a schedule             | 5     | `[s]`  |
 | US-034 | Explain it back in my own words        | 5     | `[ ]`  |
 | US-035 | Browse everything I've learned         | 5     | `[ ]`  |
-| US-098 | Practise with quizzes and flashcards   | 5     | `[ ]`  |
+| US-098 | Practise with quizzes and flashcards   | 5     | `[s]`  |
 
 ### US-031 — Turn completed steps into cards
 
@@ -832,15 +838,15 @@
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
 | US-036 | Have my pet live in the app            | 4     | `[ ]`  |
-| US-037 | Get a pet with personality             | 6     | `[ ]`  |
+| US-037 | Get a pet with personality             | 6     | `[~]`  |
 | US-038 | Be guided by my pet                    | 4     | `[ ]`  |
 | US-039 | Do things by clicking my pet           | 4     | `[ ]`  |
-| US-040 | Chat with my pet                       | 6     | `[ ]`  |
-| US-041 | Feed my pet by doing the work          | 4     | `[ ]`  |
-| US-042 | See my pet get hungry                  | 4     | `[ ]`  |
-| US-043 | Pause hunger when I need a break       | 4     | `[ ]`  |
-| US-044 | Win back a pet that ran away           | 6     | `[ ]`  |
-| US-045 | Remember a pet that died               | 6     | `[ ]`  |
+| US-040 | Chat with my pet                       | 6     | `[s]`  |
+| US-041 | Feed my pet by doing the work          | 4     | `[s]`  |
+| US-042 | See my pet get hungry                  | 4     | `[s]`  |
+| US-043 | Pause hunger when I need a break       | 4     | `[~]`  |
+| US-044 | Win back a pet that ran away           | 6     | `[~]`  |
+| US-045 | Remember a pet that died               | 6     | `[~]`  |
 | US-046 | Revive or hatch a new pet              | 6     | `[ ]`  |
 | US-047 | Watch my pet grow                      | 6     | `[ ]`  |
 | US-048 | Shape my pet's body                    | 6     | `[ ]`  |
@@ -1046,7 +1052,7 @@
 
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
-| US-058 | See my pet's mood in the extension     | 8     | `[ ]`  |
+| US-058 | See my pet's mood in the extension     | 8     | `[~]`  |
 | US-059 | Get nudged by my pet                   | 8     | `[~]`  |
 | US-060 | Control when I'm nudged                | 8     | `[ ]`  |
 | US-061 | Get a weekly digest                    | 8     | `[~]`  |
@@ -1088,8 +1094,8 @@
 
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
-| US-062 | Use AI free every day                  | 1     | `[ ]`  |
-| US-063 | See what AI costs before I use it      | 1     | `[ ]`  |
+| US-062 | Use AI free every day                  | 1     | `[s]`  |
+| US-063 | See what AI costs before I use it      | 1     | `[~]`  |
 | US-064 | Choose a stronger model                | 10    | `[ ]`  |
 | US-065 | Buy credits                            | 10    | `[ ]`  |
 | US-066 | Buy items in the store                 | 10    | `[ ]`  |
@@ -1181,12 +1187,12 @@
 
 | ID     | Story                                        | Phase     | Status |
 | ------ | -------------------------------------------- | --------- | ------ |
-| US-071 | Have my pet remember my goals and plan        | Hackathon | `[ ]`  |
-| US-072 | Fit a new idea in without killing the vibe    | Hackathon | `[ ]`  |
-| US-073 | Plan my steps in time blocks                 | Hackathon | `[ ]`  |
-| US-074 | Yap my ideas by voice                         | Hackathon | `[ ]`  |
-| US-075 | Get told what to do next and how it connects  | Hackathon | `[ ]`  |
-| US-076 | See and delete what my pet knows              | Hackathon | `[ ]`  |
+| US-071 | Have my pet remember my goals and plan        | Hackathon | `[s]`  |
+| US-072 | Fit a new idea in without killing the vibe    | Hackathon | `[s]`  |
+| US-073 | Plan my steps in time blocks                 | Hackathon | `[s]`  |
+| US-074 | Yap my ideas by voice                         | Hackathon | `[s]`  |
+| US-075 | Get told what to do next and how it connects  | Hackathon | `[s]`  |
+| US-076 | See and delete what my pet knows              | Hackathon | `[s]`  |
 
 ### US-071 — Have my pet remember my goals and plan
 
@@ -1273,22 +1279,22 @@
 
 ## Summary
 
-| Area                         | Stories | Partly exists |
-| ---------------------------- | ------- | ------------- |
-| 01 Accounts & Onboarding     | 5       | 1             |
-| 02 Capture                   | 4       | 1             |
-| 03 Analyze                   | 3       | 1             |
-| 04 Sort                      | 1       | 0             |
-| 05 Focus                     | 5       | 0             |
-| 06 Roadmaps                  | 7       | 1             |
-| 07 Project, Journal & Export | 5       | 2             |
-| 08 Pomodoro & Sounds         | 5       | 0             |
-| 09 Knowledge Review          | 5       | 0             |
-| 10 The Pet                   | 16      | 0             |
-| 11 Living Interface & Weather| 6       | 0             |
-| 12 Notifications & Digest    | 4       | 2             |
-| 13 Credits & Store           | 6       | 0             |
-| 14 PWA & Platform            | 3       | 0             |
-| 15 Assistant Memory & Voice  | 6       | 0             |
-| 16 Sui Payments              | 2       | 0             |
-| **Total**                    | **83**  | **8**         |
+| Area | Stories | Not started | Partly built | Server built | Works end to end |
+| --- | --- | --- | --- | --- | --- |
+| 01 Accounts & Onboarding | 9 | 7 | 1 | 1 | 0 |
+| 02 Capture | 24 | 16 | 5 | 0 | 3 |
+| 03 Analyze | 4 | 0 | 0 | 4 | 0 |
+| 04 Sort | 1 | 0 | 0 | 1 | 0 |
+| 05 Focus | 9 | 0 | 1 | 8 | 0 |
+| 06 Roadmaps | 13 | 3 | 0 | 10 | 0 |
+| 07 Project Space, Journal & Export | 7 | 6 | 0 | 1 | 0 |
+| 08 Pomodoro & Focus Sounds | 5 | 5 | 0 | 0 | 0 |
+| 09 Knowledge Review | 6 | 3 | 0 | 3 | 0 |
+| 10 The Pet | 16 | 9 | 4 | 3 | 0 |
+| 11 Living Interface & Weather | 6 | 6 | 0 | 0 | 0 |
+| 12 Notifications & Digest | 4 | 1 | 3 | 0 | 0 |
+| 13 Credits & Store | 6 | 4 | 1 | 1 | 0 |
+| 14 PWA & Platform | 3 | 3 | 0 | 0 | 0 |
+| 15 Assistant Memory & Voice | 6 | 0 | 0 | 6 | 0 |
+| 16 Sui Payments | 2 | 2 | 0 | 0 | 0 |
+| **Total** | **121** | **65** | **15** | **38** | **3** |
