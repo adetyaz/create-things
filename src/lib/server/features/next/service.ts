@@ -3,6 +3,7 @@
  * free (shared skills + cached embeddings); the AI only picks among the top few (1 credit), with a
  * rule-based fallback.
  */
+import { feedQuietly, type FeedResult } from '$lib/server/features/pet/service';
 import { and, eq, inArray, isNull, lte, ne, or } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
 import { analyses, items, projects, roadmaps } from '$lib/server/db/schema';
@@ -153,7 +154,13 @@ export async function suggestNext(
 }
 
 export type FinishResult =
-	| { status: 'finished'; item: { id: string; title: string }; next: NextSuggestion | null }
+	| {
+			status: 'finished';
+			item: { id: string; title: string };
+			next: NextSuggestion | null;
+			/** The feast for finishing, or null when there's no pet. */
+			fed: FeedResult | null;
+	  }
 	| { status: 'not_found' };
 
 /** Marks an item done, remembers what it built, and suggests what to do next. */
@@ -205,5 +212,6 @@ export async function finishItem(
 		console.error('[next] suggestion failed', e);
 		return null;
 	});
-	return { status: 'finished', item: finished.item, next };
+	const fed = await feedQuietly(platform, userId, { type: 'item', id: itemId }, 'feast');
+	return { status: 'finished', item: finished.item, next, fed };
 }

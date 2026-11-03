@@ -72,8 +72,8 @@
 
 > The pet exists in the product; the UI only makes it visible. Details: [Project Breakdown.md](Project%20Breakdown.md) §3c, §7, §10; [design-prd.md](design-prd.md) B2, B10, C1, C27.
 
-- [ ] P1. The pet on the server: pet record (species, breed, name, tone), feed events, food sizes, daily food limit, hunger worked out from the last meal, feed history API (US-041, US-042, US-121)
-- [ ] P2. Feed from what's built: step done (meal), item finished (feast), review session and cards (snack), quiz (US-041)
+- [x] P1. (3 Nov: built and verified — adopt, moods with why and next, daily limit, history, ran away / coming home, death; scripts/check-pet.mjs) The pet on the server: pet record (species, breed, name, tone), feed events, food sizes, daily food limit, hunger worked out from the last meal, feed history API (US-041, US-042, US-121)
+- [x] P2. (3 Nov: built; step → meal verified, once per step; finish feast, last review of the day and quizzes snack built the same way) Feed from what's built: step done (meal), item finished (feast), review session and cards (snack), quiz (US-041)
 - [ ] P3. Journal API: entries about anything (Focus item, any goal, the day), one-line check-ins, voice notes into the journal; feeding by depth with the free check (rules first, small AI only when unclear) (US-120)
 - [ ] P4. Templates registry (user types) + the user's template and rhythm in settings, per-goal rhythm (new migration; check applied migrations first) (US-116, US-117)
 - [ ] P5. Rhythm-aware hunger (missed check-ins) as an option alongside days (US-117)

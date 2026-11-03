@@ -2,6 +2,7 @@
  * Roadmaps as navigation: milestones of small steps, always with a current step. Finishing a
  * milestone re-plans the rest from what the user did and what the pet remembers.
  */
+import { feedQuietly, type FeedResult } from '$lib/server/features/pet/service';
 import { and, asc, desc, eq } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
 import { items, projects, roadmaps, roadmapSteps } from '$lib/server/db/schema';
@@ -135,6 +136,8 @@ export type CompleteResult =
 			readyToFinish: boolean;
 			/** A learning goal's milestone just finished: offer a practice quiz (POST /api/items/[id]/quiz). */
 			quizReady: boolean;
+			/** What the pet got for it (a meal), or null when there's no pet. */
+			fed: FeedResult | null;
 	  }
 	| { status: 'not_found' };
 
@@ -223,6 +226,10 @@ export async function completeStep(
 			console.error('[roadmap] flashcard failed', e)
 		);
 	}
+	// Real work feeds the pet: a step is a meal (once per step).
+	const fed = result.newlyDone
+		? await feedQuietly(platform, userId, { type: 'step', id: result.newlyDone.id }, 'meal')
+		: null;
 	if (result.replan) {
 		await enqueue(platform, 'roadmap', { itemId: result.itemId, mode: 'replan' }).catch((e) =>
 			console.error('[roadmap] replan enqueue failed', e)
@@ -235,7 +242,8 @@ export async function completeStep(
 		replanning: result.replan,
 		decide: result.decide,
 		readyToFinish: result.readyToFinish,
-		quizReady: result.quizReady
+		quizReady: result.quizReady,
+		fed
 	};
 }
 

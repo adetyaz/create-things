@@ -152,6 +152,8 @@ The full model spec (life states, activities, reactions, animation list) is in [
 - **Liveliness setting:** calm / normal / chaotic.
 - The app must **work fully without a pet** (after death, or if hidden).
 
+**Data (built 3 Nov 2026):** `GET /api/pet` → `{ pet: { pet: { name, species, breed, personality, food, growth }, mood: happy|peckish|hungry|starving|ran_away|dead|resting, daysWithoutFood, why, next, today: { eaten, limit, full }, comingHome: { done, needed } | null, history: [{ label, size, at }] } | null }` (`why`: *"Last fed 3 days ago (step done: sketch the layout)."*; `next`: *"Gets hungry in 4 days without food"*). `POST /api/pet { species, breed, name }` adopts; `GET /api/pet/species` lists species and breeds with personality and gentle/savage sample lines. Actions that feed return `fed`: `{ status: fed|full|coming_home|already|no_pet|dead, size, … }` so the feeding animation knows what to show.
+
 ## B3. The living interface (neglect and weather)
 
 - **Neglect** follows the hunger states: dust → cobwebs → bones → empty bed/pawprints → skeleton. Only on **Today, the project space and the extension**; settings, help and account stay clean.
@@ -363,7 +365,7 @@ Each process lists the data the server already provides. Field names are given s
 **Data:**
 - `GET /api/items/[id]/roadmap` → `{ roadmap: { roadmap: { goal, goalOptions[], style, skills, resources, progress }, milestones: [{ title, done, steps: [{ id, title, minutes, twoMinute, searchTerms[], tools[], recall, kind: 'step'|'proof', doneAt }] }], currentStep, doneSteps, totalSteps }, planError }`
 - `POST /api/items/[id]/roadmap` (plan from scratch) · `PATCH /api/items/[id]/roadmap { goal }` (switch goal)
-- `POST /api/steps/[id]/complete` → `{ roadmap, milestoneDone, replanning, decide (tasters), readyToFinish }`
+- `POST /api/steps/[id]/complete` → `{ roadmap, milestoneDone, replanning, decide (tasters), readyToFinish, quizReady, fed }`
 
 ---
 
@@ -531,7 +533,7 @@ Data: `POST /api/chat { mode: chat|stuck|teach, itemId?, stepId?, messages: [{ro
 2. **Feast** animation (the biggest feeding moment), summary of steps done and skills built.
 3. **What's next:** one suggestion with *why* and **what carries over** (skill chips), plus up to 3 alternatives. **Start** goes to C5's start flow.
 
-Data: `POST /api/items/[id]/finish { note? }` → `{ item, next: { item, reason, carriesOver[], pickedBy, alternatives: [{id, title, shared[]}] } }`; `GET /api/items/[id]/next`.
+Data: `POST /api/items/[id]/finish { note? }` → `{ item, next: { item, reason, carriesOver[], pickedBy, alternatives: [{id, title, shared[]}] }, fed }` (`fed`: the feast); `GET /api/items/[id]/next`.
 
 ---
 
