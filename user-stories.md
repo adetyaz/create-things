@@ -6,7 +6,7 @@
 
 ## Keys
 
-- **Status** (updated 3 Nov 2026): `[ ]` not started · `[~]` partly built · `[s]` server built and verified, screens still needed · `[x]` works for a user end to end today
+- **Status** (updated 8 Nov 2026): `[ ]` not started · `[~]` partly built (or built and waiting for its live check) · `[s]` server built and verified, screens still needed · `[x]` works for a user end to end today
 - **Phase:** the build phase in Project Breakdown.md
 
 ---
@@ -15,15 +15,15 @@
 
 | ID     | Story                         | Phase | Status |
 | ------ | ----------------------------- | ----- | ------ |
-| US-001 | Sign in                       | 0     | `[ ]`  |
+| US-001 | Sign in                       | 0     | `[~]`  |
 | US-002 | Brain-dump what's on my mind  | 2     | `[ ]`  |
 | US-003 | Choose and name my pet        | 4     | `[s]`  |
-| US-004 | Set my pet's timeline         | 6     | `[ ]`  |
+| US-004 | Set my pet's timeline         | 6     | `[~]`  |
 | US-005 | Adjust my settings            | 2     | `[~]`  |
-| US-116 | Start with a template that fits how I work | Next | `[ ]` |
-| US-117 | Set my own rhythm | Next | `[ ]` |
-| US-118 | Meet my pet's personality before choosing it | Next | `[ ]` |
-| US-119 | Get the version of the app that works best (system) | Next | `[ ]` |
+| US-116 | Start with a template that fits how I work | Next | `[~]`  |
+| US-117 | Set my own rhythm | Next | `[~]`  |
+| US-118 | Meet my pet's personality before choosing it | Next | `[~]`  |
+| US-119 | Get the version of the app that works best (system) | Next | `[~]`  |
 
 ### US-001 — Sign in
 
@@ -114,28 +114,28 @@
 | ------ | -------------------------------------- | ----- | ------ |
 | US-006 | Capture from the browser extension     | 1     | `[~]`  |
 | US-007 | Capture from my phone                  | 8     | `[ ]`  |
-| US-008 | Connect Are.na channels                | 9     | `[ ]`  |
-| US-009 | Keep Are.na in sync                    | 9     | `[ ]`  |
+| US-008 | Connect Are.na channels                | 9     | `[~]`  |
+| US-009 | Keep Are.na in sync                    | 9     | `[~]`  |
 | US-089 | Say what I want in a sentence          | 3     | `[~]`  |
 | US-093 | Have my saves grouped for me           | 9     | `[ ]`  |
 | US-094 | Build from a collection                | 9     | `[ ]`  |
-| US-095 | Connect Pinterest boards               | 9     | `[ ]`  |
+| US-095 | Connect Pinterest boards               | 9     | `[~]`  |
 | US-100 | Keep things as references              | Next  | `[~]`  |
-| US-101 | Link a board to a goal                 | Next  | `[ ]`  |
-| US-102 | Have the pet notice what I'm drawn to  | Next  | `[ ]`  |
-| US-103 | Share what I made back to Are.na       | Next  | `[ ]`  |
+| US-101 | Link a board to a goal                 | Next  | `[~]`  |
+| US-102 | Have the pet notice what I'm drawn to  | Next  | `[~]`  |
+| US-103 | Share what I made back to Are.na       | Next  | `[~]`  |
 | US-104 | Save X posts in one click              | Next  | `[x]`  |
 | US-105 | Save a link, image or text by right-click | Next  | `[x]`  |
 | US-106 | Save with a shortcut, no popup         | Next  | `[x]`  |
 | US-107 | Undo or switch a save from the page    | Next  | `[~]`  |
 | US-108 | Save from the sites I use              | Next  | `[~]`  |
-| US-109 | Keep saving when I'm offline           | Next  | `[ ]`  |
-| US-110 | See and manage my connections          | Next  | `[ ]`  |
-| US-111 | Plan around my calendar                | Next  | `[ ]`  |
-| US-112 | Have my X bookmarks copied as I go     | Next  | `[ ]`  |
-| US-113 | Bring in my X bookmarks and folders    | Next  | `[ ]`  |
-| US-114 | Have my Pinterest saves and boards come in | Next  | `[ ]`  |
-| US-115 | Choose how imports are analysed        | Next  | `[ ]`  |
+| US-109 | Keep saving when I'm offline           | Next  | `[~]`  |
+| US-110 | See and manage my connections          | Next  | `[~]`  |
+| US-111 | Plan around my calendar                | Next  | `[~]`  |
+| US-112 | Have my X bookmarks copied as I go     | Next  | `[~]`  |
+| US-113 | Bring in my X bookmarks and folders    | Next  | `[~]`  |
+| US-114 | Have my Pinterest saves and boards come in | Next  | `[~]`  |
+| US-115 | Choose how imports are analysed        | Next  | `[~]`  |
 
 ### US-006 — Capture from the browser extension
 
@@ -647,11 +647,11 @@
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
 | US-021 | Work in a project space                | 3     | `[ ]`  |
-| US-022 | Journal what I'm learning              | 3     | `[ ]`  |
+| US-022 | Journal what I'm learning              | 3     | `[~]`  |
 | US-023 | Get reflection prompts                 | 3     | `[ ]`  |
 | US-024 | Export to Notion                       | 9     | `[ ]`  |
 | US-025 | Download as an Obsidian vault          | 9     | `[ ]`  |
-| US-120 | Journal about whatever I choose | Next | `[ ]` |
+| US-120 | Journal about whatever I choose | Next | `[~]`  |
 | US-121 | See why my pet is hungry | Next | `[s]`  |
 
 ### US-021 — Work in a project space
@@ -718,8 +718,8 @@
 
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
-| US-026 | Focus in pomodoros                     | 3     | `[ ]`  |
-| US-027 | Log what I did after a session         | 3     | `[ ]`  |
+| US-026 | Focus in pomodoros                     | 3     | `[~]`  |
+| US-027 | Log what I did after a session         | 3     | `[~]`  |
 | US-028 | Play and mix focus sounds              | 3     | `[ ]`  |
 | US-029 | Hear my pet while I focus              | 4     | `[ ]`  |
 | US-030 | Unlock more sound packs                | 10    | `[ ]`  |
@@ -774,7 +774,7 @@
 | ID     | Story                                  | Phase | Status |
 | ------ | -------------------------------------- | ----- | ------ |
 | US-031 | Turn completed steps into cards        | 5     | `[s]`  |
-| US-032 | Turn journal entries into cards        | 5     | `[ ]`  |
+| US-032 | Turn journal entries into cards        | 5     | `[~]`  |
 | US-033 | Review cards on a schedule             | 5     | `[s]`  |
 | US-034 | Explain it back in my own words        | 5     | `[ ]`  |
 | US-035 | Browse everything I've learned         | 5     | `[ ]`  |
@@ -1054,7 +1054,7 @@
 | ------ | -------------------------------------- | ----- | ------ |
 | US-058 | See my pet's mood in the extension     | 8     | `[~]`  |
 | US-059 | Get nudged by my pet                   | 8     | `[~]`  |
-| US-060 | Control when I'm nudged                | 8     | `[ ]`  |
+| US-060 | Control when I'm nudged                | 8     | `[~]`  |
 | US-061 | Get a weekly digest                    | 8     | `[~]`  |
 
 ### US-058 — See my pet's mood in the extension
@@ -1096,8 +1096,8 @@
 | ------ | -------------------------------------- | ----- | ------ |
 | US-062 | Use AI free every day                  | 1     | `[s]`  |
 | US-063 | See what AI costs before I use it      | 1     | `[~]`  |
-| US-064 | Choose a stronger model                | 10    | `[ ]`  |
-| US-065 | Buy credits                            | 10    | `[ ]`  |
+| US-064 | Choose a stronger model                | 10    | `[~]`  |
+| US-065 | Buy credits                            | 10    | `[~]`  |
 | US-066 | Buy items in the store                 | 10    | `[ ]`  |
 | US-067 | Get limited-edition pets               | 10    | `[ ]`  |
 
@@ -1256,8 +1256,8 @@
 
 | ID     | Story                                        | Phase     | Status |
 | ------ | -------------------------------------------- | --------- | ------ |
-| US-077 | Pay for a Pro answer with USDC on Sui         | Hackathon | `[ ]`  |
-| US-078 | Buy credits with USDC or SUI                  | Hackathon | `[ ]`  |
+| US-077 | Pay for a Pro answer with USDC on Sui         | Hackathon | `[~]`  |
+| US-078 | Buy credits with USDC or SUI                  | Hackathon | `[~]`  |
 
 ### US-077 — Pay for a Pro answer with USDC on Sui
 
@@ -1281,20 +1281,20 @@
 
 | Area | Stories | Not started | Partly built | Server built | Works end to end |
 | --- | --- | --- | --- | --- | --- |
-| 01 Accounts & Onboarding | 9 | 7 | 1 | 1 | 0 |
-| 02 Capture | 24 | 16 | 5 | 0 | 3 |
+| 01 Accounts & Onboarding | 9 | 1 | 7 | 1 | 0 |
+| 02 Capture | 24 | 3 | 18 | 0 | 3 |
 | 03 Analyze | 4 | 0 | 0 | 4 | 0 |
 | 04 Sort | 1 | 0 | 0 | 1 | 0 |
 | 05 Focus | 9 | 0 | 1 | 8 | 0 |
 | 06 Roadmaps | 13 | 3 | 0 | 10 | 0 |
-| 07 Project Space, Journal & Export | 7 | 6 | 0 | 1 | 0 |
-| 08 Pomodoro & Focus Sounds | 5 | 5 | 0 | 0 | 0 |
-| 09 Knowledge Review | 6 | 3 | 0 | 3 | 0 |
+| 07 Project Space, Journal & Export | 7 | 4 | 2 | 1 | 0 |
+| 08 Pomodoro & Focus Sounds | 5 | 3 | 2 | 0 | 0 |
+| 09 Knowledge Review | 6 | 2 | 1 | 3 | 0 |
 | 10 The Pet | 16 | 9 | 4 | 3 | 0 |
 | 11 Living Interface & Weather | 6 | 6 | 0 | 0 | 0 |
-| 12 Notifications & Digest | 4 | 1 | 3 | 0 | 0 |
-| 13 Credits & Store | 6 | 4 | 1 | 1 | 0 |
+| 12 Notifications & Digest | 4 | 0 | 4 | 0 | 0 |
+| 13 Credits & Store | 6 | 2 | 3 | 1 | 0 |
 | 14 PWA & Platform | 3 | 3 | 0 | 0 | 0 |
 | 15 Assistant Memory & Voice | 6 | 0 | 0 | 6 | 0 |
-| 16 Sui Payments | 2 | 2 | 0 | 0 | 0 |
-| **Total** | **121** | **65** | **15** | **38** | **3** |
+| 16 Sui Payments | 2 | 0 | 2 | 0 | 0 |
+| **Total** | **121** | **36** | **44** | **38** | **3** |
