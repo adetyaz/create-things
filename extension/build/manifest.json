@@ -66,7 +66,8 @@
 		"scripting",
 		"alarms",
 		"contextMenus",
-		"notifications"
+		"notifications",
+		"unlimitedStorage"
 	],
 	"host_permissions": ["<all_urls>"],
 	"content_security_policy": {

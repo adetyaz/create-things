@@ -10,6 +10,13 @@
 		actOnReminder,
 		adoptPet,
 		checkIn,
+		completeStep,
+		endFocus,
+		startFocus,
+		todayStep,
+		waitingSaves,
+		type FocusSession,
+		type TodayStep,
 		checkReminders,
 		dueReviews,
 		getPet,
@@ -117,6 +124,85 @@
 		}
 	}
 
+	/** Today's #1, a running focus session, and saves waiting to be sent. */
+	let next = $state<TodayStep | null>(null);
+	let focusing = $state<FocusSession | null>(null);
+	let focusNote = $state('');
+	let nextResult = $state<string | null>(null);
+	let waitingCount = $state(0);
+	let clock = $state(Date.now());
+
+	const focusLeft = $derived(
+		focusing
+			? Math.max(0, new Date(focusing.startedAt).getTime() + focusing.minutes * 60_000 - clock)
+			: 0
+	);
+	const mmss = (ms: number) =>
+		`${Math.floor(ms / 60_000)}:${String(Math.floor((ms % 60_000) / 1000)).padStart(2, '0')}`;
+
+	async function loadNext() {
+		try {
+			next = await todayStep();
+		} catch {
+			next = null;
+		}
+		const stored = await chrome.storage.local.get('focusSession');
+		focusing = (stored.focusSession as FocusSession | undefined) ?? null;
+	}
+
+	async function loadWaiting() {
+		waitingCount = (await waitingSaves()).length;
+	}
+
+	const fedText = (fed: { status: string; size?: string; name?: string } | null) =>
+		fed?.status === 'fed'
+			? ` ${fed.name} ate a ${fed.size}.`
+			: fed?.status === 'full'
+				? ` ${fed.name} is full for today.`
+				: '';
+
+	async function markDone() {
+		if (!next) return;
+		try {
+			const { fed } = await completeStep(next.stepId);
+			nextResult = `Done.${fedText(fed)}`;
+			void loadNext();
+			void loadPet();
+			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
+		} catch (e) {
+			nextResult = e instanceof Error ? e.message : String(e);
+		}
+	}
+
+	async function focus() {
+		if (!next) return;
+		try {
+			focusing = await startFocus(next.stepId, next.title);
+			await chrome.storage.local.set({ focusSession: focusing });
+			chrome.alarms.create('focus-done', {
+				when: new Date(focusing.startedAt).getTime() + focusing.minutes * 60_000
+			});
+			nextResult = null;
+		} catch (e) {
+			nextResult = e instanceof Error ? e.message : String(e);
+		}
+	}
+
+	async function stopFocus() {
+		if (!focusing) return;
+		try {
+			const { minutes, fed } = await endFocus(focusing.id, focusNote.trim() || undefined);
+			nextResult = `${minutes} minutes of focus.${fedText(fed) || (minutes < 10 ? ' (Under 10 minutes: no food this time.)' : '')}`;
+			focusing = null;
+			focusNote = '';
+			await chrome.storage.local.remove('focusSession');
+			chrome.alarms.clear('focus-done');
+			void loadPet();
+		} catch (e) {
+			nextResult = e instanceof Error ? e.message : String(e);
+		}
+	}
+
 	/** Today's reminders not acted on, and why none went out if they're held back. */
 	let reminderList = $state<Reminder[]>([]);
 	let held = $state<string | null>(null);
@@ -180,6 +266,9 @@
 
 	function stateOf(save: RecentSave): string {
 		if (save.status === 'reference') return 'Reference';
+		if (save.analysisError && /credit/i.test(save.analysisError)) {
+			return 'Saved · analysed when free credits refresh';
+		}
 		if (save.analysisError) return 'Analysis failed';
 		if (save.status === 'inbox') return save.size ? 'Inbox' : 'Inbox · not analysed yet';
 		if (save.status === 'ready') return 'Ready to sort';
@@ -212,10 +301,19 @@
 		view = settings.token ? 'capture' : 'connect';
 		if (settings.token) {
 			void loadPet();
+			void loadNext();
 			void loadReminders();
 			void loadRecent();
 			void loadReviews();
 		}
+		void loadWaiting();
+	});
+
+	// The focus timer ticks only while a session runs.
+	$effect(() => {
+		if (!focusing) return;
+		const tick = setInterval(() => (clock = Date.now()), 1000);
+		return () => clearInterval(tick);
 	});
 
 	async function connect() {
@@ -240,8 +338,13 @@
 		message = null;
 		preview = null;
 		try {
-			await work();
-			message = { ok: true, text: done };
+			const result = await work();
+			const waiting = (result as { waiting?: boolean } | undefined)?.waiting;
+			message = {
+				ok: true,
+				text: waiting ? 'Saved on this device. It sends when createthings can be reached.' : done
+			};
+			if (waiting) void loadWaiting();
 			note = '';
 			want = '';
 			void loadRecent();
@@ -436,6 +539,63 @@
 					Adopt
 				</button>
 			</section>
+		{/if}
+
+		{#if focusing}
+			<section class="flex flex-col gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+				<p class="text-sm">
+					<span class="font-medium">Focusing:</span>
+					{focusing.stepTitle}
+				</p>
+				<p class="text-2xl font-semibold tabular-nums">
+					{focusLeft > 0 ? mmss(focusLeft) : "Time's up"}
+				</p>
+				<input
+					class="rounded-md border border-stone-300 px-2 py-1 text-xs"
+					bind:value={focusNote}
+					placeholder="What did you do? (goes in your journal)"
+				/>
+				<button
+					class="self-end rounded-md bg-stone-900 px-3 py-1.5 text-xs font-medium text-white"
+					onclick={stopFocus}
+				>
+					{focusLeft > 0 ? 'Stop early' : 'Finish'}
+				</button>
+			</section>
+		{:else if next}
+			<section class="flex flex-col gap-1 rounded-lg border border-stone-200 bg-white p-3">
+				<h2 class="text-xs font-medium text-stone-500">
+					{next.fromPlan ? "Today's #1" : 'Next step'}
+				</h2>
+				<p class="text-sm font-medium">{next.title}</p>
+				<p class="text-xs text-stone-600">{next.line}</p>
+				{#if next.twoMinute}
+					<p class="text-xs text-stone-600">2-minute start: {next.twoMinute}</p>
+				{/if}
+				{#if next.clash}
+					<p class="text-xs text-amber-700">You're busy {next.clash} in your calendar.</p>
+				{/if}
+				<div class="mt-1 flex gap-2">
+					<button
+						class="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-medium text-white"
+						onclick={focus}
+					>
+						Focus {next.minutes} min
+					</button>
+					<button class="rounded-md border border-stone-300 px-3 py-1.5 text-xs" onclick={markDone}>
+						Done
+					</button>
+				</div>
+			</section>
+		{/if}
+		{#if nextResult}<p class="text-xs text-stone-600">{nextResult}</p>{/if}
+		{#if waitingCount}
+			<p class="text-xs text-amber-700">
+				{waitingCount} save{waitingCount === 1 ? '' : 's'} waiting on this device: {waitingCount ===
+				1
+					? 'it sends'
+					: 'they send'} when createthings can be reached.
+			</p>
 		{/if}
 
 		{#if reminderList.length}

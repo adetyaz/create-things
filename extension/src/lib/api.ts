@@ -61,12 +61,56 @@ export interface SavedItem {
 	status: string;
 }
 
-/** Saves a capture; analysis runs on the server. */
-export function capture(input: Capture) {
-	return api<{ item: SavedItem }>('/api/items', {
-		method: 'POST',
-		body: JSON.stringify(input)
-	});
+const WAITING_KEY = 'waitingSaves';
+
+/** Saves kept on this device while the app can't be reached or the connection is gone. */
+export async function waitingSaves(): Promise<Capture[]> {
+	const stored = await chrome.storage.local.get(WAITING_KEY);
+	return (stored[WAITING_KEY] as Capture[] | undefined) ?? [];
+}
+
+async function keepWaiting(input: Capture) {
+	await chrome.storage.local.set({ [WAITING_KEY]: [...(await waitingSaves()), input] });
+}
+
+export type CaptureResult = { item: SavedItem; waiting?: false } | { item: null; waiting: true };
+
+/**
+ * Saves a capture; analysis runs on the server. When the app can't be reached (offline, server
+ * down) or the connection was revoked, the save waits on this device and is sent later, oldest
+ * first, so nothing is lost.
+ */
+export async function capture(input: Capture): Promise<CaptureResult> {
+	try {
+		return await api<{ item: SavedItem }>('/api/items', {
+			method: 'POST',
+			body: JSON.stringify(input)
+		});
+	} catch (e) {
+		if (e instanceof TypeError || e instanceof NotConnected) {
+			await keepWaiting(input);
+			return { item: null, waiting: true };
+		}
+		throw e;
+	}
+}
+
+/** Sends waiting saves, oldest first; stops at the first that can't go yet. Returns how many went. */
+export async function sendWaiting(): Promise<number> {
+	const waiting = await waitingSaves();
+	let sent = 0;
+	for (const input of waiting) {
+		try {
+			await api('/api/items', { method: 'POST', body: JSON.stringify(input) });
+			sent++;
+		} catch (e) {
+			if (e instanceof TypeError || e instanceof NotConnected) break;
+			// The server refused it (e.g. invalid): drop it rather than block the rest.
+			sent++;
+		}
+	}
+	if (sent) await chrome.storage.local.set({ [WAITING_KEY]: (await waitingSaves()).slice(sent) });
+	return sent;
 }
 
 /** A save as the popup's Recent saves list shows it. */
@@ -130,6 +174,97 @@ export function checkIn(body: string) {
 		fed: { status: string; size?: string; name?: string } | null;
 		suggestFocus: boolean;
 	}>('/api/journal', { method: 'POST', body: JSON.stringify({ kind: 'check_in', body }) });
+}
+
+export interface TodayStep {
+	stepId: string;
+	title: string;
+	twoMinute: string | null;
+	minutes: number;
+	/** "I will spend 25 minutes on … at 08:00", or the goal's name when nothing is planned. */
+	line: string;
+	/** Busy in your calendar at that time. */
+	clash: string | null;
+	fromPlan: boolean;
+}
+
+/** Today's #1: the first planned block not done, else the current step of a Focus goal. */
+export async function todayStep(): Promise<TodayStep | null> {
+	const day = await api<{
+		first: {
+			intention: string;
+			step: { id: string; title: string; twoMinute: string | null; minutes: number };
+		} | null;
+		blocks: { step: { id: string } }[];
+		clashes?: ({ busy: string } | null)[];
+	}>('/api/plan/day');
+	if (day.first) {
+		const i = day.blocks.findIndex((b) => b.step.id === day.first!.step.id);
+		return {
+			stepId: day.first.step.id,
+			title: day.first.step.title,
+			twoMinute: day.first.step.twoMinute,
+			minutes: day.first.step.minutes,
+			line: day.first.intention,
+			clash: day.clashes?.[i]?.busy ?? null,
+			fromPlan: true
+		};
+	}
+	const { focus } = await api<{ focus: { id: string; title: string }[] }>('/api/focus');
+	for (const item of focus) {
+		const { roadmap } = await api<{
+			roadmap: {
+				currentStep: {
+					id: string;
+					title: string;
+					twoMinute: string | null;
+					minutes: number;
+				} | null;
+			} | null;
+		}>(`/api/items/${item.id}/roadmap`);
+		const step = roadmap?.currentStep;
+		if (step) {
+			return {
+				stepId: step.id,
+				title: step.title,
+				twoMinute: step.twoMinute,
+				minutes: step.minutes,
+				line: item.title,
+				clash: null,
+				fromPlan: false
+			};
+		}
+	}
+	return null;
+}
+
+export function completeStep(stepId: string) {
+	return api<{ fed: { status: string; size?: string; name?: string } | null }>(
+		`/api/steps/${stepId}/complete`,
+		{ method: 'POST' }
+	);
+}
+
+export interface FocusSession {
+	id: string;
+	startedAt: string;
+	minutes: number;
+	stepTitle: string;
+}
+
+export async function startFocus(stepId: string, stepTitle: string): Promise<FocusSession> {
+	const { session, minutes } = await api<{
+		session: { id: string; startedAt: string };
+		minutes: number;
+	}>('/api/pomodoro', { method: 'POST', body: JSON.stringify({ stepId }) });
+	return { id: session.id, startedAt: session.startedAt, minutes, stepTitle };
+}
+
+export function endFocus(id: string, note?: string) {
+	return api<{ minutes: number; fed: { status: string; size?: string; name?: string } | null }>(
+		`/api/pomodoro/${id}/end`,
+		{ method: 'POST', body: JSON.stringify(note ? { note } : {}) }
+	);
 }
 
 /** Badge colour for each mood (the popup explains it). */

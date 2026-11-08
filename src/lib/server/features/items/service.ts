@@ -1,5 +1,5 @@
 /** Items: capture, list, read and retry. Routes call these; other features reuse them. */
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, inArray } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
 import { analyses, items, pendingImages } from '$lib/server/db/schema';
 import { enqueue, type EnqueueResult } from '$lib/server/jobs';
@@ -86,6 +86,30 @@ export function getItemWithAnalysis(
 			.limit(1);
 		return { item, analysis: analysis ?? null };
 	});
+}
+
+/**
+ * Saves held back because credits ran out are analysed by themselves once there are credits again:
+ * a few at a time, oldest first, whenever the list is read (no background job). Still out of
+ * credits: the analysis stops before any AI call, so trying costs nothing.
+ */
+export async function retryHeldForCredits(platform: Platform, userId: string, limit = 3) {
+	const held = await withDb(platform, (db) =>
+		db
+			.select({ id: items.id })
+			.from(items)
+			.where(
+				and(
+					eq(items.userId, userId),
+					inArray(items.status, ['inbox', 'reference']),
+					ilike(items.analysisError, '%credits%')
+				)
+			)
+			.orderBy(asc(items.savedAt))
+			.limit(limit)
+	);
+	for (const { id } of held) await retryAnalysis(platform, userId, id);
+	return held.length;
 }
 
 /** Re-queues analysis for an item not yet analysed (inbox or reference). Null if there's none. */
