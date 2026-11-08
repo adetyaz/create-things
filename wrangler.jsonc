@@ -19,8 +19,9 @@
 	"ai": {
 		"binding": "AI"
 	},
-	// Daily jobs (Are.na sync): scheduled() in scripts/worker-entry.js → /api/internal/cron
-	"triggers": { "crons": ["0 5 * * *"] },
+	// scheduled() in scripts/worker-entry.js → /api/internal/cron: daily (syncs, the weekly memory)
+	// and hourly (email reminders). DAILY_CRON in features/cron/service.ts must match the first.
+	"triggers": { "crons": ["0 5 * * *", "0 * * * *"] },
 	"queues": {
 		"producers": [
 			{ "binding": "ANALYSIS_QUEUE", "queue": "createthings-analysis" },
