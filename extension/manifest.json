@@ -59,7 +59,15 @@
 			"description": "Pick an area of the page to save"
 		}
 	},
-	"permissions": ["activeTab", "storage", "tabs", "scripting", "alarms", "contextMenus"],
+	"permissions": [
+		"activeTab",
+		"storage",
+		"tabs",
+		"scripting",
+		"alarms",
+		"contextMenus",
+		"notifications"
+	],
 	"host_permissions": ["<all_urls>"],
 	"content_security_policy": {
 		"extension_pages": "script-src 'self'; object-src 'self'"

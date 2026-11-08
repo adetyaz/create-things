@@ -42,13 +42,22 @@ export const items = pgTable(
 		intentConfirmedAt: at('intent_confirmed_at'),
 		/** "By the end you'll be able to…". */
 		goal: text('goal'),
-		targetDate: date('target_date')
+		targetDate: date('target_date'),
+		/** This goal's own check-in rhythm, overriding the user's (same shape as settings.rhythm). */
+		rhythm: jsonb('rhythm'),
+		/** Where it came from on another site ('x', 'pinterest', 'arena') and its id there. */
+		externalSource: text('external_source'),
+		externalId: text('external_id')
 	},
 	(t) => [
 		index('items_user_status_idx').on(t.userId, t.status),
 		uniqueIndex('items_user_arena_block_idx')
 			.on(t.userId, t.arenaBlockId)
-			.where(sql`${t.arenaBlockId} is not null`)
+			.where(sql`${t.arenaBlockId} is not null`),
+		// The same post, pin or block saved twice updates instead of duplicating.
+		uniqueIndex('items_user_external_idx')
+			.on(t.userId, t.externalSource, t.externalId)
+			.where(sql`${t.externalId} is not null`)
 	]
 );
 
