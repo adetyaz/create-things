@@ -3,6 +3,9 @@
  * Sent by the hourly cron; each reminder goes out once, on whichever channel shows it first.
  * Until sign-in exists, the only address known is OWNER_EMAIL (for the dev user).
  */
+import { eq } from 'drizzle-orm';
+import { withDb } from '$lib/server/db';
+import { user } from '$lib/server/db/schema/auth';
 import { optionalEnv } from '$lib/server/platform/env';
 import { DEV_USER_ID } from '$lib/server/platform/user';
 import type { Reminder } from '$lib/server/features/reminders/service';
@@ -12,8 +15,12 @@ export function emailReady(): boolean {
 	return !!optionalEnv('RESEND_API_KEY') && !!optionalEnv('EMAIL_FROM');
 }
 
-/** The user's address: from sign-in later; OWNER_EMAIL for the dev user now. */
-export function emailFor(userId: string): string | null {
+/** The user's address: their sign-in email, or OWNER_EMAIL for the dev user before sign-in. */
+export async function emailFor(platform: App.Platform | undefined, userId: string) {
+	const [row] = await withDb(platform, (db) =>
+		db.select({ email: user.email }).from(user).where(eq(user.id, userId))
+	).catch(() => []);
+	if (row?.email) return row.email;
 	if (userId === (optionalEnv('DEV_USER_ID') ?? DEV_USER_ID))
 		return optionalEnv('OWNER_EMAIL') ?? null;
 	return null;

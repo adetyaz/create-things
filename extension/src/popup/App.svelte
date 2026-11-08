@@ -483,9 +483,18 @@
 		<p class="text-sm text-stone-500">Loading…</p>
 	{:else if view === 'connect'}
 		<section class="flex flex-col gap-3">
-			<p class="text-sm text-stone-600">
-				Paste a connection token from createthings. Until the app has sign-in and settings, make one
-				with <code>node.exe scripts/extension-token.mjs</code> while the app is running.
+			<button
+				class="rounded-md bg-stone-900 px-3 py-2 text-sm font-medium text-white"
+				onclick={() =>
+					chrome.tabs.create({
+						url: `${apiBase.trim().replace(/\/$/, '')}/api/extension/link?ext=${chrome.runtime.id}`
+					})}
+			>
+				Sign in with createthings
+			</button>
+			<p class="text-xs text-stone-500">
+				Or paste a connection token (before sign-in is switched on, make one with
+				<code>node.exe scripts/extension-token.mjs</code>).
 			</p>
 			<label class="flex flex-col gap-1 text-xs font-medium">
 				Connection token

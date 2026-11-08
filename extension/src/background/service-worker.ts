@@ -5,6 +5,9 @@
  */
 import {
 	actOnReminder,
+	DEFAULT_API,
+	getSettings,
+	saveSettings,
 	analyseCollection,
 	analyseItem,
 	importBatch,
@@ -492,6 +495,25 @@ async function startAreaPicker(tabId: number): Promise<void> {
 		}
 	}
 }
+
+// "Sign in with createthings": the app's link page hands over a device token directly. Only the
+// app address the extension uses (or the default) is believed.
+chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
+	if (message?.type !== 'CONNECT_TOKEN' || typeof message.token !== 'string') return;
+	void getSettings().then(async ({ apiBase }) => {
+		const origin = sender.origin ?? (sender.url ? new URL(sender.url).origin : '');
+		if (
+			origin !== message.apiBase ||
+			(origin !== apiBase && origin !== DEFAULT_API && !origin.endsWith('.workers.dev'))
+		) {
+			return sendResponse({ success: false, error: 'Unknown app address' });
+		}
+		await saveSettings({ apiBase: origin, token: message.token });
+		void refreshBadge();
+		sendResponse({ success: true });
+	});
+	return true;
+});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	if (message.type === 'CAPTURE_VISIBLE_TAB') {

@@ -29,7 +29,7 @@ export async function runHourly(platform: Platform) {
 	const appUrl = optionalEnv('PUBLIC_APP_URL') ?? 'http://localhost:5173';
 	const sent = [];
 	for (const { userId } of users) {
-		const to = emailFor(userId);
+		const to = await emailFor(platform, userId);
 		if (!to) continue;
 		const { fresh } = await checkReminders(platform, userId, 'email');
 		if (fresh.length)

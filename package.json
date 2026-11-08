@@ -65,6 +65,7 @@
 		"@notionhq/client": "^5.14.0",
 		"@protobuf-ts/runtime": "^2.11.1",
 		"@protobuf-ts/runtime-rpc": "^2.11.1",
+		"better-auth": "^1.7.18",
 		"drizzle-orm": "^0.45.4",
 		"fast-png": "^8.0.0",
 		"jpeg-js": "^0.4.4",
