@@ -1,0 +1,37 @@
+# What I need from you
+
+> Kept up to date while I work through the build queue in [todolist.md](todolist.md). Everything else is built without asking. Put keys and secrets in `.env` (never in this file); tick each item here when done.
+
+## Keys and accounts (put the values in `.env`)
+
+| # | What | Variable(s) | Used by | Where to get it |
+|---|---|---|---|---|
+| K1 | Google OAuth client (sign-in + Calendar) | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Sign-in, Google Calendar events (R5) | Google Cloud Console → APIs & Services → Credentials → OAuth client (Web). Redirect URIs: `http://localhost:5173/api/calendar/google/callback` and the deployed one |
+| K2 | Are.na OAuth app | `ARENA_CLIENT_ID`, `ARENA_CLIENT_SECRET` | Are.na connect (S3) | dev.are.na → new application. Redirect: `http://localhost:5173/api/sources/arena/callback` |
+| K3 | Pinterest developer app (apply early, review takes time) | `PINTEREST_CLIENT_ID`, `PINTEREST_CLIENT_SECRET` | Pinterest connect (S9) | developers.pinterest.com → create app; scopes `boards:read`, `pins:read` |
+| K4 | Email sending | `RESEND_API_KEY`, `EMAIL_FROM` | Email reminders and the weekly digest | resend.com → API key; verify a sending domain |
+| K5 | Web push keys | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Phone/desktop push (with the PWA) | I can generate these for you; say the word |
+| K6 | App's Sui address that receives payments | `SUI_PAYMENT_ADDRESS` | Credit packs and Pro answers in USDC (H12–H13) | Your wallet's address (mainnet) |
+| K7 | Enoki (only if zkLogin is chosen, D1) | `ENOKI_API_KEY` | zkLogin addresses + sponsored transactions | portal.enoki.mystenlabs.com |
+
+## Decisions (I picked a default so work isn't blocked; change any)
+
+| # | Decision | Default I used | Where it matters |
+|---|---|---|---|
+| D1 | Payments: users' own wallets, or app-made zkLogin addresses (Enoki) | **Own wallet first** (works without Enoki); zkLogin added when K7 exists | H12–H13 |
+| D2 | Calendar: Google first, ICS link for everyone else | **Both**: ICS (busy times + a feed of your blocks) works now; Google events need K1 and deploying | R4–R5 |
+| D3 | Reminders a day by default | **3**, editable; an A/B experiment can try 2 vs 4 | R1 |
+| D4 | Video style for the submission | — (yours) | H18 |
+| D5 | The 5 launch themes | — (yours; send when ready) | UI |
+
+## Things only you can do
+
+| # | What | Why |
+|---|---|---|
+| Y1 | Run `npm run db:migrate` after I add a migration (listed per feature in todolist) | Applies new tables/columns to your Neon database |
+| Y2 | Run each feature's check script (named in todolist) with `npm run dev` going | Live verification; I tick items only after |
+| Y3 | Reload the extension after extension changes | Picks up the new build |
+| Y4 | Open the Walruscan link from `GET /api/memories/receipts` and confirm it loads | H11 receipt check |
+| Y5 | Make the GitHub repo public, push `main` | H16 |
+| Y6 | Record and post the demo; submit the form | H18 |
+| Y7 | Deploy to Cloudflare (`wrangler deploy`) once sign-in is in | Google Calendar, push and payments need a public URL |

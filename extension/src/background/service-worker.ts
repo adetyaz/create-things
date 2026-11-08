@@ -4,8 +4,12 @@
  * switch, screenshots for the popup, and the badge showing reviews due.
  */
 import {
+	actOnReminder,
 	api,
 	capture,
+	checkReminders,
+	type Reminder,
+	type ReminderAction,
 	getPet,
 	MOOD_COLOR,
 	imageAsJpeg,
@@ -20,6 +24,9 @@ import {
 import type { SiteSave } from '../sites/types';
 
 const BADGE_ALARM = 'refresh-badge';
+/** How often reminders are checked (the server decides what's due; it's cheap). */
+const REMINDER_ALARM = 'check-reminders';
+const REMINDER_MINUTES = 5;
 
 /** The menu contexts used, as the plain strings Chrome takes. */
 type MenuContext = 'link' | 'image' | 'selection' | 'page';
@@ -49,6 +56,7 @@ const MENUS: {
 
 chrome.runtime.onInstalled.addListener(() => {
 	chrome.alarms.create(BADGE_ALARM, { periodInMinutes: 30 });
+	chrome.alarms.create(REMINDER_ALARM, { periodInMinutes: REMINDER_MINUTES });
 	chrome.contextMenus.removeAll(() => {
 		for (const menu of MENUS) {
 			chrome.contextMenus.create({
@@ -65,9 +73,13 @@ chrome.runtime.onInstalled.addListener(() => {
 	});
 	void refreshBadge();
 });
-chrome.runtime.onStartup.addListener(() => void refreshBadge());
+chrome.runtime.onStartup.addListener(() => {
+	void refreshBadge();
+	chrome.alarms.create(REMINDER_ALARM, { periodInMinutes: REMINDER_MINUTES });
+});
 chrome.alarms.onAlarm.addListener((alarm) => {
 	if (alarm.name === BADGE_ALARM) void refreshBadge();
+	if (alarm.name === REMINDER_ALARM) void showReminders();
 });
 
 /** The badge: today's reviews as the number, the pet's mood as the colour. */
@@ -90,6 +102,55 @@ async function refreshBadge(): Promise<void> {
 		await chrome.action.setBadgeText({ text: e instanceof NotConnected ? '!' : '' });
 	}
 }
+
+/** The two buttons a notification can hold: the most useful actions for its kind. */
+function buttonsFor(reminder: Reminder): Reminder['actions'] {
+	const preferred: ReminderAction[] = ['done', 'move', 'open'];
+	return preferred
+		.flatMap((action) => reminder.actions.filter((a) => a.action === action))
+		.slice(0, 2);
+}
+
+/** New reminders become system notifications, in the pet's voice, with up to two buttons. */
+async function showReminders(): Promise<void> {
+	try {
+		const { fresh } = await checkReminders();
+		for (const reminder of fresh) {
+			const buttons = buttonsFor(reminder);
+			await chrome.storage.session.set({
+				[`reminder:${reminder.id}`]: buttons.map((b) => b.action)
+			});
+			chrome.notifications.create(`reminder:${reminder.id}`, {
+				type: 'basic',
+				iconUrl: 'icons/icon128.png',
+				title: reminder.title,
+				message: reminder.body,
+				buttons: buttons.map((b) => ({ title: b.label.slice(0, 40) })),
+				priority: 1
+			});
+		}
+		if (fresh.length) void refreshBadge();
+	} catch {
+		// Not connected or offline: the popup says so; try again next time.
+	}
+}
+
+chrome.notifications.onButtonClicked.addListener(async (notificationId, index) => {
+	if (!notificationId.startsWith('reminder:')) return;
+	const id = notificationId.slice('reminder:'.length);
+	const stored = await chrome.storage.session.get(notificationId);
+	const action = (stored[notificationId] as ReminderAction[] | undefined)?.[index];
+	if (action) await actOnReminder(id, action).catch(() => null);
+	chrome.notifications.clear(notificationId);
+	void refreshBadge();
+});
+
+// Clicking the notification itself opens the popup, where the reminder and its actions wait.
+chrome.notifications.onClicked.addListener((notificationId) => {
+	if (!notificationId.startsWith('reminder:')) return;
+	chrome.notifications.clear(notificationId);
+	void chrome.action.openPopup?.().catch(() => null);
+});
 
 function flash(tabId: number | undefined, ok: boolean) {
 	if (tabId === undefined) return;

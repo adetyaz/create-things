@@ -1,5 +1,5 @@
 /** Per-user settings. */
-import { boolean, integer, pgTable, text, time } from 'drizzle-orm/pg-core';
+import { boolean, integer, jsonb, pgTable, text, time } from 'drizzle-orm/pg-core';
 import { at } from './columns';
 
 export const userSettings = pgTable('user_settings', {
@@ -27,5 +27,21 @@ export const userSettings = pgTable('user_settings', {
 	runawayDays: integer('runaway_days').notNull().default(30),
 	deathDays: integer('death_days').notNull().default(60),
 	timelineChangedAt: at('timeline_changed_at'),
-	restUntil: at('rest_until')
+	restUntil: at('rest_until'),
+	/** Reminders a day at most; quiet hours above still apply. */
+	remindersPerDay: integer('reminders_per_day').notNull().default(3),
+	/** Usual times for habit anchors: { "after coffee": "08:00" }; defaults in features/reminders. */
+	anchorTimes: jsonb('anchor_times').notNull().default({}),
+	/** A calendar's private ICS link, read for busy times only. */
+	icsUrl: text('ics_url'),
+	icsFetchedAt: at('ics_fetched_at'),
+	/** Secret in the URL of the user's own ICS feed of blocks. */
+	calendarFeedToken: text('calendar_feed_token').unique(),
+	/** User types from features/templates/registry.ts (one or more). */
+	templates: text('templates').array(),
+	/** Check-in rhythm: { every: 'daily' | 'days' | 'weekly' | 'weekdays', n?, weekdays?, time }. */
+	rhythm: jsonb('rhythm'),
+	/** 'days' or 'check_ins' (hunger counted in missed check-ins). */
+	hungerMode: text('hunger_mode').notNull().default('days'),
+	onboardedAt: at('onboarded_at')
 });

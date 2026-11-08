@@ -134,6 +134,38 @@ export const MOOD_COLOR: Record<Mood, string> = {
 	dead: '#475569'
 };
 
+export type ReminderAction = 'start' | 'two_minute' | 'move' | 'done' | 'open' | 'dismiss';
+
+/** A reminder from the pet (GET /api/reminders). */
+export interface Reminder {
+	id: string;
+	kind: string;
+	title: string;
+	body: string;
+	actions: { action: ReminderAction; label: string }[];
+	dueAt: string;
+}
+
+export interface ReminderCheck {
+	fresh: Reminder[];
+	open: Reminder[];
+	/** Why nothing new went out right now (quiet hours, busy, the daily limit). */
+	held: string | null;
+	limit: { perDay: number; usedToday: number };
+}
+
+/** What's due now; new ones come back in `fresh` once, then in `open` until acted on. */
+export function checkReminders(): Promise<ReminderCheck> {
+	return api<ReminderCheck>('/api/reminders?channel=extension');
+}
+
+export function actOnReminder(id: string, action: ReminderAction) {
+	return api<{ status: string }>(`/api/reminders/${id}`, {
+		method: 'POST',
+		body: JSON.stringify({ action })
+	});
+}
+
 /** A flashcard due for review (from a finished step's recall question, a quiz, …). */
 export interface ReviewCard {
 	id: string;

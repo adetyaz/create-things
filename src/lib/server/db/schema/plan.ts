@@ -12,7 +12,7 @@ import {
 	uuid
 } from 'drizzle-orm/pg-core';
 import { id, userId, stamp, createdAt, at } from './columns';
-import { roadmapStyle, progress, projectStatus, journalSource } from './enums';
+import { roadmapStyle, progress, projectStatus, journalSource, foodSize } from './enums';
 import { items } from './items';
 
 export const roadmaps = pgTable('roadmaps', {
@@ -120,14 +120,23 @@ export const journalEntries = pgTable(
 	{
 		id: id(),
 		userId: userId(),
-		projectId: uuid('project_id')
-			.notNull()
-			.references(() => projects.id, { onDelete: 'cascade' }),
+		/** Null: the entry is about the day, or an item without a project yet. */
+		projectId: uuid('project_id').references(() => projects.id, { onDelete: 'cascade' }),
+		/** What it's about (users journal whatever they choose; design PRD C27). */
+		itemId: uuid('item_id').references(() => items.id, { onDelete: 'set null' }),
+		stepId: uuid('step_id').references(() => roadmapSteps.id, { onDelete: 'set null' }),
+		/** 'entry' or 'check_in' (one line). */
+		kind: text('kind').notNull().default('entry'),
 		body: text('body').notNull(),
 		source: journalSource('source').notNull().default('manual'),
+		/** What it fed the pet, if anything. */
+		fed: foodSize('fed'),
 		createdAt: createdAt()
 	},
-	(t) => [index('journal_entries_project_idx').on(t.projectId, t.createdAt)]
+	(t) => [
+		index('journal_entries_project_idx').on(t.projectId, t.createdAt),
+		index('journal_entries_user_idx').on(t.userId, t.createdAt)
+	]
 );
 
 export const pomodoroSessions = pgTable(

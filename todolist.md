@@ -4,6 +4,28 @@
 
 ---
 
+## Build queue (8 Nov 2026) — worked top to bottom without stopping
+
+> Inputs I need (keys, decisions, things only you can do) are collected in [needs-input.md](needs-input.md). Each item says its migration and check script; ticks wait for your live run.
+
+- [ ] Q1. Reminders engine: triggers (block start, rhythm check-in, never miss twice, reviews, hungry pet, shutdown, weekly plan), daily limit (3), quiet hours, lines in the pet's personality (no AI), every reminder links to its thing with Start / 2-minute / Move it; `GET /api/reminders` (R1)
+- [ ] Q2. Extension notifications from the reminders engine (works now, no deploy) (R2)
+- [ ] Q3. Calendar ICS: read busy times from a link; plans and reminders skip them; private ICS feed of your blocks (C1, C2, R4)
+- [ ] Q4. Journal + one-line check-ins + feeding by depth (free rule check, small AI only when unclear); check-in from the popup (P3)
+- [ ] Q5. Templates registry (user types), the user's template and rhythm, per-goal rhythm; rest mode on/off (P4, P9)
+- [ ] Q6. Rhythm-aware hunger option; onboarding API (types → template, describe-yourself, pet preview) (P5, P7)
+- [ ] Q7. Experiments registry: stable placement, outcome events (P8)
+- [ ] Q8. Weekly digest content (focused time first, identity language) + delivery through reminders/email (N3)
+- [ ] Q9. Extension: today's #1 in the popup, offline waiting list, out-of-credits and revoked messages (E9, E10)
+- [ ] Q10. Collections + site ids (no duplicates); X bookmarks copied as you go with the prompt; per-site choices (S2, X1–X3)
+- [ ] Q11. Imports (X bookmarks page, Pinterest board), analysed only when used, "Analyse next / 20"; one `expansion` memory per import (finishes H3) (X4–X7)
+- [ ] Q12. Are.na: OAuth connect, channels, import modes via queue, daily cron, link to a goal, write-back (needs K2) (S3–S7)
+- [ ] Q13. Google Calendar events with alerts (needs K1, deploy) (R5)
+- [ ] Q14. Email delivery for reminders and the digest (needs K4)
+- [ ] Q15. Payments: credit packs and Pro answers in USDC on Sui, confirmed through Tatum (needs K6) (H12–H13)
+- [ ] Q16. Sign-in (Google + magic link) and the extension signing in (needs K1) (Phase 0 #4–5)
+- [ ] Q17. README, blog post draft, demo script (H16–H18 drafts)
+
 ## Hackathon — Tatum × Walrus "Total Recall" (Track 02)
 
 > Details: [Project Breakdown.md](Project%20Breakdown.md#hackathon-tatum--walrus-total-recall). Builds on Phases 0–4 plus pet chat (Phase 6, item 48).

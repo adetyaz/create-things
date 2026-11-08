@@ -7,7 +7,9 @@
 		getSettings,
 		isSavableUrl,
 		NotConnected,
+		actOnReminder,
 		adoptPet,
+		checkReminders,
 		dueReviews,
 		getPet,
 		MOOD_COLOR,
@@ -18,6 +20,8 @@
 		splitDataUrl,
 		undoSave,
 		type PetView,
+		type Reminder,
+		type ReminderAction,
 		type Rating,
 		type SpeciesOption,
 		type RecentSave,
@@ -81,6 +85,31 @@
 		const [speciesId, breedId] = choice.split('/');
 		try {
 			pet = await adoptPet(speciesId, breedId, petName.trim());
+			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
+		} catch (e) {
+			message = { ok: false, text: e instanceof Error ? e.message : String(e) };
+		}
+	}
+
+	/** Today's reminders not acted on, and why none went out if they're held back. */
+	let reminderList = $state<Reminder[]>([]);
+	let held = $state<string | null>(null);
+
+	async function loadReminders() {
+		try {
+			const check = await checkReminders();
+			reminderList = [...check.fresh, ...check.open];
+			held = check.held;
+		} catch {
+			reminderList = [];
+		}
+	}
+
+	async function actOn(reminder: Reminder, action: ReminderAction) {
+		try {
+			await actOnReminder(reminder.id, action);
+			reminderList = reminderList.filter((r) => r.id !== reminder.id);
+			if (action === 'done') void loadPet();
 			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
 		} catch (e) {
 			message = { ok: false, text: e instanceof Error ? e.message : String(e) };
@@ -157,6 +186,7 @@
 		view = settings.token ? 'capture' : 'connect';
 		if (settings.token) {
 			void loadPet();
+			void loadReminders();
 			void loadRecent();
 			void loadReviews();
 		}
@@ -359,6 +389,36 @@
 					Adopt
 				</button>
 			</section>
+		{/if}
+
+		{#if reminderList.length}
+			<section class="flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+				<h2 class="text-xs font-medium text-stone-600">Reminders</h2>
+				{#each reminderList as reminder (reminder.id)}
+					<div class="flex flex-col gap-1">
+						<p class="text-sm">{reminder.body}</p>
+						<div class="flex flex-wrap gap-1">
+							{#each reminder.actions.filter((a) => a.action !== 'start') as a (a.action)}
+								<button
+									class="rounded-md border border-stone-300 bg-white px-2 py-1 text-xs"
+									title={a.label}
+									onclick={() => actOn(reminder, a.action)}
+								>
+									{a.action === 'two_minute' ? '2-minute version' : a.label}
+								</button>
+							{/each}
+							<button
+								class="px-1 text-xs text-stone-500 underline"
+								onclick={() => actOn(reminder, 'dismiss')}
+							>
+								Not now
+							</button>
+						</div>
+					</div>
+				{/each}
+			</section>
+		{:else if held}
+			<p class="text-[11px] text-stone-400">Reminders held: {held}.</p>
 		{/if}
 
 		{#if reviews.length || reviewedToday}
