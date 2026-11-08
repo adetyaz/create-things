@@ -17,7 +17,15 @@ export function geminiAllowed(bindings: Bindings | undefined): boolean {
 	);
 }
 
-export async function gemini(request: JsonRequest): Promise<unknown> {
+/** The stronger model for Pro answers (set GEMINI_PRO_MODEL to the one your key can use). */
+export function geminiProModel(): string {
+	return optionalEnv('GEMINI_PRO_MODEL') ?? 'gemini-3.5-pro';
+}
+
+export async function gemini(
+	request: JsonRequest,
+	model: string = MODELS.gemini
+): Promise<unknown> {
 	const parts: Array<Record<string, unknown>> = [{ text: request.prompt }];
 	if (request.image && request.image.bytes.byteLength <= MAX_VISION_BYTES) {
 		parts.push({
@@ -28,7 +36,7 @@ export async function gemini(request: JsonRequest): Promise<unknown> {
 		parts.push({ inline_data: { mime_type: file.mime, data: base64(file.bytes) } });
 	}
 
-	const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.gemini}:generateContent`;
+	const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 	const res = await fetch(url, {
 		method: 'POST',
 		headers: {

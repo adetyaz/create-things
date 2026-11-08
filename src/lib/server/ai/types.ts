@@ -8,6 +8,8 @@ export interface JsonRequest {
 	files?: { bytes: Uint8Array; mime: string }[];
 	/** Longest reply allowed, in tokens. Long structured replies (roadmaps) need more. */
 	maxTokens?: number;
+	/** 'pro': a stronger model first (paid per answer or with credits ×10), then the usual chain. */
+	quality?: 'basic' | 'pro';
 }
 
 /** Enough for an analysis; roadmaps ask for more. */

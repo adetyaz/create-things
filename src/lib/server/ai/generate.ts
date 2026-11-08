@@ -5,7 +5,7 @@
  */
 import { extractJson } from './json';
 import { MODELS } from './models';
-import { gemini, geminiAllowed } from './providers/gemini';
+import { gemini, geminiAllowed, geminiProModel } from './providers/gemini';
 import { groq, groqAvailable } from './providers/groq';
 import { workersAiText, workersAiVision } from './providers/workers-ai';
 import { MAX_VISION_BYTES, type JsonRequest, type JsonResult } from './types';
@@ -19,6 +19,11 @@ export async function generateJson(
 
 	// Documents (PDFs, several photos) are only read by Gemini; text-only models would guess.
 	const readsFilesOnly = Boolean(request.files?.length);
+	// Pro answers try the stronger model first; if it fails, the usual chain still answers.
+	if (request.quality === 'pro' && geminiAllowed(platform?.env)) {
+		const pro = geminiProModel();
+		attempts.push([pro, () => gemini(request, pro)]);
+	}
 	if (
 		!readsFilesOnly &&
 		ai &&
