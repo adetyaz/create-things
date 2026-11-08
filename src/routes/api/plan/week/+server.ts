@@ -3,11 +3,22 @@ import { validate } from '$lib/server/platform/http';
 import { currentUserId } from '$lib/server/platform/user';
 import { proposeWeekInput, saveWeekInput } from '$lib/server/features/plan/input';
 import { proposeWeek, saveWeek } from '$lib/server/features/plan/week';
+import { clashesFor } from '$lib/server/features/calendar/service';
 
-/** POST /api/plan/week { blocks: [{ day, startTime? | anchor?, place? }] }: the pet's filled week. */
+/**
+ * POST /api/plan/week { blocks: [{ day, startTime? | anchor?, place? }] }: the pet's filled week.
+ * `clashes[i]` flags block i landing on a busy time in the user's calendar.
+ */
 export const POST: RequestHandler = async (event) => {
 	const { blocks } = validate(proposeWeekInput, await event.request.json().catch(() => ({})));
-	return json(await proposeWeek(event.platform, currentUserId(event), blocks));
+	const userId = currentUserId(event);
+	const proposal = await proposeWeek(event.platform, userId, blocks);
+	const clashes = await clashesFor(
+		event.platform,
+		userId,
+		proposal.blocks.map((b) => ({ ...b, minutes: b.step?.minutes ?? 25 }))
+	);
+	return json({ ...proposal, clashes });
 };
 
 /** PUT /api/plan/week { blocks: [{ day, startTime? | anchor?, place?, stepId }] }: save the week. */

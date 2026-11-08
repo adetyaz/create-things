@@ -18,20 +18,12 @@ import { completeStep } from '$lib/server/features/roadmap/service';
 import { isCheckInDay, rhythmSchema, type Rhythm } from '$lib/server/features/templates/rhythm';
 import { inQuietHours, localNow, minutesOf, zonedTime } from './clock';
 import { line, toneOf } from './lines';
+import { anchorTimesOf } from '$lib/server/features/plan/anchors';
+import { refreshBusy } from '$lib/server/features/calendar/service';
 
 type Platform = App.Platform | undefined;
 export type Reminder = typeof reminders.$inferSelect;
 export type ReminderAction = 'start' | 'two_minute' | 'move' | 'done' | 'open' | 'dismiss';
-
-/** Usual times for common habit anchors, until the user sets their own. */
-export const DEFAULT_ANCHOR_TIMES: Record<string, string> = {
-	'after coffee': '08:00',
-	'after breakfast': '08:30',
-	'after lunch': '13:00',
-	'after work': '18:00',
-	'after dinner': '19:30',
-	'before bed': '21:30'
-};
 
 /** Order when the daily limit can't fit them all: the plan first, the pet last. */
 const PRIORITY = [
@@ -71,10 +63,7 @@ async function settingsOf(platform: Platform, userId: string) {
 		weeklyPlanDay: row?.weeklyPlanDay ?? 0,
 		weeklyPlanTime: row?.weeklyPlanTime ?? '18:00',
 		perDay: row?.remindersPerDay ?? 3,
-		anchorTimes: {
-			...DEFAULT_ANCHOR_TIMES,
-			...((row?.anchorTimes as Record<string, string>) ?? {})
-		},
+		anchorTimes: anchorTimesOf(row?.anchorTimes),
 		rhythm: row?.rhythm ? (rhythmSchema.safeParse(row.rhythm).data ?? null) : null
 	};
 }
@@ -235,6 +224,8 @@ async function lastCheckInDay(
 }
 
 async function busyNow(platform: Platform, userId: string, now: Date): Promise<boolean> {
+	// Reads the calendar link again if it's over an hour old.
+	await refreshBusy(platform, userId).catch((e) => console.error('[reminders] calendar', e));
 	const [row] = await withDb(platform, (db) =>
 		db
 			.select({ id: busyTimes.id })
