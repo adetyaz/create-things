@@ -96,6 +96,40 @@ export async function saveSiteChoice(site: string, choice: SiteChoice) {
 	await chrome.storage.local.set({ siteChoices: { ...(await siteChoices()), [site]: choice } });
 }
 
+export interface ImportThing {
+	url: string;
+	externalId: string;
+	title?: string;
+	text?: string;
+}
+
+/** A batch from a board or folder (up to 50), as references without analysis. */
+export function importBatch(
+	source: 'x' | 'pinterest' | 'arena',
+	collection: { externalId?: string; title: string },
+	items: ImportThing[]
+) {
+	return api<{ collectionId: string; added: number; already: number }>('/api/imports', {
+		method: 'POST',
+		body: JSON.stringify({ source, collection, items })
+	});
+}
+
+/** The import's one memory, and what analysing it would cost. */
+export function importDone(collectionId: string, count: number) {
+	return api<{
+		summary: string | null;
+		analysis: { waiting: number; costEach: number; costAll: number };
+	}>('/api/imports/done', { method: 'POST', body: JSON.stringify({ collectionId, count }) });
+}
+
+export function analyseCollection(collectionId: string, count: number) {
+	return api<{ queued: number; cost: number }>(`/api/collections/${collectionId}/analyse`, {
+		method: 'POST',
+		body: JSON.stringify({ count })
+	});
+}
+
 /** "Do this" on a copy: analyse it now (2 credits) as a to-do. */
 export async function analyseItem(itemId: string) {
 	await setReference(itemId, false).catch(() => null);

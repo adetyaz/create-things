@@ -161,3 +161,158 @@ if (saver?.copy) {
 		true
 	);
 }
+
+// Bring in what you have: an import bar on pages full of saves (X bookmarks, a Pinterest board).
+// It scrolls the page, reads each post once, and sends them 25 at a time as references (free).
+const BATCH = 25;
+const PAUSE_MS = 1200;
+let importBar: HTMLDivElement | null = null;
+
+function syncImportBar() {
+	const importer = saver?.importer;
+	const wanted = !!importer && importer.matches(new URL(location.href));
+	if (wanted && !importBar) importBar = makeImportBar();
+	if (!wanted && importBar) {
+		importBar.remove();
+		importBar = null;
+	}
+}
+
+function makeImportBar(): HTMLDivElement {
+	const importer = saver!.importer!;
+	const bar = document.createElement('div');
+	Object.assign(bar.style, {
+		position: 'fixed',
+		top: '12px',
+		left: '50%',
+		transform: 'translateX(-50%)',
+		zIndex: '2147483646',
+		background: '#ffffff',
+		border: '1px solid #e5e7eb',
+		borderRadius: '999px',
+		boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+		padding: '6px 8px 6px 14px',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '10px',
+		fontFamily: 'system-ui, -apple-system, sans-serif',
+		fontSize: '13px',
+		color: '#111827'
+	});
+	const text = document.createElement('span');
+	text.textContent = `Bring these ${importer.noun} into createthings (free, as references)`;
+	const button = document.createElement('button');
+	button.type = 'button';
+	button.textContent = 'Import';
+	Object.assign(button.style, {
+		background: '#111827',
+		color: '#fff',
+		border: 'none',
+		borderRadius: '999px',
+		padding: '5px 12px',
+		cursor: 'pointer',
+		font: 'inherit'
+	});
+	const close = document.createElement('button');
+	close.type = 'button';
+	close.textContent = '×';
+	close.setAttribute('aria-label', 'Hide');
+	Object.assign(close.style, {
+		background: 'none',
+		border: 'none',
+		cursor: 'pointer',
+		color: '#9ca3af',
+		fontSize: '16px'
+	});
+	close.addEventListener('click', () => bar.remove());
+	bar.append(text, button, close);
+	document.body.appendChild(bar);
+
+	let running = false;
+	button.addEventListener('click', async () => {
+		if (running) {
+			running = false;
+			return;
+		}
+		running = true;
+		button.textContent = 'Stop';
+		const collection = importer.collection();
+		const seen = new Set<string>();
+		let pending: { url: string; externalId: string; title?: string; text?: string }[] = [];
+		let collectionId: string | null = null;
+		let added = 0;
+		let already = 0;
+		let quietRounds = 0;
+		const send = async () => {
+			if (!pending.length) return;
+			const res = await chrome.runtime.sendMessage({
+				type: 'IMPORT_BATCH',
+				source: saver!.id,
+				collection,
+				items: pending
+			});
+			pending = [];
+			if (!res?.success) throw new Error(res?.error ?? 'unknown error');
+			collectionId = res.collectionId;
+			added += res.added;
+			already += res.already;
+		};
+		try {
+			while (running && quietRounds < 3) {
+				let fresh = 0;
+				document.querySelectorAll(saver!.posts!.selector).forEach((post) => {
+					const save = saver!.posts!.read(post);
+					if (!save?.externalId || seen.has(save.externalId)) return;
+					seen.add(save.externalId);
+					fresh++;
+					pending.push({
+						url: save.url,
+						externalId: save.externalId,
+						title: save.title?.slice(0, 200),
+						text: save.text?.slice(0, 2000)
+					});
+				});
+				if (pending.length >= BATCH) await send();
+				text.textContent = `Reading… ${seen.size} ${importer.noun} found`;
+				quietRounds = fresh ? 0 : quietRounds + 1;
+				window.scrollBy(0, Math.round(window.innerHeight * 0.9));
+				await new Promise((r) => setTimeout(r, PAUSE_MS));
+			}
+			await send();
+			const done = collectionId
+				? await chrome.runtime.sendMessage({ type: 'IMPORT_DONE', collectionId, count: added })
+				: null;
+			const cost = done?.analysis;
+			text.textContent = `Brought in ${added} new ${importer.noun}${already ? ` (${already} were already there)` : ''} into "${collection.title}". ${cost?.waiting ? `Analysing them is optional: 2 credits each.` : ''}`;
+			button.textContent = cost?.waiting
+				? `Analyse 20 (${Math.min(20, cost.waiting) * cost.costEach} credits)`
+				: 'Done';
+			running = false;
+			button.onclick = cost?.waiting
+				? async (e) => {
+						e.stopImmediatePropagation();
+						const res = await chrome.runtime.sendMessage({
+							type: 'ANALYSE_COLLECTION',
+							collectionId,
+							count: 20
+						});
+						text.textContent = res?.success
+							? `Analysing ${res.queued} now.`
+							: `Couldn't: ${res?.error}`;
+						button.remove();
+					}
+				: () => bar.remove();
+		} catch (e) {
+			running = false;
+			text.textContent = `Stopped: ${e instanceof Error ? e.message : e}. Saved so far: ${added}.`;
+			button.textContent = 'Import';
+		}
+	});
+	return bar;
+}
+
+if (saver?.importer) {
+	syncImportBar();
+	// X and Pinterest change pages without reloading.
+	setInterval(syncImportBar, 1500);
+}

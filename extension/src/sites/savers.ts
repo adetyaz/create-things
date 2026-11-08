@@ -23,6 +23,17 @@ export const x: SiteSaver = {
 				: null;
 		}
 	},
+	importer: {
+		matches: (url) => /^\/i\/bookmarks(\/\d+)?\/?$/.test(url.pathname),
+		collection: () => {
+			const folder = location.pathname.match(/\/i\/bookmarks\/(\d+)/)?.[1];
+			const heading = textOf(document.querySelector('[data-testid="primaryColumn"] h2'), 80);
+			return folder
+				? { externalId: `folder:${folder}`, title: heading ?? 'X bookmark folder' }
+				: { externalId: 'all', title: 'X bookmarks' };
+		},
+		noun: 'bookmarks'
+	},
 	// X's own Bookmark button (it becomes "removeBookmark" once bookmarked, so only adding counts).
 	copy: {
 		trigger: '[data-testid="bookmark"]',
@@ -47,6 +58,22 @@ export const pinterest: SiteSaver = {
 					}
 				: null;
 		}
+	},
+	// A board: /<user>/<board>/ (not a pin, search or settings page).
+	importer: {
+		matches: (url) => {
+			const parts = url.pathname.split('/').filter(Boolean);
+			return (
+				parts.length === 2 &&
+				!['pin', 'search', 'ideas', 'settings', 'today', '_saved', '_created'].includes(parts[0]) &&
+				!['_saved', '_created', 'pins'].includes(parts[1])
+			);
+		},
+		collection: () => ({
+			externalId: location.pathname.replace(/\/$/, ''),
+			title: textOf(document.querySelector('h1'), 80) ?? 'Pinterest board'
+		}),
+		noun: 'pins'
 	},
 	// Pinterest's own Save button, on a pin in a grid or on a pin's page.
 	copy: {
