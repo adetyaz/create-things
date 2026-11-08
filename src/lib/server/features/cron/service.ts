@@ -9,7 +9,38 @@ import { syncAll } from '$lib/server/features/arena/service';
 import { commonWords } from '$lib/server/features/imports/service';
 import { remember } from '$lib/server/features/memory/service';
 import { syncGoogleQuietly } from '$lib/server/features/calendar/google';
-import { sourceConnections } from '$lib/server/db/schema';
+import { sourceConnections, userSettings } from '$lib/server/db/schema';
+import { checkReminders } from '$lib/server/features/reminders/service';
+import { emailFor, emailReady, reminderEmail, sendEmail } from '$lib/server/features/email/service';
+import { optionalEnv } from '$lib/server/platform/env';
+
+/** The daily cron's schedule in wrangler.jsonc; any other schedule is the hourly one. */
+export const DAILY_CRON = '0 5 * * *';
+
+/**
+ * Hourly: reminders by email for people with an address. Each reminder goes out once, on whichever
+ * channel shows it first (the extension, or this email).
+ */
+export async function runHourly(platform: Platform) {
+	if (!emailReady()) return { email: 'not set up (needs-input.md K4)' };
+	const users = await withDb(platform, (db) =>
+		db.select({ userId: userSettings.userId }).from(userSettings)
+	);
+	const appUrl = optionalEnv('PUBLIC_APP_URL') ?? 'http://localhost:5173';
+	const sent = [];
+	for (const { userId } of users) {
+		const to = emailFor(userId);
+		if (!to) continue;
+		const { fresh } = await checkReminders(platform, userId, 'email');
+		if (fresh.length)
+			sent.push({
+				userId,
+				reminders: fresh.length,
+				ok: await sendEmail(to, reminderEmail(fresh, appUrl))
+			});
+	}
+	return { email: sent };
+}
 
 type Platform = App.Platform | undefined;
 
