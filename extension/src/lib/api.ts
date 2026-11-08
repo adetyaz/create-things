@@ -123,6 +123,15 @@ export async function adoptPet(species: string, breed: string, name: string): Pr
 	return pet;
 }
 
+/** A one-line check-in; the server works out what it's about and feeds the pet if it's Focus work. */
+export function checkIn(body: string) {
+	return api<{
+		about: { id: string; title: string } | null;
+		fed: { status: string; size?: string; name?: string } | null;
+		suggestFocus: boolean;
+	}>('/api/journal', { method: 'POST', body: JSON.stringify({ kind: 'check_in', body }) });
+}
+
 /** Badge colour for each mood (the popup explains it). */
 export const MOOD_COLOR: Record<Mood, string> = {
 	happy: '#15803d',

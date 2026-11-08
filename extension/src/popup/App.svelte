@@ -9,6 +9,7 @@
 		NotConnected,
 		actOnReminder,
 		adoptPet,
+		checkIn,
 		checkReminders,
 		dueReviews,
 		getPet,
@@ -49,6 +50,31 @@
 	/** The pet: its mood is the badge colour. Undefined while loading, null before adopting. */
 	let pet = $state<PetView | null | undefined>(undefined);
 	let showMeals = $state(false);
+	let checkInText = $state('');
+	let checkInResult = $state<string | null>(null);
+
+	async function sendCheckIn() {
+		const body = checkInText.trim();
+		if (!body) return;
+		try {
+			const r = await checkIn(body);
+			checkInText = '';
+			checkInResult =
+				r.fed?.status === 'fed'
+					? `${r.fed.name} ate a ${r.fed.size}${r.about ? ` (about "${r.about.title}")` : ''}.`
+					: r.fed?.status === 'full'
+						? `${r.fed.name} is full for today. Saved to your journal.`
+						: r.suggestFocus && r.about
+							? `Saved. "${r.about.title}" isn't your focus yet, so no food: make it your focus to count it.`
+							: r.about
+								? `Saved to your journal (about "${r.about.title}").`
+								: "Saved to your journal. It didn't match a Focus goal, so no food this time.";
+			void loadPet();
+			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
+		} catch (e) {
+			checkInResult = e instanceof Error ? e.message : String(e);
+		}
+	}
 	let species = $state<SpeciesOption[]>([]);
 	let choice = $state('');
 	let petName = $state('');
@@ -355,6 +381,27 @@
 						{/each}
 					</ul>
 				{/if}
+				<form
+					class="mt-1 flex gap-1"
+					onsubmit={(e) => {
+						e.preventDefault();
+						void sendCheckIn();
+					}}
+				>
+					<input
+						class="min-w-0 flex-1 rounded-md border border-stone-300 px-2 py-1 text-xs"
+						bind:value={checkInText}
+						placeholder="Did something? One line feeds {pet.pet.name}"
+						maxlength="500"
+					/>
+					<button
+						class="rounded-md bg-stone-900 px-2 py-1 text-xs text-white disabled:opacity-50"
+						disabled={!checkInText.trim()}
+					>
+						Check in
+					</button>
+				</form>
+				{#if checkInResult}<p class="text-xs text-stone-600">{checkInResult}</p>{/if}
 				<p class="text-[11px] text-stone-400">
 					The button's colour is {pet.pet.name}'s mood; its number is today's reviews.
 				</p>

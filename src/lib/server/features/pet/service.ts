@@ -4,7 +4,14 @@
  */
 import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 import { withDb, type Db } from '$lib/server/db';
-import { items, petFeeds, pets, roadmapSteps, userSettings } from '$lib/server/db/schema';
+import {
+	items,
+	journalEntries,
+	petFeeds,
+	pets,
+	roadmapSteps,
+	userSettings
+} from '$lib/server/db/schema';
 import { timezoneOf } from '$lib/server/features/plan/context';
 import { today } from '$lib/server/features/plan/dates';
 import { breedOf, speciesOf } from './species';
@@ -30,6 +37,8 @@ type Pet = typeof pets.$inferSelect;
 export type FeedSource =
 	| { type: 'step'; id: string }
 	| { type: 'item'; id: string }
+	| { type: 'journal'; id: string }
+	| { type: 'cards'; id: string }
 	| { type: 'reviews'; day: string }
 	| { type: 'quiz'; itemId: string; day: string };
 
@@ -241,22 +250,28 @@ async function historyOf(db: Db, petId: string, limit = 10): Promise<FeedLine[]>
 				.from(items)
 				.where(inArray(items.id, itemIds))
 		: [];
+	const entryIds = feeds.filter((f) => f.sourceType === 'journal').map((f) => f.sourceId);
+	const entries = entryIds.length
+		? await db
+				.select({ id: journalEntries.id, title: journalEntries.body })
+				.from(journalEntries)
+				.where(inArray(journalEntries.id, entryIds))
+		: [];
 	const title = (rows: { id: string; title: string }[], id: string) =>
 		rows.find((r) => r.id === id)?.title ?? 'something';
-	return feeds.map((f) => ({
-		size: f.size,
-		at: f.createdAt,
-		label:
-			f.sourceType === 'step'
-				? `Step done: ${title(steps, f.sourceId)}`
-				: f.sourceType === 'item'
-					? `Finished: ${title(found, f.sourceId)}`
-					: f.sourceType.startsWith('quiz:')
-						? `Practice quiz: ${title(found, f.sourceId)}`
-						: f.sourceType.startsWith('reviews:')
-							? "Finished today's reviews"
-							: f.sourceType
-	}));
+	const labelOf = (f: (typeof feeds)[number]): string => {
+		if (f.sourceType === 'step') return `Step done: ${title(steps, f.sourceId)}`;
+		if (f.sourceType === 'item') return `Finished: ${title(found, f.sourceId)}`;
+		if (f.sourceType === 'journal') {
+			const body = title(entries, f.sourceId);
+			return `Journal: ${body.length > 50 ? `${body.slice(0, 50)}…` : body}`;
+		}
+		if (f.sourceType === 'cards') return 'Made flashcards from your journal';
+		if (f.sourceType.startsWith('quiz:')) return `Practice quiz: ${title(found, f.sourceId)}`;
+		if (f.sourceType.startsWith('reviews:')) return "Finished today's reviews";
+		return f.sourceType;
+	};
+	return feeds.map((f) => ({ size: f.size, at: f.createdAt, label: labelOf(f) }));
 }
 
 export type FeedResult =
@@ -341,6 +356,8 @@ function sourceKey(source: FeedSource): [string, string | null] {
 	switch (source.type) {
 		case 'step':
 		case 'item':
+		case 'journal':
+		case 'cards':
 			return [source.type, source.id];
 		case 'reviews':
 			return [`reviews:${source.day}`, null];
