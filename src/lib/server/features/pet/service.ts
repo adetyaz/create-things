@@ -37,6 +37,7 @@ type Pet = typeof pets.$inferSelect;
 /** What feeds the pet, as stored in `pet_feeds.source_type` (dated ones count once a day). */
 export type FeedSource =
 	| { type: 'step'; id: string }
+	| { type: 'pomodoro'; id: string }
 	| { type: 'item'; id: string }
 	| { type: 'journal'; id: string }
 	| { type: 'cards'; id: string }
@@ -281,6 +282,8 @@ async function historyOf(db: Db, petId: string, limit = 10): Promise<FeedLine[]>
 			return `Journal: ${body.length > 50 ? `${body.slice(0, 50)}…` : body}`;
 		}
 		if (f.sourceType === 'cards') return 'Made flashcards from your journal';
+		if (f.sourceType === 'pomodoro')
+			return f.size === 'meal' ? 'A full focus session' : 'A short focus session';
 		if (f.sourceType.startsWith('quiz:')) return `Practice quiz: ${title(found, f.sourceId)}`;
 		if (f.sourceType.startsWith('reviews:')) return "Finished today's reviews";
 		return f.sourceType;
@@ -372,6 +375,7 @@ function sourceKey(source: FeedSource): [string, string | null] {
 		case 'item':
 		case 'journal':
 		case 'cards':
+		case 'pomodoro':
 			return [source.type, source.id];
 		case 'reviews':
 			return [`reviews:${source.day}`, null];
