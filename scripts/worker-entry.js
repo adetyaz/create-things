@@ -4,10 +4,26 @@ import sveltekit from './_sveltekit_worker.js';
 
 /** Read by src/routes/api/internal/queue/[queue]/+server.ts. Outside requests can't set it. */
 const FROM_QUEUE = '__FROM_QUEUE';
+/** Read by src/routes/api/internal/cron/+server.ts. Outside requests can't set it. */
+const FROM_CRON = '__FROM_CRON';
 
 export default {
 	fetch(request, env, ctx) {
 		return sveltekit.fetch(request, env, ctx);
+	},
+
+	/** Daily jobs (wrangler.jsonc triggers): handed to the app's internal cron route, in-process. */
+	async scheduled(controller, env, ctx) {
+		const res = await sveltekit.fetch(
+			new Request('https://cron.internal/api/internal/cron', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ cron: controller.cron })
+			}),
+			{ ...env, [FROM_CRON]: true },
+			ctx
+		);
+		console.log('[cron]', res.status, await res.text());
 	},
 
 	/** Hands each message to the app's internal queue route, in-process. */

@@ -19,4 +19,6 @@ export interface Bindings {
 	LOCAL_DEV?: string;
 	/** Set only by scripts/worker-entry.js when it hands a queue message to the app. */
 	__FROM_QUEUE?: boolean;
+	/** Set only by scripts/worker-entry.js when the daily cron runs. */
+	__FROM_CRON?: boolean;
 }
