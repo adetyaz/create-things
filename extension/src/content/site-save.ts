@@ -140,3 +140,24 @@ if (saver) {
 		});
 	}).observe(document.body, { childList: true, subtree: true });
 }
+
+// Copy as you go: when the site's own save button is pressed (X's Bookmark, Pinterest's Save), the
+// worker saves the post here too, if the user switched copying on for this site.
+if (saver?.copy) {
+	const copy = saver.copy;
+	document.addEventListener(
+		'click',
+		(event) => {
+			const button = (event.target as Element | null)?.closest?.(copy.trigger);
+			if (!button) return;
+			const post = copy.postOf(button);
+			const save =
+				post && post !== document.body && saver.posts
+					? saver.posts.read(post)
+					: (saver.page?.read() ?? null);
+			if (save) void chrome.runtime.sendMessage({ type: 'COPY_SITE', site: saver.id, save });
+		},
+		// Capture phase: read the post before the site re-renders it.
+		true
+	);
+}

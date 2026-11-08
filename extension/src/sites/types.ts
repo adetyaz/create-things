@@ -11,6 +11,10 @@ export interface SiteSave {
 	text?: string;
 	/** Image address; the worker downloads it and analysis looks at it. */
 	image?: string;
+	/** The post's or pin's id on the site, so saving it twice doesn't duplicate it. */
+	externalId?: string;
+	/** The board or folder it's in, when known (becomes a collection). */
+	collection?: string;
 }
 
 export interface SiteSaver {
@@ -23,6 +27,16 @@ export interface SiteSaver {
 		/** Where the button goes; default: over the post's top-right corner. */
 		slot?: (post: Element) => Element | null;
 		read: (post: Element) => SiteSave | null;
+	};
+	/**
+	 * Copy as you go: the site's own save button (X's Bookmark, Pinterest's Save). When the user has
+	 * switched it on for this site, pressing it also saves the post here.
+	 */
+	copy?: {
+		/** The site's own save button. */
+		trigger: string;
+		/** The post or pin it belongs to. */
+		postOf: (button: Element) => Element | null;
 	};
 	/** A single thing's own page (a video, a pin, a repo): one Save button at the bottom left. */
 	page?: {

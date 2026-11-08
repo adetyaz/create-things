@@ -10,6 +10,10 @@
 		actOnReminder,
 		adoptPet,
 		checkIn,
+		COPY_SITES,
+		saveSiteChoice,
+		siteChoices,
+		type SiteChoice,
 		completeStep,
 		endFocus,
 		startFocus,
@@ -36,7 +40,21 @@
 		type ReviewCard
 	} from '../lib/api';
 
-	type View = 'loading' | 'connect' | 'capture';
+	type View = 'loading' | 'connect' | 'capture' | 'settings';
+
+	/** Copy as you go, per site (Breakdown §2d): off until switched on; what copies become. */
+	let choices = $state<Record<string, SiteChoice>>({});
+
+	async function openSettings() {
+		choices = await siteChoices();
+		view = 'settings';
+	}
+
+	async function setChoice(site: string, change: Partial<SiteChoice>) {
+		const next = { ...choices[site], ...change };
+		choices = { ...choices, [site]: next };
+		await saveSiteChoice(site, next);
+	}
 
 	let view = $state<View>('loading');
 	let apiBase = $state(DEFAULT_API);
@@ -410,13 +428,58 @@
 	<header class="flex items-center justify-between">
 		<h1 class="text-base font-semibold">createthings</h1>
 		{#if view === 'capture'}
-			<button class="text-xs text-stone-500 underline" onclick={() => (view = 'connect')}>
-				Connection
-			</button>
+			<span class="flex gap-3">
+				<button class="text-xs text-stone-500 underline" onclick={openSettings}>Settings</button>
+				<button class="text-xs text-stone-500 underline" onclick={() => (view = 'connect')}>
+					Connection
+				</button>
+			</span>
+		{:else if view === 'settings'}
+			<button class="text-xs text-stone-500 underline" onclick={() => (view = 'capture')}
+				>Back</button
+			>
 		{/if}
 	</header>
 
-	{#if view === 'loading'}
+	{#if view === 'settings'}
+		<section class="flex flex-col gap-3 rounded-lg border border-stone-200 bg-white p-3">
+			<h2 class="text-sm font-medium">Copy as you go</h2>
+			<p class="text-xs text-stone-600">
+				When you save on these sites with their own button, it's saved here too. Copies aren't
+				analysed until you choose "Do this", so they cost nothing.
+			</p>
+			{#each COPY_SITES as site (site.id)}
+				{@const choice = choices[site.id]}
+				{#if choice}
+					<div class="flex flex-col gap-1 border-t border-stone-100 pt-2">
+						<label class="flex items-center gap-2 text-sm">
+							<input
+								type="checkbox"
+								checked={choice.copy}
+								onchange={(e) => setChoice(site.id, { copy: e.currentTarget.checked })}
+							/>
+							{site.label}
+						</label>
+						<p class="text-xs text-stone-500">{site.how}.</p>
+						<label class="flex items-center gap-2 text-xs text-stone-600">
+							They become
+							<select
+								class="rounded-md border border-stone-300 px-1 py-0.5 text-xs"
+								value={choice.becomes}
+								disabled={!choice.copy}
+								onchange={(e) =>
+									setChoice(site.id, { becomes: e.currentTarget.value as SiteChoice['becomes'] })}
+							>
+								<option value="ask">Ask me each time</option>
+								<option value="reference">References</option>
+								<option value="todo">To-dos (not analysed yet)</option>
+							</select>
+						</label>
+					</div>
+				{/if}
+			{/each}
+		</section>
+	{:else if view === 'loading'}
 		<p class="text-sm text-stone-500">Loading…</p>
 	{:else if view === 'connect'}
 		<section class="flex flex-col gap-3">

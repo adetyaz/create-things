@@ -14,7 +14,21 @@ const common = {
 	/** Keep as a reference (a collection, never a task) instead of something to do. */
 	asReference: z.boolean().optional(),
 	/** A short note added to any capture ("for the contact page"). */
-	note: z.string().trim().max(10_000).optional()
+	note: z.string().trim().max(10_000).optional(),
+	/** False: saved without analysis (copies and imports; analysed when used, Breakdown §2d). */
+	analyse: z.boolean().optional(),
+	/** Its id on the site it came from: saving it again updates instead of duplicating. */
+	external: z
+		.object({ source: z.enum(['x', 'pinterest', 'arena']), id: z.string().trim().min(1).max(200) })
+		.optional(),
+	/** The board, folder or channel it belongs to (made if new). */
+	collection: z
+		.object({
+			source: z.enum(['app', 'x', 'pinterest', 'arena']),
+			externalId: z.string().trim().max(200).optional(),
+			title: z.string().trim().min(1).max(200)
+		})
+		.optional()
 };
 
 /** About 6 MB of image as base64. */

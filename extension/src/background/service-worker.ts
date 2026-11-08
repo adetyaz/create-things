@@ -5,6 +5,11 @@
  */
 import {
 	actOnReminder,
+	analyseItem,
+	applyFit,
+	fitOffers,
+	siteChoices,
+	type Becomes,
 	api,
 	sendWaiting,
 	capture,
@@ -192,6 +197,8 @@ export type ToastMessage =
 			reference: boolean;
 			/** Kept on this device until the app can be reached (no Undo yet). */
 			waiting?: boolean;
+			/** A copy from a site with "ask me" on: Do this · Keep as reference · Fit into a goal · Later. */
+			ask?: { from: string };
 			/** What was saved, so you can check it before the toast goes. */
 			shown: Shown;
 	  }
@@ -319,6 +326,12 @@ async function save(
 	}
 }
 
+const SITE_NAMES: Record<string, string> = {
+	x: 'your X bookmarks',
+	pinterest: 'your Pinterest saves',
+	arena: 'Are.na'
+};
+
 /** A stand-in for a save kept on this device, so the toast can still show what was saved. */
 function waitingItem(input: Capture): SavedItem {
 	return { id: '', title: input.title ?? 'Saved', status: 'waiting' };
@@ -399,17 +412,44 @@ chrome.commands.onCommand.addListener((command, tab) => {
 async function saveSite(
 	tabId: number | undefined,
 	site: SiteSave,
-	asReference: boolean
+	asReference: boolean,
+	copy?: { site: string; becomes: Becomes }
 ): Promise<{ success: boolean; error?: string }> {
+	const extras = {
+		...(site.externalId && copy
+			? { external: { source: copy.site as 'x' | 'pinterest' | 'arena', id: site.externalId } }
+			: {}),
+		...(site.collection && copy
+			? { collection: { source: copy.site as 'x' | 'pinterest' | 'arena', title: site.collection } }
+			: {}),
+		// Copies are saved without analysis; it runs when you choose "Do this" (Breakdown §2d).
+		...(copy ? { analyse: false } : {})
+	};
 	const link: Capture = {
 		captureType: 'url',
 		sourceUrl: site.url,
 		title: site.title,
 		note: site.text,
-		asReference
+		asReference: copy ? copy.becomes === 'reference' : asReference,
+		...extras
 	};
 	try {
 		let input: Capture = link;
+		if (copy) {
+			const result = await capture(input);
+			const message = savedToast(
+				result.item ?? waitingItem(input),
+				input,
+				{ image: site.image },
+				result.waiting
+			);
+			// "Ask me": the toast asks what it should become.
+			if (message.ok && copy.becomes === 'ask' && !result.waiting) {
+				message.ask = { from: SITE_NAMES[copy.site] ?? copy.site };
+			}
+			await toast(tabId, message);
+			return { success: true };
+		}
 		if (site.image) {
 			const image = await imageAsJpeg(site.image).catch(() => null);
 			if (image) {
@@ -475,6 +515,41 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		// A site saver's button: the image when there is one (pins, shots), else the link.
 		const { save: site, asReference } = message as { save: SiteSave; asReference: boolean };
 		void saveSite(sender.tab?.id, site, asReference === true).then(sendResponse);
+		return true;
+	}
+
+	if (message.type === 'COPY_SITE') {
+		// Saved with the site's own button (X bookmark, Pinterest save) and "copy as you go" is on.
+		const { save: site, site: siteId } = message as { save: SiteSave; site: string };
+		void siteChoices().then((choices) => {
+			const choice = choices[siteId];
+			if (!choice?.copy) return sendResponse({ success: false, error: 'copy is off' });
+			void saveSite(sender.tab?.id, site, false, { site: siteId, becomes: choice.becomes }).then(
+				sendResponse
+			);
+		});
+		return true;
+	}
+
+	if (message.type === 'ANALYSE_ITEM') {
+		// "Do this": it becomes a to-do and is analysed now.
+		analyseItem(message.itemId)
+			.then(() => sendResponse({ success: true }))
+			.catch((err) => sendResponse({ success: false, error: errorText(err) }));
+		return true;
+	}
+
+	if (message.type === 'FIT_ITEM') {
+		fitOffers(message.itemId)
+			.then((fit) => sendResponse({ success: true, fit }))
+			.catch((err) => sendResponse({ success: false, error: errorText(err) }));
+		return true;
+	}
+
+	if (message.type === 'APPLY_FIT') {
+		applyFit(message.itemId, message.offer)
+			.then(() => sendResponse({ success: true }))
+			.catch((err) => sendResponse({ success: false, error: errorText(err) }));
 		return true;
 	}
 

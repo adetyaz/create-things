@@ -14,8 +14,19 @@ export const x: SiteSaver = {
 		read: (post) => {
 			// The timestamp links to the post itself.
 			const url = linkOf(post.querySelector('a[href*="/status/"] time')?.closest('a'));
-			return url ? { url, text: textOf(post.querySelector('[data-testid="tweetText"]')) } : null;
+			return url
+				? {
+						url,
+						text: textOf(post.querySelector('[data-testid="tweetText"]')),
+						externalId: url.match(/\/status\/(\d+)/)?.[1]
+					}
+				: null;
 		}
+	},
+	// X's own Bookmark button (it becomes "removeBookmark" once bookmarked, so only adding counts).
+	copy: {
+		trigger: '[data-testid="bookmark"]',
+		postOf: (button) => button.closest('article[data-testid="tweet"]')
 	}
 };
 
@@ -27,12 +38,25 @@ export const pinterest: SiteSaver = {
 		read: (pin) => {
 			const url = linkOf(pin.querySelector('a[href*="/pin/"]'));
 			const img = pin.querySelector('img');
-			return url ? { url, title: img?.alt || undefined, image: bestImage(img) } : null;
+			return url
+				? {
+						url,
+						title: img?.alt || undefined,
+						image: bestImage(img),
+						externalId: url.match(/\/pin\/(\d+)/)?.[1]
+					}
+				: null;
 		}
+	},
+	// Pinterest's own Save button, on a pin in a grid or on a pin's page.
+	copy: {
+		trigger:
+			'[data-test-id="PinBetterSaveButton"], [data-test-id="save-button"], button[aria-label="Save"]',
+		postOf: (button) => button.closest('[data-test-id="pin"]') ?? document.body
 	},
 	page: {
 		matches: (url) => /^\/pin\/\d+/.test(url.pathname),
-		read: () => fromMeta()
+		read: () => ({ ...fromMeta(), externalId: location.pathname.match(/\/pin\/(\d+)/)?.[1] })
 	}
 };
 
