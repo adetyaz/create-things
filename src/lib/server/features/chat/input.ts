@@ -8,6 +8,8 @@ const message = z.object({
 /** Body of POST /api/chat. The app sends the last few messages; the newest must be the user's. */
 export const chatInput = z.object({
 	mode: z.enum(['chat', 'stuck', 'teach']).default('chat'),
+	/** 'pro': a stronger model (10× the credits; or one paid Pro answer). */
+	tier: z.enum(['basic', 'pro']).default('basic'),
 	itemId: z.uuid().optional(),
 	stepId: z.uuid().optional(),
 	messages: z

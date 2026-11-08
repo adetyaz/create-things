@@ -53,14 +53,15 @@ export async function chat(
 			const result = await generateJson(platform, {
 				system: CHAT_SYSTEM,
 				prompt: chatPrompt({ ...context, memories }),
-				maxTokens: input.mode === 'teach' ? 1200 : 600
+				maxTokens: input.mode === 'teach' ? 1200 : 600,
+				quality: input.tier
 			});
 			const reply = readChat(result.data, memories.length);
 			// Thrown inside withCredits, so an empty answer is refunded.
 			if (!reply) throw new Error('The model gave no reply');
 			return { reply, model: result.model };
 		},
-		{ ref: `chat:${input.mode}` }
+		{ ref: `chat:${input.mode}`, tier: input.tier }
 	);
 
 	const saved = await save(platform, userId, input, context, reply);

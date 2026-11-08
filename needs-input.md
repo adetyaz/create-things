@@ -11,7 +11,8 @@
 | K3 | Pinterest developer app (apply early, review takes time) | `PINTEREST_CLIENT_ID`, `PINTEREST_CLIENT_SECRET` | Pinterest connect (S9; the extension already copies saves and imports boards without it) | developers.pinterest.com → create app; scopes `boards:read`, `pins:read`; redirect `http://localhost:5173/api/sources/pinterest/callback` |
 | K4 | Email sending | `RESEND_API_KEY`, `EMAIL_FROM` | Email reminders and the weekly digest | resend.com → API key; verify a sending domain |
 | K5 | Web push keys | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Phone/desktop push (with the PWA) | I can generate these for you; say the word |
-| K6 | App's Sui address that receives payments | `SUI_PAYMENT_ADDRESS` | Credit packs and Pro answers in USDC (H12–H13) | Your wallet's address (mainnet) |
+| K6 | App's Sui address that receives payments | `SUI_PAYMENT_ADDRESS` (and `SUI_NETWORK=testnet` to try with test funds) | Credit packs and Pro answers in USDC or SUI (built: `GET /api/payments`, `POST /api/payments/confirm`) | Your wallet's address. Until zkLogin or wallet connect exists, a payment is claimed by whoever submits its digest first; fine for the demo, fixed by D1 |
+| K9 | The stronger model for Pro answers | `GEMINI_PRO_MODEL` (default `gemini-3.5-pro`) | Chat with `tier: 'pro'` | The Pro model name your Gemini key can use; if it fails, the normal chain answers |
 | K7 | Enoki (only if zkLogin is chosen, D1) | `ENOKI_API_KEY` | zkLogin addresses + sponsored transactions | portal.enoki.mystenlabs.com |
 | K8 | Key that encrypts connected-account tokens | `SOURCE_TOKEN_KEY` | Every connected account (Are.na, Google, Pinterest) | Run `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` and paste the output; keep it secret and never change it once accounts are connected |
 
