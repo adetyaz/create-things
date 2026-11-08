@@ -40,6 +40,26 @@ The server side below is built and verified live. Each feature has a check scrip
 | **Flashcards + quizzes** | Recall questions become flashcards; spaced review (1·3·7·14·30·60 days); practice quizzes with explanations | Wrong answers → `review_weakness` |
 | **What your pet knows** | See every memory in plain-word groups; delete one or forget everything | Honest deletes (below) |
 | **Credits** | A free daily quota, then credits; reserved atomically, refunded on failure | — |
+| **The pet** | Adopt one (4 species, 8 breeds with personalities); it eats when you do real work (a step is a meal, finishing an item a feast, reviews and quizzes a snack), gets hungry, runs away, comes home after 3 days of work; every mood says *why* | — |
+| **Browser extension** | Save from anywhere (popup, right-click, Alt+Shift+S, Save buttons on X, Pinterest, Are.na, YouTube, Instagram, Dribbble, Behance, Reddit, GitHub); every save shows what was saved with Undo; reviews and the pet in the popup | — |
+
+### Built, waiting for the live check
+
+Built on 8 Nov 2026 with type checks, 100 unit tests and builds passing; each has a check script, and moves up once run against the live app.
+
+| Feature | What happens | Memory |
+| --- | --- | --- |
+| **Reminders** | Blocks near their time, never miss twice, check-ins on your rhythm, reviews, a hungry pet, shutdown, the weekly plan; 3 a day, quiet hours, never during a busy calendar slot; system notifications from the extension, email hourly | — |
+| **Calendar** | Busy times from an ICS link or Google Calendar; plans flag clashes; your blocks as a private ICS feed or real Google events with alerts | — |
+| **Journal and check-ins** | Write about anything; entries about Focus work feed the pet by depth (free rules, a tiny AI check only when unclear); flashcards from what you learned | `session_summary` in the daily digest (never the entry) |
+| **Pomodoro** | Focus sessions on a step (a full one is a meal); the note goes into the journal | — |
+| **Weekly digest** | Focused time first, steps, blocks kept and moved, what the pet ate, in identity language | — |
+| **User types and templates** | 14 types (jewelry, music, cloud exam, garden…) set rhythm, prompts, reviews and the pet's leniency; onboarding API; hunger can follow your check-in rhythm | — |
+| **A/B experiments** | Defaults tested, not guessed; stable placement; outcomes in our own database | — |
+| **Collections, copies, imports** | X bookmarks and Pinterest saves copied as you go ("Do this · Keep as reference · Fit into a goal · Later"); X bookmarks and Pinterest boards imported; nothing duplicated; analysed only when used | One `expansion` per import; a weekly "what you're drawn to" |
+| **Are.na** | Connect (OAuth + PKCE), bring channels in as to-dos, curated or references, daily sync, link to a goal, share back with your OK | `expansion` |
+| **Payments** | Credit packs and Pro answers in USDC or SUI, confirmed on Sui through Tatum | — |
+| **Sign-in** | Google or an email link; the extension signs in without copying a token | — |
 
 ## How Walrus Memory is used
 
@@ -57,16 +77,20 @@ The pet is an agent whose memory **visibly changes the product**: picks, roadmap
 
 - **Sui gRPC through Tatum:** Tatum's Sui JSON-RPC endpoint is gone, and its gRPC gateway speaks native gRPC, which the Sui SDK can't use from Workers. [`TatumGrpcTransport`](src/lib/server/integrations/tatum/transport.ts) sends unary gRPC over `fetch` and plugs into the official `SuiGrpcClient`, verified on mainnet and testnet from the Workers runtime.
 - **Data API:** live SUI/USD rate (`/v4/data/rate/symbol`) for paying with SUI.
-- **In progress:** memory receipts (the Walrus Memory account read from Sui through Tatum) and per-request Pro payments in USDC on Sui, confirmed on-chain through Tatum. Proposed no-gas flow: Google sign-in → zkLogin address → gasless USDC transfer → Tatum confirms → credits arrive.
+- **Memory receipts:** the Walrus Memory account object read from Sui through Tatum (its last change and Suiscan links) and the latest memory's blob with a Walruscan link (`GET /api/memories/receipts`).
+- **Payments:** credit packs and one-off Pro answers paid in USDC (or SUI at Tatum's rate) to the app's address; the transaction is read through Tatum's Sui gRPC and checked (succeeded, recent, enough to the right address) before credits arrive; each transaction counts once (`/api/payments`). USDC transfers on Sui need no gas.
 
 ## Architecture
 
 ```
 SvelteKit (Svelte 5) PWA ── Cloudflare Workers ──┬─ Neon Postgres (Hyperdrive, Drizzle)
 Browser extension (MV3)                          ├─ Queues: analysis · roadmap · memory (+ dead-letter)
+                                                 ├─ Cron: daily (Are.na, Google, weekly memory) · hourly (email)
                                                  ├─ AI: Workers AI → Gemini → Groq fallback chain
                                                  ├─ Walrus Memory (remember · analyze · recall · embed)
-                                                 └─ Tatum (Sui gRPC · Data API)
+                                                 ├─ Tatum (Sui gRPC · Data API)
+                                                 ├─ Better Auth (Google, email links) · Resend
+                                                 └─ Are.na · Google Calendar (OAuth + PKCE)
 ```
 
 - **Thin routes, feature modules:** `src/routes/api` validates with zod and calls `src/lib/server/features/*`. Shared layers (`ai`, `jobs`, `integrations`, `platform`) never import features.
@@ -104,6 +128,12 @@ npm test        # unit tests (server + client)
 | `check-voice.mjs` | A spoken ramble split into ideas (speaks a sample with Windows' voice) |
 | `check-next.mjs` · `check-shutdown.mjs` · `check-quiz.mjs` | What's next, the daily shutdown, flashcards and quizzes |
 | `check-memories.mjs` · `check-digest.mjs` | What your pet knows, honest deletes, the daily digest and cost rules |
+| `check-pet.mjs` · `check-saving.mjs` · `list-saves.mjs` | The pet's moods and feeding; undo and the reference switch; your latest saves |
+| `check-reminders.mjs` · `check-calendar.mjs` | Reminders due now and why any are held; busy times, clashes, your feed |
+| `check-journal.mjs` · `check-digest-week.mjs` | Check-ins and feeding by depth, flashcards from the journal; pomodoro and the weekly digest |
+| `check-onboarding.mjs` | User types, rhythm in plain words, rest mode, experiments |
+| `check-collections.mjs` · `check-imports.mjs` · `check-arena.mjs` | No duplicates, collections linked to goals, imports and their memory, Connections and Are.na |
+| `check-payments.mjs` · `check-migrations.mjs` | Prices and confirming a payment on Sui; which migrations are applied |
 
 ## Docs
 
@@ -111,12 +141,15 @@ npm test        # unit tests (server + client)
 | --- | --- |
 | [Project Breakdown.md](Project%20Breakdown.md) | The full concept, principles, features, architecture, data model, API, cost rules and build order |
 | [design-prd.md](design-prd.md) | The design brief: every process, its screens, states, copy and the data each screen gets |
-| [user-stories.md](user-stories.md) | 99 user stories with acceptance criteria |
+| [user-stories.md](user-stories.md) | 121 user stories with acceptance criteria and their status |
+| [pricing.md](pricing.md) | Free to use with credits only for AI, prices by country, the path to $1M |
+| [needs-input.md](needs-input.md) | Keys, decisions and steps only the owner can do |
 | [todolist.md](todolist.md) | The build checklist by phase, with what was verified and when |
 | [pet-state-machine.md](pet-state-machine.md) | The pet's states, activities and reactions, for building the 3D model |
 | [workflow.md](workflow.md) | How the docs fit together and how features are built |
 
 ## Status
 
-- **Built and verified:** everything in "What it does" above (server side).
-- **Next:** memory receipts and USDC payments on Sui through Tatum, then the screens from the design PRD, the 3D pet, and sign-in (Google + magic links).
+- **Built and verified:** the first table in "What it does" (server side, plus the extension).
+- **Built, waiting for the live check:** the second table; keys and steps it needs are in [needs-input.md](needs-input.md).
+- **Next:** the screens from the design PRD (5 launch themes), the 3D pet, deploying.
