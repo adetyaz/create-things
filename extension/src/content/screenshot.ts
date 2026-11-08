@@ -384,6 +384,8 @@ function showToast(message: ToastMessage) {
 
 	if (!message.ok) {
 		say(`Couldn't save: ${message.error}`);
+	} else if (message.waiting) {
+		say("Saved on this device. It sends when createthings can be reached (and you're connected).");
 	} else {
 		const { item } = message;
 		let reference = message.reference;

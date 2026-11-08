@@ -2,7 +2,7 @@ import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { validate } from '$lib/server/platform/http';
 import { currentUserId } from '$lib/server/platform/user';
 import { captureInput, IMAGE_CAPTURE_TYPES } from '$lib/server/features/items/input';
-import { captureItem, listItems } from '$lib/server/features/items/service';
+import { captureItem, listItems, retryHeldForCredits } from '$lib/server/features/items/service';
 
 /** POST /api/items: save a capture (Inbox, or Reference) and queue its analysis. */
 export const POST: RequestHandler = async (event) => {
@@ -16,5 +16,10 @@ export const POST: RequestHandler = async (event) => {
 
 /** GET /api/items: the current user's items, newest first. */
 export const GET: RequestHandler = async (event) => {
-	return json({ items: await listItems(event.platform, currentUserId(event)) });
+	const userId = currentUserId(event);
+	// Saves held back for credits are tried again (free when still out of credits).
+	await retryHeldForCredits(event.platform, userId).catch((e) =>
+		console.error('[items] retry held saves failed', e)
+	);
+	return json({ items: await listItems(event.platform, userId) });
 };

@@ -6,6 +6,7 @@
 import {
 	actOnReminder,
 	api,
+	sendWaiting,
 	capture,
 	checkReminders,
 	type Reminder,
@@ -27,6 +28,8 @@ const BADGE_ALARM = 'refresh-badge';
 /** How often reminders are checked (the server decides what's due; it's cheap). */
 const REMINDER_ALARM = 'check-reminders';
 const REMINDER_MINUTES = 5;
+/** Fires when a focus session's time is up (set by the popup). */
+const FOCUS_ALARM = 'focus-done';
 
 /** The menu contexts used, as the plain strings Chrome takes. */
 type MenuContext = 'link' | 'image' | 'selection' | 'page';
@@ -79,7 +82,19 @@ chrome.runtime.onStartup.addListener(() => {
 });
 chrome.alarms.onAlarm.addListener((alarm) => {
 	if (alarm.name === BADGE_ALARM) void refreshBadge();
-	if (alarm.name === REMINDER_ALARM) void showReminders();
+	if (alarm.name === REMINDER_ALARM) {
+		void sendWaiting().catch(() => 0);
+		void showReminders();
+	}
+	if (alarm.name === FOCUS_ALARM) {
+		chrome.notifications.create('focus-done', {
+			type: 'basic',
+			iconUrl: 'icons/icon128.png',
+			title: 'Focus session done',
+			message: 'Open createthings: one line on what you did feeds your pet.',
+			priority: 2
+		});
+	}
 });
 
 /** The badge: today's reviews as the number, the pet's mood as the colour. */
@@ -147,7 +162,7 @@ chrome.notifications.onButtonClicked.addListener(async (notificationId, index) =
 
 // Clicking the notification itself opens the popup, where the reminder and its actions wait.
 chrome.notifications.onClicked.addListener((notificationId) => {
-	if (!notificationId.startsWith('reminder:')) return;
+	if (!notificationId.startsWith('reminder:') && notificationId !== 'focus-done') return;
 	chrome.notifications.clear(notificationId);
 	void chrome.action.openPopup?.().catch(() => null);
 });
@@ -175,6 +190,8 @@ export type ToastMessage =
 			ok: true;
 			item: SavedItem;
 			reference: boolean;
+			/** Kept on this device until the app can be reached (no Undo yet). */
+			waiting?: boolean;
 			/** What was saved, so you can check it before the toast goes. */
 			shown: Shown;
 	  }
@@ -216,13 +233,15 @@ const quote = (text: string, max = 120) =>
 function savedToast(
 	item: SavedItem,
 	input: Capture,
-	extra: { image?: string; kind?: Shown['kind'] } = {}
+	extra: { image?: string; kind?: Shown['kind'] } = {},
+	waiting = false
 ): ToastMessage {
 	const base = {
 		type: 'SHOW_SAVED',
 		ok: true,
 		item,
-		reference: item.status === 'reference'
+		reference: item.status === 'reference' || (waiting && input.asReference === true),
+		waiting
 	} as const;
 	if (input.captureType === 'screenshot') {
 		return {
@@ -284,12 +303,25 @@ async function save(
 ): Promise<void> {
 	try {
 		const ready = await input();
-		const { item } = await capture(ready);
+		const result = await capture(ready);
 		const image = show.page ? await pageImage(tabId) : undefined;
-		await toast(tabId, savedToast(item, ready, { image, kind: show.kind }));
+		await toast(
+			tabId,
+			savedToast(
+				result.item ?? waitingItem(ready),
+				ready,
+				{ image, kind: show.kind },
+				result.waiting
+			)
+		);
 	} catch (e) {
 		await toast(tabId, { type: 'SHOW_SAVED', ok: false, error: errorText(e) });
 	}
+}
+
+/** A stand-in for a save kept on this device, so the toast can still show what was saved. */
+function waitingItem(input: Capture): SavedItem {
+	return { id: '', title: input.title ?? 'Saved', status: 'waiting' };
 }
 
 function errorText(e: unknown): string {
@@ -392,9 +424,12 @@ async function saveSite(
 				};
 			}
 		}
-		const { item } = await capture(input);
+		const result = await capture(input);
 		// A post whose image didn't download still shows it (the page can load it).
-		await toast(tabId, savedToast(item, input, { image: site.image }));
+		await toast(
+			tabId,
+			savedToast(result.item ?? waitingItem(input), input, { image: site.image }, result.waiting)
+		);
 		return { success: true };
 	} catch (e) {
 		return { success: false, error: errorText(e) };
