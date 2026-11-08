@@ -35,9 +35,9 @@ describe('check-in rhythm', () => {
 			true
 		);
 		// 2026-11-08 is a Sunday.
-		expect(isCheckInDay({ every: 'weekly', weekdays: [0], time: '10:00' }, '2026-11-08', null)).toBe(
-			true
-		);
+		expect(
+			isCheckInDay({ every: 'weekly', weekdays: [0], time: '10:00' }, '2026-11-08', null)
+		).toBe(true);
 		expect(
 			isCheckInDay({ every: 'weekdays', weekdays: [1, 4], time: '07:30' }, '2026-11-08', null)
 		).toBe(false);
