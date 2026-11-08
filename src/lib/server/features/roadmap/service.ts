@@ -3,6 +3,7 @@
  * milestone re-plans the rest from what the user did and what the pet remembers.
  */
 import { feedQuietly, type FeedResult } from '$lib/server/features/pet/service';
+import { recordFirst } from '$lib/server/features/experiments/service';
 import { and, asc, desc, eq } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
 import { items, projects, roadmaps, roadmapSteps } from '$lib/server/db/schema';
@@ -226,6 +227,7 @@ export async function completeStep(
 			console.error('[roadmap] flashcard failed', e)
 		);
 	}
+	if (result.newlyDone) await recordFirst(platform, userId, 'first_step_done');
 	// Real work feeds the pet: a step is a meal (once per step).
 	const fed = result.newlyDone
 		? await feedQuietly(platform, userId, { type: 'step', id: result.newlyDone.id }, 'meal')
