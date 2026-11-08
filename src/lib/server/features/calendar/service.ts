@@ -17,12 +17,16 @@ import { addDays } from '$lib/server/features/plan/dates';
 import { intention } from '$lib/server/features/plan/fill';
 import { localNow, zonedTime } from '$lib/server/features/reminders/clock';
 import { anchorTimesOf } from '$lib/server/features/plan/anchors';
+import { connectionOf } from '$lib/server/features/sources/service';
 import { busyFromIcs, icsFeed, type Busy } from './ics';
+import { refreshGoogleBusy } from './google';
 
 type Platform = App.Platform | undefined;
 
 /** How often an ICS link is read again, and how far ahead busy times are kept. */
 const REFRESH_MINUTES = 60;
+/** When Google free/busy was last read, per user (per worker instance; at most hourly). */
+const googleReadAt = new Map<string, number>();
 const WINDOW_DAYS = 21;
 
 async function settingsRow(platform: Platform, userId: string) {
@@ -80,6 +84,14 @@ export async function refreshBusy(
 	userId: string,
 	force = false
 ): Promise<number> {
+	// Google free/busy, at most hourly per user (when connected).
+	const lastGoogle = googleReadAt.get(userId) ?? 0;
+	if (force || Date.now() - lastGoogle > REFRESH_MINUTES * 60_000) {
+		googleReadAt.set(userId, Date.now());
+		await refreshGoogleBusy(platform, userId).catch((e) =>
+			console.error('[calendar] google free/busy failed', e)
+		);
+	}
 	const settings = await settingsRow(platform, userId);
 	if (!settings?.icsUrl) return 0;
 	const fresh =
@@ -161,9 +173,10 @@ export async function clashesFor(
 	blocks: { day: string; startTime?: string | null; anchor?: string | null; minutes: number }[]
 ): Promise<(Clash | null)[]> {
 	const settings = await settingsRow(platform, userId);
-	if (!settings?.icsUrl || !blocks.length) return blocks.map(() => null);
-	const zone = settings.timezone;
-	const anchors = anchorTimesOf(settings.anchorTimes);
+	const google = await connectionOf(platform, userId, 'google_calendar');
+	if ((!settings?.icsUrl && !google) || !blocks.length) return blocks.map(() => null);
+	const zone = settings?.timezone ?? 'UTC';
+	const anchors = anchorTimesOf(settings?.anchorTimes);
 	const days = blocks.map((b) => b.day).sort();
 	const busy = await busyBetween(
 		platform,
@@ -251,17 +264,22 @@ export async function feedFor(platform: Platform, token: string): Promise<string
 /** What the calendar settings screen shows. */
 export async function calendarStatus(platform: Platform, userId: string, origin: string) {
 	const settings = await settingsRow(platform, userId);
+	const google = await connectionOf(platform, userId, 'google_calendar');
 	const now = new Date();
-	const ahead = settings?.icsUrl
-		? await busyBetween(platform, userId, now, new Date(now.getTime() + 7 * 24 * 60 * 60_000))
-		: [];
+	const ahead =
+		settings?.icsUrl || google
+			? await busyBetween(platform, userId, now, new Date(now.getTime() + 7 * 24 * 60 * 60_000))
+			: [];
 	return {
+		busyNext7Days: ahead.length,
 		ics: settings?.icsUrl
-			? { connected: true, lastRead: settings.icsFetchedAt, busyNext7Days: ahead.length }
+			? { connected: true, lastRead: settings.icsFetchedAt }
 			: { connected: false },
 		feedUrl: settings?.calendarFeedToken
 			? `${origin}/api/calendar/feed/${settings.calendarFeedToken}.ics`
 			: null,
-		google: { connected: false, needs: 'sign-in with Google (needs-input K1)' }
+		google: google
+			? { connected: true, since: google.connectedAt }
+			: { connected: false, connect: `${origin}/api/sources/google_calendar/connect` }
 	};
 }

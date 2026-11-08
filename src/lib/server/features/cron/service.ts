@@ -8,6 +8,8 @@ import { collectionItems, collections, items } from '$lib/server/db/schema';
 import { syncAll } from '$lib/server/features/arena/service';
 import { commonWords } from '$lib/server/features/imports/service';
 import { remember } from '$lib/server/features/memory/service';
+import { syncGoogleQuietly } from '$lib/server/features/calendar/google';
+import { sourceConnections } from '$lib/server/db/schema';
 
 type Platform = App.Platform | undefined;
 
@@ -68,6 +70,25 @@ export async function drawnTo(platform: Platform, userId?: string) {
 /** Everything the daily cron does. Mondays add the weekly memory. */
 export async function runDaily(platform: Platform, now = new Date()) {
 	const arena = await syncAll(platform).catch((e) => ({ error: String(e) }));
+	const google = await syncAllGoogle(platform);
 	const weekly = now.getUTCDay() === 1 ? await drawnTo(platform) : 'not Monday';
-	return { arena, weekly };
+	return { arena, google, weekly };
+}
+
+/** Google Calendar: the next two weeks of blocks, for everyone connected (plans also sync on change). */
+async function syncAllGoogle(platform: Platform) {
+	const users = await withDb(platform, (db) =>
+		db
+			.select({ userId: sourceConnections.userId })
+			.from(sourceConnections)
+			.where(eq(sourceConnections.source, 'google_calendar'))
+	);
+	const results = [];
+	for (const { userId } of users) {
+		results.push({
+			userId,
+			...((await syncGoogleQuietly(platform, userId)) ?? { status: 'failed' })
+		});
+	}
+	return results;
 }
