@@ -12,6 +12,7 @@
 | K4 | Email sending | `RESEND_API_KEY`, `EMAIL_FROM` | Email reminders and the weekly digest | resend.com → API key; verify a sending domain |
 | K5 | Web push keys | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Phone/desktop push (with the PWA) | I can generate these for you; say the word |
 | K6 | App's Sui address that receives payments | `SUI_PAYMENT_ADDRESS` (and `SUI_NETWORK=testnet` to try with test funds) | Credit packs and Pro answers in USDC or SUI (built: `GET /api/payments`, `POST /api/payments/confirm`) | Your wallet's address. Until zkLogin or wallet connect exists, a payment is claimed by whoever submits its digest first; fine for the demo, fixed by D1 |
+| K10 | Sign-in | `BETTER_AUTH_SECRET` (32+ random characters), `OWNER_EMAIL` (your email: your first sign-in keeps all data made before sign-in), then `REQUIRE_SIGN_IN=true` when you want every request signed in | Sign-in at `/signin` (Google with K1, or an email link with K4); the extension's "Sign in with createthings" | Generate the secret like K8. Add the deployed address to `externally_connectable` in `extension/manifest.json` (it allows localhost and *.workers.dev now) |
 | K9 | The stronger model for Pro answers | `GEMINI_PRO_MODEL` (default `gemini-3.5-pro`) | Chat with `tier: 'pro'` | The Pro model name your Gemini key can use; if it fails, the normal chain answers |
 | K7 | Enoki (only if zkLogin is chosen, D1) | `ENOKI_API_KEY` | zkLogin addresses + sponsored transactions | portal.enoki.mystenlabs.com |
 | K8 | Key that encrypts connected-account tokens | `SOURCE_TOKEN_KEY` | Every connected account (Are.na, Google, Pinterest) | Run `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` and paste the output; keep it secret and never change it once accounts are connected |
@@ -37,4 +38,4 @@
 | Y5 | Make the GitHub repo public, push `main` | H16 |
 | Y6 | Record and post the demo; submit the form | H18 |
 | Y7 | Deploy to Cloudflare (`wrangler deploy`) once sign-in is in | The calendar feed link, Google Calendar for others, push and payments need a public URL; the daily cron (Are.na sync, Google sync, the weekly memory) only runs deployed (`POST /api/dev/cron` runs it locally) |
-| Y8 | Migration 0015 | `npm run db:migrate` once: it covers the whole build queue (reminders, calendar, journal, templates, experiments, collections, connections) |
+| Y8 | Migrations 0015 and 0016 | `npm run db:migrate` once: 0015 covers the build queue (reminders, calendar, journal, templates, experiments, collections, connections), 0016 adds sign-in's tables (user, session, account, verification) |

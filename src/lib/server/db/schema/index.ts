@@ -19,3 +19,4 @@ export * from './notifications';
 export * from './reminders';
 export * from './sources';
 export * from './experiments';
+export * from './auth';
