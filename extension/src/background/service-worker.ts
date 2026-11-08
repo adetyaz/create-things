@@ -6,6 +6,8 @@
 import {
 	api,
 	capture,
+	getPet,
+	MOOD_COLOR,
 	imageAsJpeg,
 	isSavableUrl,
 	NotConnected,
@@ -68,13 +70,22 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 	if (alarm.name === BADGE_ALARM) void refreshBadge();
 });
 
-/** Today's reviews on the badge (the pet's mood joins it once the pet exists). */
+/** The badge: today's reviews as the number, the pet's mood as the colour. */
 async function refreshBadge(): Promise<void> {
 	try {
-		// Today's reviews (the daily cap), the same number the popup offers.
-		const { cards } = await api<{ cards: unknown[] }>('/api/reviews');
-		await chrome.action.setBadgeText({ text: cards.length > 0 ? String(cards.length) : '' });
-		await chrome.action.setBadgeBackgroundColor({ color: '#6d28d9' });
+		// The number is today's reviews; the colour is the pet's mood. A dot means the pet needs
+		// feeding and there are no reviews. The popup explains both.
+		const [{ cards }, pet] = await Promise.all([
+			api<{ cards: unknown[] }>('/api/reviews'),
+			getPet().catch(() => null)
+		]);
+		const needsFood = !!pet && !['happy', 'resting'].includes(pet.mood);
+		await chrome.action.setBadgeText({
+			text: cards.length > 0 ? String(cards.length) : needsFood ? '•' : ''
+		});
+		await chrome.action.setBadgeBackgroundColor({
+			color: pet ? MOOD_COLOR[pet.mood] : '#6d28d9'
+		});
 	} catch (e) {
 		await chrome.action.setBadgeText({ text: e instanceof NotConnected ? '!' : '' });
 	}

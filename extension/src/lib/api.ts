@@ -87,6 +87,53 @@ export async function recentSaves(limit = 8): Promise<RecentSave[]> {
 	return items.slice(0, limit);
 }
 
+export type Mood = 'happy' | 'peckish' | 'hungry' | 'starving' | 'ran_away' | 'dead' | 'resting';
+
+/** The pet as GET /api/pet returns it: mood, why, what's next, today's food, recent meals. */
+export interface PetView {
+	pet: { name: string; species: string; breed: string; personality: string | null; food: string };
+	mood: Mood;
+	why: string;
+	next: string | null;
+	today: { eaten: number; limit: number; full: boolean };
+	comingHome: { done: number; needed: number } | null;
+	history: { label: string; size: 'snack' | 'meal' | 'feast'; at: string }[];
+}
+
+export interface SpeciesOption {
+	id: string;
+	label: string;
+	breeds: { id: string; label: string; personality: string; voice: { gentle: string } }[];
+}
+
+/** The pet, or null before one is adopted. */
+export async function getPet(): Promise<PetView | null> {
+	return (await api<{ pet: PetView | null }>('/api/pet')).pet;
+}
+
+export async function petSpecies(): Promise<SpeciesOption[]> {
+	return (await api<{ species: SpeciesOption[] }>('/api/pet/species')).species;
+}
+
+export async function adoptPet(species: string, breed: string, name: string): Promise<PetView> {
+	const { pet } = await api<{ pet: PetView }>('/api/pet', {
+		method: 'POST',
+		body: JSON.stringify({ species, breed, name })
+	});
+	return pet;
+}
+
+/** Badge colour for each mood (the popup explains it). */
+export const MOOD_COLOR: Record<Mood, string> = {
+	happy: '#15803d',
+	resting: '#64748b',
+	peckish: '#ca8a04',
+	hungry: '#ea580c',
+	starving: '#dc2626',
+	ran_away: '#475569',
+	dead: '#475569'
+};
+
 /** A flashcard due for review (from a finished step's recall question, a quiz, …). */
 export interface ReviewCard {
 	id: string;
