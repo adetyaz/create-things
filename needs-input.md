@@ -6,13 +6,14 @@
 
 | # | What | Variable(s) | Used by | Where to get it |
 |---|---|---|---|---|
-| K1 | Google OAuth client (sign-in + Calendar) | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Sign-in, Google Calendar events (R5) | Google Cloud Console → APIs & Services → Credentials → OAuth client (Web). Redirect URIs: `http://localhost:5173/api/calendar/google/callback` and the deployed one |
-| K2 | Are.na OAuth app | `ARENA_CLIENT_ID`, `ARENA_CLIENT_SECRET` | Are.na connect (S3) | dev.are.na → new application. Redirect: `http://localhost:5173/api/sources/arena/callback` |
-| K3 | Pinterest developer app (apply early, review takes time) | `PINTEREST_CLIENT_ID`, `PINTEREST_CLIENT_SECRET` | Pinterest connect (S9) | developers.pinterest.com → create app; scopes `boards:read`, `pins:read` |
+| K1 | Google OAuth client (sign-in + Calendar) | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google Calendar events and busy times (built), sign-in (Q16) | Google Cloud Console → enable the Google Calendar API → OAuth consent screen (add yourself as a test user; Calendar scopes need Google's review before the public can use them) → Credentials → OAuth client (Web). Redirect URI: `http://localhost:5173/api/sources/google_calendar/callback` (and the deployed address). Then open `/api/sources/google_calendar/connect` |
+| K2 | Are.na OAuth app | `ARENA_CLIENT_ID`, `ARENA_CLIENT_SECRET` | Are.na connect (built) | dev.are.na → new application. Redirect: `http://localhost:5173/api/sources/arena/callback`. Then open `/api/sources/arena/connect`. The first run also confirms 3 API paths I took from the v3 docs (marked "confirm" in `features/arena/client.ts`) |
+| K3 | Pinterest developer app (apply early, review takes time) | `PINTEREST_CLIENT_ID`, `PINTEREST_CLIENT_SECRET` | Pinterest connect (S9; the extension already copies saves and imports boards without it) | developers.pinterest.com → create app; scopes `boards:read`, `pins:read`; redirect `http://localhost:5173/api/sources/pinterest/callback` |
 | K4 | Email sending | `RESEND_API_KEY`, `EMAIL_FROM` | Email reminders and the weekly digest | resend.com → API key; verify a sending domain |
 | K5 | Web push keys | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Phone/desktop push (with the PWA) | I can generate these for you; say the word |
 | K6 | App's Sui address that receives payments | `SUI_PAYMENT_ADDRESS` | Credit packs and Pro answers in USDC (H12–H13) | Your wallet's address (mainnet) |
 | K7 | Enoki (only if zkLogin is chosen, D1) | `ENOKI_API_KEY` | zkLogin addresses + sponsored transactions | portal.enoki.mystenlabs.com |
+| K8 | Key that encrypts connected-account tokens | `SOURCE_TOKEN_KEY` | Every connected account (Are.na, Google, Pinterest) | Run `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` and paste the output; keep it secret and never change it once accounts are connected |
 
 ## Decisions (I picked a default so work isn't blocked; change any)
 
@@ -34,4 +35,5 @@
 | Y4 | Open the Walruscan link from `GET /api/memories/receipts` and confirm it loads | H11 receipt check |
 | Y5 | Make the GitHub repo public, push `main` | H16 |
 | Y6 | Record and post the demo; submit the form | H18 |
-| Y7 | Deploy to Cloudflare (`wrangler deploy`) once sign-in is in | Google Calendar, push and payments need a public URL |
+| Y7 | Deploy to Cloudflare (`wrangler deploy`) once sign-in is in | The calendar feed link, Google Calendar for others, push and payments need a public URL; the daily cron (Are.na sync, Google sync, the weekly memory) only runs deployed (`POST /api/dev/cron` runs it locally) |
+| Y8 | Migration 0015 | `npm run db:migrate` once: it covers the whole build queue (reminders, calendar, journal, templates, experiments, collections, connections) |
