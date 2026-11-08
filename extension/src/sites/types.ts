@@ -38,6 +38,17 @@ export interface SiteSaver {
 		/** The post or pin it belongs to. */
 		postOf: (button: Element) => Element | null;
 	};
+	/**
+	 * Bring in what you have: on a page full of saves (X bookmarks, a Pinterest board), an import bar
+	 * reads the posts as the page scrolls. Everything comes in as references, not analysed.
+	 */
+	importer?: {
+		matches: (url: URL) => boolean;
+		/** The folder or board these belong to (becomes a collection). */
+		collection: () => { externalId?: string; title: string };
+		/** What the bar calls them ("bookmarks", "pins"). */
+		noun: string;
+	};
 	/** A single thing's own page (a video, a pin, a repo): one Save button at the bottom left. */
 	page?: {
 		matches: (url: URL) => boolean;

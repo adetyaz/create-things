@@ -5,7 +5,10 @@
  */
 import {
 	actOnReminder,
+	analyseCollection,
 	analyseItem,
+	importBatch,
+	importDone,
 	applyFit,
 	fitOffers,
 	siteChoices,
@@ -528,6 +531,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				sendResponse
 			);
 		});
+		return true;
+	}
+
+	if (message.type === 'IMPORT_BATCH') {
+		importBatch(message.source, message.collection, message.items)
+			.then((result) => sendResponse({ success: true, ...result }))
+			.catch((err) => sendResponse({ success: false, error: errorText(err) }));
+		return true;
+	}
+
+	if (message.type === 'IMPORT_DONE') {
+		importDone(message.collectionId, message.count)
+			.then((result) => sendResponse({ success: true, ...result }))
+			.catch((err) => sendResponse({ success: false, error: errorText(err) }));
+		return true;
+	}
+
+	if (message.type === 'ANALYSE_COLLECTION') {
+		analyseCollection(message.collectionId, message.count)
+			.then((result) => sendResponse({ success: true, ...result }))
+			.catch((err) => sendResponse({ success: false, error: errorText(err) }));
 		return true;
 	}
 
