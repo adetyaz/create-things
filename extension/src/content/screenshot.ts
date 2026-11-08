@@ -386,6 +386,55 @@ function showToast(message: ToastMessage) {
 		say(`Couldn't save: ${message.error}`);
 	} else if (message.waiting) {
 		say("Saved on this device. It sends when createthings can be reached (and you're connected).");
+	} else if (message.ask) {
+		// A copy (X bookmark, Pinterest save): saved, not analysed. What should it become?
+		const { item } = message;
+		// Each button runs its action; a returned line replaces the prompt (null: it set its own).
+		const ask = (label: string, run: () => Promise<string | null>) => {
+			const button = styled('button', linkButton, label);
+			button.addEventListener('click', async () => {
+				clearTimeout(timer);
+				say('…');
+				const text = await run().catch((e) => `Couldn't: ${e instanceof Error ? e.message : e}`);
+				if (text !== null) say(text);
+				dismissLater();
+			});
+			return button;
+		};
+		const send = async (msg: Record<string, unknown>) => {
+			const res = await chrome.runtime.sendMessage(msg);
+			if (!res?.success) throw new Error(res?.error ?? 'unknown error');
+			return res;
+		};
+		const fit = ask('Fit into a goal', async () => {
+			const { fit } = await send({ type: 'FIT_ITEM', itemId: item.id });
+			const offer = fit?.offers?.[0];
+			if (!offer) return 'Kept in your inbox: no goal it fits yet.';
+			const yes = styled('button', linkButton, 'Yes');
+			yes.addEventListener('click', async () => {
+				await send({ type: 'APPLY_FIT', itemId: item.id, offer }).catch(() => null);
+				say('Done. Your plan has it now.');
+				dismissLater();
+			});
+			body.replaceChildren(`${offer.label} `, yes);
+			return null;
+		});
+		body.replaceChildren(
+			`From ${message.ask.from}. `,
+			ask('Do this', async () => {
+				await send({ type: 'ANALYSE_ITEM', itemId: item.id });
+				return "It's a to-do: analysing it now (2 credits).";
+			}),
+			' · ',
+			ask('Keep as reference', async () => {
+				await send({ type: 'SET_REFERENCE', itemId: item.id, reference: true });
+				return 'Kept as a reference.';
+			}),
+			' · ',
+			fit,
+			' · ',
+			ask('Later', async () => 'Saved in your inbox for later (not analysed).')
+		);
 	} else {
 		const { item } = message;
 		let reference = message.reference;

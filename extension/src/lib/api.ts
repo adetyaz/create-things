@@ -42,18 +42,92 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 	return body as T;
 }
 
-export type Capture =
-	| { captureType: 'url'; sourceUrl: string; title?: string; note?: string; asReference?: boolean }
-	| { captureType: 'note'; note: string; title?: string; asReference?: boolean }
-	| {
-			captureType: 'screenshot';
-			image: string;
-			mime: 'image/png' | 'image/jpeg' | 'image/webp';
-			sourceUrl?: string;
-			title?: string;
-			note?: string;
-			asReference?: boolean;
-	  };
+/** Sent with copies and imports: the site's id (no duplicates), its board/folder, no analysis yet. */
+export interface CaptureExtras {
+	analyse?: boolean;
+	external?: { source: 'x' | 'pinterest' | 'arena'; id: string };
+	collection?: { source: 'app' | 'x' | 'pinterest' | 'arena'; externalId?: string; title: string };
+}
+
+export type Capture = CaptureExtras &
+	(
+		| {
+				captureType: 'url';
+				sourceUrl: string;
+				title?: string;
+				note?: string;
+				asReference?: boolean;
+		  }
+		| { captureType: 'note'; note: string; title?: string; asReference?: boolean }
+		| {
+				captureType: 'screenshot';
+				image: string;
+				mime: 'image/png' | 'image/jpeg' | 'image/webp';
+				sourceUrl?: string;
+				title?: string;
+				note?: string;
+				asReference?: boolean;
+		  }
+	);
+
+/** What copies from a site become: ask each time (default), a reference, or a to-do. */
+export type Becomes = 'ask' | 'reference' | 'todo';
+
+export interface SiteChoice {
+	/** Copy as you go: the site's own save button also saves here. Off until switched on. */
+	copy: boolean;
+	becomes: Becomes;
+}
+
+export const COPY_SITES = [
+	{ id: 'x', label: 'X bookmarks', how: 'Bookmarking a post on X also saves it here' },
+	{ id: 'pinterest', label: 'Pinterest saves', how: 'Saving a pin also saves it here' }
+] as const;
+
+export async function siteChoices(): Promise<Record<string, SiteChoice>> {
+	const stored = await chrome.storage.local.get('siteChoices');
+	const saved = (stored.siteChoices as Record<string, SiteChoice> | undefined) ?? {};
+	return Object.fromEntries(
+		COPY_SITES.map((s) => [s.id, saved[s.id] ?? { copy: false, becomes: 'ask' as Becomes }])
+	);
+}
+
+export async function saveSiteChoice(site: string, choice: SiteChoice) {
+	await chrome.storage.local.set({ siteChoices: { ...(await siteChoices()), [site]: choice } });
+}
+
+/** "Do this" on a copy: analyse it now (2 credits) as a to-do. */
+export async function analyseItem(itemId: string) {
+	await setReference(itemId, false).catch(() => null);
+	return api(`/api/items/${itemId}/analyze`, { method: 'POST' });
+}
+
+export interface FitOffer {
+	choice: 'add_step' | 'swap' | 'park' | 'note';
+	label: string;
+	relatedItemId?: string;
+	parkUntil?: string;
+}
+
+/** "Fit into a goal": the pet's offers for where it goes (free). */
+export function fitOffers(itemId: string) {
+	return api<{ related: { title: string } | null; offers: FitOffer[] }>('/api/plan/fit', {
+		method: 'POST',
+		body: JSON.stringify({ itemId })
+	});
+}
+
+export function applyFit(itemId: string, offer: FitOffer) {
+	return api('/api/plan/fit', {
+		method: 'PUT',
+		body: JSON.stringify({
+			itemId,
+			choice: offer.choice,
+			relatedItemId: offer.relatedItemId,
+			parkUntil: offer.parkUntil
+		})
+	});
+}
 
 export interface SavedItem {
 	id: string;

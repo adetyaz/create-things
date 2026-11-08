@@ -4,6 +4,7 @@ import { withDb } from '$lib/server/db';
 import { analyses, items, pendingImages } from '$lib/server/db/schema';
 import { enqueue, type EnqueueResult } from '$lib/server/jobs';
 import { forgetSource } from '$lib/server/features/memory/service';
+import { addToCollection, ensureCollection } from '$lib/server/features/collections/service';
 import { dev } from '$app/environment';
 import { optionalEnv } from '$lib/server/platform/env';
 import type { CaptureInput } from './input';
@@ -12,18 +13,48 @@ type Platform = App.Platform | undefined;
 export type Item = typeof items.$inferSelect;
 export type Analysis = typeof analyses.$inferSelect;
 
-/** Saves a capture (Inbox, or Reference) and queues its analysis. */
+export type CaptureAnalysis =
+	| EnqueueResult
+	| 'skipped (SKIP_ANALYSIS)'
+	| 'saved without analysis'
+	| 'already saved';
+
+/**
+ * Saves a capture (Inbox, or Reference) and queues its analysis. With a site id (`external`), the
+ * same post or pin saved again returns the existing item instead of a duplicate; with a
+ * `collection`, it joins that board / folder / channel. `analyse: false` saves without analysis
+ * (copies and imports: analysed when used, Breakdown §2d).
+ */
 export async function captureItem(
 	platform: Platform,
 	userId: string,
 	input: CaptureInput
-): Promise<{ item: Item; analysis: EnqueueResult | 'skipped (SKIP_ANALYSIS)' }> {
+): Promise<{ item: Item; analysis: CaptureAnalysis }> {
 	const sourceUrl = input.captureType === 'note' ? null : (input.sourceUrl ?? null);
 	const note = input.note ?? null;
 	const host = sourceUrl ? new URL(sourceUrl).hostname : null;
 
-	const item = await withDb(platform, (db) =>
+	const saved = await withDb(platform, (db) =>
 		db.transaction(async (tx) => {
+			if (input.external) {
+				const [existing] = await tx
+					.select()
+					.from(items)
+					.where(
+						and(
+							eq(items.userId, userId),
+							eq(items.externalSource, input.external.source),
+							eq(items.externalId, input.external.id)
+						)
+					);
+				if (existing) {
+					if (input.collection) {
+						const c = await ensureCollection(tx, userId, input.collection);
+						await addToCollection(tx, c.id, [existing.id]);
+					}
+					return { item: existing, isNew: false };
+				}
+			}
 			const [item] = await tx
 				.insert(items)
 				.values({
@@ -34,7 +65,9 @@ export async function captureItem(
 					status: input.asReference ? 'reference' : 'inbox',
 					sourceUrl,
 					note,
-					platform: host?.replace(/^www\./, '') ?? null
+					platform: host?.replace(/^www\./, '') ?? null,
+					externalSource: input.external?.source ?? null,
+					externalId: input.external?.id ?? null
 				})
 				.returning();
 			// Until file storage exists, a screenshot waits here for its analysis, then is deleted.
@@ -43,9 +76,16 @@ export async function captureItem(
 					.insert(pendingImages)
 					.values({ itemId: item.id, mime: input.mime, data: input.image });
 			}
-			return item;
+			if (input.collection) {
+				const c = await ensureCollection(tx, userId, input.collection);
+				await addToCollection(tx, c.id, [item.id]);
+			}
+			return { item, isNew: true };
 		})
 	);
+	const item = saved.item;
+	if (!saved.isNew) return { item, analysis: 'already saved' };
+	if (input.analyse === false) return { item, analysis: 'saved without analysis' };
 
 	// Dev only: save without analysing (no AI, credits or Walrus) to try the ways of saving.
 	// Analyse one later with POST /api/items/[id]/analyze. A screenshot's image waits until then.
