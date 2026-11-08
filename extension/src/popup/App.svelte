@@ -7,13 +7,19 @@
 		getSettings,
 		isSavableUrl,
 		NotConnected,
+		adoptPet,
 		dueReviews,
+		getPet,
+		MOOD_COLOR,
+		petSpecies,
 		rateReview,
 		recentSaves,
 		saveSettings,
 		splitDataUrl,
 		undoSave,
+		type PetView,
 		type Rating,
+		type SpeciesOption,
 		type RecentSave,
 		type ReviewCard
 	} from '../lib/api';
@@ -35,6 +41,51 @@
 	const canSavePage = $derived(isSavableUrl(tab.url));
 
 	let recent = $state<RecentSave[]>([]);
+
+	/** The pet: its mood is the badge colour. Undefined while loading, null before adopting. */
+	let pet = $state<PetView | null | undefined>(undefined);
+	let showMeals = $state(false);
+	let species = $state<SpeciesOption[]>([]);
+	let choice = $state('');
+	let petName = $state('');
+
+	const MOOD_WORD: Record<PetView['mood'], string> = {
+		happy: 'happy',
+		peckish: 'peckish',
+		hungry: 'hungry',
+		starving: 'starving',
+		ran_away: 'away',
+		dead: 'gone',
+		resting: 'resting'
+	};
+	const breedChoices = $derived(
+		species.flatMap((s) =>
+			s.breeds.map((b) => ({ value: `${s.id}/${b.id}`, label: `${b.label} (${s.label})`, b }))
+		)
+	);
+	const chosen = $derived(breedChoices.find((c) => c.value === choice));
+
+	async function loadPet() {
+		try {
+			pet = await getPet();
+			if (!pet && !species.length) {
+				species = await petSpecies();
+				choice = breedChoices[0]?.value ?? '';
+			}
+		} catch {
+			pet = undefined;
+		}
+	}
+
+	async function adopt() {
+		const [speciesId, breedId] = choice.split('/');
+		try {
+			pet = await adoptPet(speciesId, breedId, petName.trim());
+			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
+		} catch (e) {
+			message = { ok: false, text: e instanceof Error ? e.message : String(e) };
+		}
+	}
 
 	/** Today's reviews: the badge number. */
 	let reviews = $state<ReviewCard[]>([]);
@@ -59,7 +110,10 @@
 			reviews = reviews.filter((c) => c.id !== card.id);
 			reviewedToday += 1;
 			showAnswer = false;
-			if (!reviews.length) reviewing = false;
+			if (!reviews.length) {
+				reviewing = false;
+				void loadPet();
+			}
 			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
 		} catch (e) {
 			message = { ok: false, text: e instanceof Error ? e.message : String(e) };
@@ -102,6 +156,7 @@
 		tab = { id: active?.id, url: active?.url, title: active?.title };
 		view = settings.token ? 'capture' : 'connect';
 		if (settings.token) {
+			void loadPet();
 			void loadRecent();
 			void loadReviews();
 		}
@@ -115,6 +170,7 @@
 			await api('/api/extension/token');
 			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
 			view = 'capture';
+			void loadPet();
 			void loadRecent();
 			void loadReviews();
 		} catch (e) {
@@ -234,6 +290,77 @@
 			</button>
 		</section>
 	{:else}
+		{#if pet}
+			<section
+				class="flex flex-col gap-1 rounded-lg border-l-4 border-stone-200 bg-white p-3"
+				style="border-left-color: {MOOD_COLOR[pet.mood]}"
+			>
+				<p class="text-sm">
+					<span class="font-medium">{pet.pet.name}</span> is {MOOD_WORD[pet.mood]}
+					<span class="text-xs text-stone-500">· {pet.pet.personality}</span>
+				</p>
+				<p class="text-xs text-stone-600">{pet.why}</p>
+				{#if pet.next}<p class="text-xs text-stone-500">{pet.next}.</p>{/if}
+				{#if pet.comingHome}
+					<p class="text-xs text-stone-600">
+						Coming home: {pet.comingHome.done} of {pet.comingHome.needed} days of work.
+					</p>
+				{/if}
+				<p class="text-xs text-stone-500">
+					Ate {pet.today.eaten} of {pet.today.limit} today{pet.today.full
+						? ': full, back tomorrow'
+						: ''}.
+					<button class="underline" onclick={() => (showMeals = !showMeals)}>
+						{showMeals ? 'Hide meals' : 'Recent meals'}
+					</button>
+				</p>
+				{#if showMeals}
+					<ul class="text-xs text-stone-600">
+						{#each pet.history.slice(0, 5) as meal (meal.at)}
+							<li class="truncate" title={meal.label}>
+								{meal.size} · {meal.label} · {new Date(meal.at).toLocaleDateString()}
+							</li>
+						{:else}
+							<li>Nothing yet. Finish a step, today's reviews or a quiz.</li>
+						{/each}
+					</ul>
+				{/if}
+				<p class="text-[11px] text-stone-400">
+					The button's colour is {pet.pet.name}'s mood; its number is today's reviews.
+				</p>
+			</section>
+		{:else if pet === null && breedChoices.length}
+			<section class="flex flex-col gap-2 rounded-lg border border-stone-200 bg-white p-3">
+				<p class="text-sm font-medium">Adopt your pet</p>
+				<p class="text-xs text-stone-600">
+					It eats when you do real work (steps, reviews, quizzes) and gets hungry when you don't.
+				</p>
+				<select class="rounded-md border border-stone-300 px-2 py-1.5 text-sm" bind:value={choice}>
+					{#each breedChoices as c (c.value)}
+						<option value={c.value}>{c.label}</option>
+					{/each}
+				</select>
+				{#if chosen}
+					<p class="text-xs text-stone-600">
+						{chosen.b.personality}. <em>"{chosen.b.voice.gentle}"</em>
+					</p>
+				{/if}
+				<input
+					class="rounded-md border border-stone-300 px-2 py-1.5 text-sm"
+					bind:value={petName}
+					placeholder="Name it"
+					maxlength="40"
+				/>
+				<button
+					class="self-end rounded-md bg-stone-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+					disabled={!petName.trim() || !choice}
+					onclick={adopt}
+				>
+					Adopt
+				</button>
+			</section>
+		{/if}
+
 		{#if reviews.length || reviewedToday}
 			<section class="flex flex-col gap-2 rounded-lg border border-violet-200 bg-violet-50 p-3">
 				{#if !reviews.length}
