@@ -20,6 +20,7 @@ import { inQuietHours, localNow, minutesOf, zonedTime } from './clock';
 import { line, toneOf } from './lines';
 import { anchorTimesOf } from '$lib/server/features/plan/anchors';
 import { refreshBusy } from '$lib/server/features/calendar/service';
+import { weekDigest } from '$lib/server/features/digest/service';
 
 type Platform = App.Platform | undefined;
 export type Reminder = typeof reminders.$inferSelect;
@@ -32,6 +33,7 @@ const PRIORITY = [
 	'check_in',
 	'shutdown',
 	'reviews_due',
+	'weekly_digest',
 	'weekly_plan',
 	'pet_hungry'
 ];
@@ -176,6 +178,20 @@ async function candidates(
 				dueAt: at('11:00')
 			});
 		}
+	}
+
+	// The week in review, just before planning the next one.
+	if (weekdayOf(day) === s.weeklyPlanDay && minutes >= minutesOf(s.weeklyPlanTime.slice(0, 5))) {
+		const digest = await weekDigest(platform, userId);
+		out.push({
+			kind: 'weekly_digest',
+			key: `digest:${digest.to}`,
+			title: 'Your week',
+			body: `${petName}: ${digest.headline}`,
+			link: { screen: 'digest', to: digest.to },
+			actions: [{ action: 'open', label: 'See the week' }],
+			dueAt: at(s.weeklyPlanTime.slice(0, 5))
+		});
 	}
 
 	// The weekly plan on the user's plan day.
