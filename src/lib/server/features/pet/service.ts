@@ -14,6 +14,7 @@ import {
 } from '$lib/server/db/schema';
 import { timezoneOf } from '$lib/server/features/plan/context';
 import { today } from '$lib/server/features/plan/dates';
+import { rhythmGapDays, rhythmSchema } from '$lib/server/features/templates/rhythm';
 import { breedOf, speciesOf } from './species';
 import {
 	ago,
@@ -81,16 +82,29 @@ const MOOD_WORDS: Record<Mood, string> = {
 	resting: 'resting'
 };
 
+/**
+ * The pet's timeline. With hunger counted in missed check-ins (B10), the stages stretch by the
+ * rhythm's longest gap, so someone who checks in weekly isn't punished on day 3.
+ */
 async function settingsOf(db: Db, userId: string) {
 	const [row] = await db
 		.select({
 			runawayDays: userSettings.runawayDays,
 			deathDays: userSettings.deathDays,
-			restUntil: userSettings.restUntil
+			restUntil: userSettings.restUntil,
+			hungerMode: userSettings.hungerMode,
+			rhythm: userSettings.rhythm
 		})
 		.from(userSettings)
 		.where(eq(userSettings.userId, userId));
-	return row ?? { runawayDays: 30, deathDays: 60, restUntil: null };
+	if (!row) return { runawayDays: 30, deathDays: 60, restUntil: null };
+	const rhythm = rhythmSchema.safeParse(row.rhythm).data;
+	const gap = row.hungerMode === 'check_ins' && rhythm ? rhythmGapDays(rhythm) : 1;
+	return {
+		runawayDays: row.runawayDays * gap,
+		deathDays: row.deathDays * gap,
+		restUntil: row.restUntil
+	};
 }
 
 /** The user's current pet: the newest one that hasn't died, else the newest. */
