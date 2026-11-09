@@ -22,7 +22,7 @@ export const DAILY_CRON = '0 5 * * *';
  * channel shows it first (the extension, or this email).
  */
 export async function runHourly(platform: Platform) {
-	if (!emailReady()) return { email: 'not set up (needs-input.md K4)' };
+	if (!emailReady()) return { email: 'not set up (needs-input.md)' };
 	const users = await withDb(platform, (db) =>
 		db.select({ userId: userSettings.userId }).from(userSettings)
 	);

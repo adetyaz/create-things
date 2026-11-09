@@ -4,7 +4,7 @@
 //   node.exe scripts/check-arena.mjs --bring <id> "<title>" [reference|triage|shortlist]
 //   node.exe scripts/check-arena.mjs --weekly        your weekly "what you're drawn to" memory
 // To connect Are.na: set SOURCE_TOKEN_KEY, ARENA_CLIENT_ID and ARENA_CLIENT_SECRET in .env
-// (needs-input.md K2, K8), restart, then open http://localhost:5173/api/sources/arena/connect
+// (needs-input.md), restart, then open http://localhost:5173/api/sources/arena/connect
 // in your browser and say yes.
 // Cost: no AI, no credits. --bring: one `expansion` memory (Walrus remember, 5 points) if blocks
 // came in. --weekly: one `expansion` memory if you saved anything into collections this week.
