@@ -42,7 +42,7 @@ export async function paymentOptions(platform: Platform, userId: string) {
 			? network() === 'testnet'
 				? 'Test mode: add free test funds, then buy. No wallet needed; the app pays the gas.'
 				: 'Top up your account, then buy. No wallet needed; the app pays the gas.'
-			: 'Payments are not set up yet (needs-input.md).'
+			: 'Payments are not set up yet (.env.example).'
 	};
 }
 

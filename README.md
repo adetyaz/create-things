@@ -20,46 +20,46 @@ Five things stop people, usually in this order:
 
 ## What it does (built and tested)
 
-The server side below is built and verified live. Each feature has a check script in [`scripts/`](scripts/). The screens come next (see [design-prd.md](design-prd.md)).
+The server side below is built and verified live. Each feature has a check script in [`scripts/`](scripts/). The screens come next (see [docs/ui-guide.md](docs/ui-guide.md)).
 
-| Feature | What happens | Memory it uses or writes |
-| --- | --- | --- |
-| **Capture + analysis** | Save a link or note; AI works out what it is, how big it is, and **what you're trying to do** (learn, make, follow a course, try it out, grow or tend something, build a habit) | Writes `goal` / `learning_goal` |
-| **Pick for me** | Give your time and energy, get **one** thing to start, with a first step and a 2-minute start | **Recalls** your goals and how you work; **cites** the memories it used |
-| **Confirm card** | "Looks like you want to learn jazz piano. Goal: play Autumn Leaves. Right?" One tap to confirm or correct | Corrections are remembered |
-| **Roadmaps as navigation** | Milestones of 15–30 minute steps, each with a 2-minute version, **what to search for** and **which tools**; a goal ("By the end you'll be able to…"); **proving grounds** (real songs, labs, practice exams) | **Recalls** what you know and what tripped you up, so it skips the first and supports the second; re-plans after each milestone (`plan`, `plan_change`) |
-| **Follow a course** | Upload a syllabus (PDF or photos); the roadmap follows its units in order, with class dates in your weekly plan | — |
-| **Try it out** | 2–3 taster sessions, then keep / park / let go | Remembers what you decided and why |
-| **Plans in layers** | Year → half-year → quarter → month (two lists) → week (the pet fills your blocks as "I will … at 8:00 at my desk") → day (tomorrow's top 3) | `plan`, `plan_change`, yearly and monthly reviews |
-| **Reshuffle** | Missed blocks get new slots (never silently); **never miss twice** puts yesterday's step first as its 2-minute version; busy week moves what doesn't fit | `plan_change` |
-| **Fit it in** | A new idea mid-plan is matched to the goal it belongs to **by meaning** and offered: add as a step · swap a block · park it · 5-minute note | **Walrus `embed`**; `idea_merged` / `idea_parked` |
-| **Pet chat** | Talk to the pet; **"I'm stuck"** suggests a break first, then a smaller step or a new angle; **"Teach me this"** gives a short lesson | **Recalls** before every reply and **cites** what it used; saves `stuck_topic` |
-| **Voice ("just yap")** | Ramble out loud; get separate ideas, each with a suggested place | `voice_ideas` (the idea titles, never the transcript) |
-| **Finish + what's next** | Finishing remembers the skills you built and suggests what to do next, with what carries over | `lesson_learned` |
-| **Daily shutdown** | What got done, what moves, tomorrow's top 3 | `session_summary` |
-| **Flashcards + quizzes** | Recall questions become flashcards; spaced review (1·3·7·14·30·60 days); practice quizzes with explanations | Wrong answers → `review_weakness` |
-| **What your pet knows** | See every memory in plain-word groups; delete one or forget everything | Honest deletes (below) |
-| **Credits** | A free daily quota, then credits; reserved atomically, refunded on failure | — |
-| **The pet** | Adopt one (4 species, 8 breeds with personalities); it eats when you do real work (a step is a meal, finishing an item a feast, reviews and quizzes a snack), gets hungry, runs away, comes home after 3 days of work; every mood says *why* | — |
-| **Browser extension** | Save from anywhere (popup, right-click, Alt+Shift+S, Save buttons on X, Pinterest, Are.na, YouTube, Instagram, Dribbble, Behance, Reddit, GitHub); every save shows what was saved with Undo; reviews and the pet in the popup | — |
+| Feature                    | What happens                                                                                                                                                                                                                                 | Memory it uses or writes                                                                                                                                |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Capture + analysis**     | Save a link or note; AI works out what it is, how big it is, and **what you're trying to do** (learn, make, follow a course, try it out, grow or tend something, build a habit)                                                              | Writes `goal` / `learning_goal`                                                                                                                         |
+| **Pick for me**            | Give your time and energy, get **one** thing to start, with a first step and a 2-minute start                                                                                                                                                | **Recalls** your goals and how you work; **cites** the memories it used                                                                                 |
+| **Confirm card**           | "Looks like you want to learn jazz piano. Goal: play Autumn Leaves. Right?" One tap to confirm or correct                                                                                                                                    | Corrections are remembered                                                                                                                              |
+| **Roadmaps as navigation** | Milestones of 15–30 minute steps, each with a 2-minute version, **what to search for** and **which tools**; a goal ("By the end you'll be able to…"); **proving grounds** (real songs, labs, practice exams)                                 | **Recalls** what you know and what tripped you up, so it skips the first and supports the second; re-plans after each milestone (`plan`, `plan_change`) |
+| **Follow a course**        | Upload a syllabus (PDF or photos); the roadmap follows its units in order, with class dates in your weekly plan                                                                                                                              | —                                                                                                                                                       |
+| **Try it out**             | 2–3 taster sessions, then keep / park / let go                                                                                                                                                                                               | Remembers what you decided and why                                                                                                                      |
+| **Plans in layers**        | Year → half-year → quarter → month (two lists) → week (the pet fills your blocks as "I will … at 8:00 at my desk") → day (tomorrow's top 3)                                                                                                  | `plan`, `plan_change`, yearly and monthly reviews                                                                                                       |
+| **Reshuffle**              | Missed blocks get new slots (never silently); **never miss twice** puts yesterday's step first as its 2-minute version; busy week moves what doesn't fit                                                                                     | `plan_change`                                                                                                                                           |
+| **Fit it in**              | A new idea mid-plan is matched to the goal it belongs to **by meaning** and offered: add as a step · swap a block · park it · 5-minute note                                                                                                  | **Walrus `embed`**; `idea_merged` / `idea_parked`                                                                                                       |
+| **Pet chat**               | Talk to the pet; **"I'm stuck"** suggests a break first, then a smaller step or a new angle; **"Teach me this"** gives a short lesson                                                                                                        | **Recalls** before every reply and **cites** what it used; saves `stuck_topic`                                                                          |
+| **Voice ("just yap")**     | Ramble out loud; get separate ideas, each with a suggested place                                                                                                                                                                             | `voice_ideas` (the idea titles, never the transcript)                                                                                                   |
+| **Finish + what's next**   | Finishing remembers the skills you built and suggests what to do next, with what carries over                                                                                                                                                | `lesson_learned`                                                                                                                                        |
+| **Daily shutdown**         | What got done, what moves, tomorrow's top 3                                                                                                                                                                                                  | `session_summary`                                                                                                                                       |
+| **Flashcards + quizzes**   | Recall questions become flashcards; spaced review (1·3·7·14·30·60 days); practice quizzes with explanations                                                                                                                                  | Wrong answers → `review_weakness`                                                                                                                       |
+| **What your pet knows**    | See every memory in plain-word groups; delete one or forget everything                                                                                                                                                                       | Honest deletes (below)                                                                                                                                  |
+| **Credits**                | A free daily quota, then credits; reserved atomically, refunded on failure                                                                                                                                                                   | —                                                                                                                                                       |
+| **The pet**                | Adopt one (4 species, 8 breeds with personalities); it eats when you do real work (a step is a meal, finishing an item a feast, reviews and quizzes a snack), gets hungry, runs away, comes home after 3 days of work; every mood says _why_ | —                                                                                                                                                       |
+| **Browser extension**      | Save from anywhere (popup, right-click, Alt+Shift+S, Save buttons on X, Pinterest, Are.na, YouTube, Instagram, Dribbble, Behance, Reddit, GitHub); every save shows what was saved with Undo; reviews and the pet in the popup               | —                                                                                                                                                       |
 
 ### Built, waiting for the live check
 
 Built on 8 Nov 2026 with type checks, 100 unit tests and builds passing; each has a check script, and moves up once run against the live app.
 
-| Feature | What happens | Memory |
-| --- | --- | --- |
-| **Reminders** | Blocks near their time, never miss twice, check-ins on your rhythm, reviews, a hungry pet, shutdown, the weekly plan; 3 a day, quiet hours, never during a busy calendar slot; system notifications from the extension, email hourly | — |
-| **Calendar** | Busy times from an ICS link or Google Calendar; plans flag clashes; your blocks as a private ICS feed or real Google events with alerts | — |
-| **Journal and check-ins** | Write about anything; entries about Focus work feed the pet by depth (free rules, a tiny AI check only when unclear); flashcards from what you learned | `session_summary` in the daily digest (never the entry) |
-| **Pomodoro** | Focus sessions on a step (a full one is a meal); the note goes into the journal | — |
-| **Weekly digest** | Focused time first, steps, blocks kept and moved, what the pet ate, in identity language | — |
-| **User types and templates** | 14 types (jewelry, music, cloud exam, garden…) set rhythm, prompts, reviews and the pet's leniency; onboarding API; hunger can follow your check-in rhythm | — |
-| **A/B experiments** | Defaults tested, not guessed; stable placement; outcomes in our own database | — |
-| **Collections, copies, imports** | X bookmarks and Pinterest saves copied as you go ("Do this · Keep as reference · Fit into a goal · Later"); X bookmarks and Pinterest boards imported; nothing duplicated; analysed only when used | One `expansion` per import; a weekly "what you're drawn to" |
-| **Are.na** | Connect (OAuth + PKCE), bring channels in as to-dos, curated or references, daily sync, link to a goal, share back with your OK | `expansion` |
-| **Payments** | No wallet: each user has an app-made Sui account and the app pays the gas. Credit packs, and Pro answers paid per request over MPP (the Machine Payments Protocol), confirmed through Tatum | — |
-| **Sign-in** | Google or an email link; the extension signs in without copying a token | — |
+| Feature                          | What happens                                                                                                                                                                                                                         | Memory                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| **Reminders**                    | Blocks near their time, never miss twice, check-ins on your rhythm, reviews, a hungry pet, shutdown, the weekly plan; 3 a day, quiet hours, never during a busy calendar slot; system notifications from the extension, email hourly | —                                                           |
+| **Calendar**                     | Busy times from an ICS link or Google Calendar; plans flag clashes; your blocks as a private ICS feed or real Google events with alerts                                                                                              | —                                                           |
+| **Journal and check-ins**        | Write about anything; entries about Focus work feed the pet by depth (free rules, a tiny AI check only when unclear); flashcards from what you learned                                                                               | `session_summary` in the daily digest (never the entry)     |
+| **Pomodoro**                     | Focus sessions on a step (a full one is a meal); the note goes into the journal                                                                                                                                                      | —                                                           |
+| **Weekly digest**                | Focused time first, steps, blocks kept and moved, what the pet ate, in identity language                                                                                                                                             | —                                                           |
+| **User types and templates**     | 14 types (jewelry, music, cloud exam, garden…) set rhythm, prompts, reviews and the pet's leniency; onboarding API; hunger can follow your check-in rhythm                                                                           | —                                                           |
+| **A/B experiments**              | Defaults tested, not guessed; stable placement; outcomes in our own database                                                                                                                                                         | —                                                           |
+| **Collections, copies, imports** | X bookmarks and Pinterest saves copied as you go ("Do this · Keep as reference · Fit into a goal · Later"); X bookmarks and Pinterest boards imported; nothing duplicated; analysed only when used                                   | One `expansion` per import; a weekly "what you're drawn to" |
+| **Are.na**                       | Connect (OAuth + PKCE), bring channels in as to-dos, curated or references, daily sync, link to a goal, share back with your OK                                                                                                      | `expansion`                                                 |
+| **Payments**                     | No wallet: each user has an app-made Sui account and the app pays the gas. Credit packs, and Pro answers paid per request over MPP (the Machine Payments Protocol), confirmed through Tatum                                          | —                                                           |
+| **Sign-in**                      | Google or an email link; the extension signs in without copying a token                                                                                                                                                              | —                                                           |
 
 ## How Walrus Memory is used
 
@@ -69,7 +69,7 @@ The pet is an agent whose memory **visibly changes the product**: picks, roadmap
 - **Walrus's own AI:** `analyze` splits rich summaries (goals, reviews, lessons, session summaries) into searchable facts; `remember` stores one-fact memories; `recall` is used before every AI decision; `embed` matches new ideas to goals by meaning (fit-it-in, what's next).
 - **Privacy:** only short summaries in our words go to Walrus, never journal text or voice transcripts. One namespace per user.
 - **Delivery through a queue** (one message at a time, retries, dead-letter queue), so saving a memory never slows the app.
-- **Cost rules** (the relayer allows 500 points an hour per account, shared by the whole app): small events go out as **one daily digest**; one-fact memories use `remember` with **dedupe** and **idempotency keys**; embeddings are **cached**; recall has a distance cutoff. Reasons and sources: [Project Breakdown §13](Project%20Breakdown.md).
+- **Cost rules** (the relayer allows 500 points an hour per account, shared by the whole app): small events go out as **one daily digest**; one-fact memories use `remember` with **dedupe** and **idempotency keys**; embeddings are **cached**; recall has a distance cutoff. How it fits together: [docs/architecture.md](docs/architecture.md#memory-walrus).
 - **Honest deletes:** Walrus storage is append-only and the SDK has no delete. Deleting a memory hides its facts from every recall (blob ids from one bulk status lookup); forgetting everything moves you to a fresh namespace. The app says plainly that the encrypted copy expires on its own.
 - **Why we don't use `withMemWal` for chat:** it saves with `analyze` after every reply (which would use the whole app's allowance at ~50 messages an hour) and can't hide deleted memories. Our recall does the same recall → inject → cite while respecting both.
 
@@ -118,39 +118,34 @@ npm test        # unit tests (server + client)
 
 **Live checks** (with `npm run dev` running; each script prints its cost in credits, AI calls and Walrus points at the top):
 
-| Script | Shows |
-| --- | --- |
-| `check-intents.mjs` | Six different goals understood correctly (learn, make, course, try, tend, habit) |
-| `check-goals.mjs` | Roadmap goal options and proving grounds; switching the goal |
-| `check-course.mjs` | A syllabus read into units; a roadmap that follows them |
-| `check-plan.mjs` · `check-horizons.mjs` | Month, week and day plans; year, half-year and quarter |
-| `check-reshuffle.mjs` · `check-resume.mjs` | Missed blocks, never miss twice, busy week, fit-it-in, stop and continue |
-| `check-chat.mjs` | Pet chat, "I'm stuck", "teach me", citations, deleted memories staying hidden |
-| `check-voice.mjs` | A spoken ramble split into ideas (speaks a sample with Windows' voice) |
-| `check-next.mjs` · `check-shutdown.mjs` · `check-quiz.mjs` | What's next, the daily shutdown, flashcards and quizzes |
-| `check-memories.mjs` · `check-digest.mjs` | What your pet knows, honest deletes, the daily digest and cost rules |
-| `check-pet.mjs` · `check-saving.mjs` · `list-saves.mjs` | The pet's moods and feeding; undo and the reference switch; your latest saves |
-| `check-reminders.mjs` · `check-calendar.mjs` | Reminders due now and why any are held; busy times, clashes, your feed |
-| `check-journal.mjs` · `check-digest-week.mjs` | Check-ins and feeding by depth, flashcards from the journal; pomodoro and the weekly digest |
-| `check-onboarding.mjs` | User types, rhythm in plain words, rest mode, experiments |
-| `check-collections.mjs` · `check-imports.mjs` · `check-arena.mjs` | No duplicates, collections linked to goals, imports and their memory, Connections and Are.na |
-| `check-payments.mjs` · `check-migrations.mjs` | Prices, test funds, buying on Sui, MPP (`--mpp` shows the 402, `--pro` pays one); which migrations are applied |
+| Script                                                            | Shows                                                                                                          |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `check-intents.mjs`                                               | Six different goals understood correctly (learn, make, course, try, tend, habit)                               |
+| `check-goals.mjs`                                                 | Roadmap goal options and proving grounds; switching the goal                                                   |
+| `check-course.mjs`                                                | A syllabus read into units; a roadmap that follows them                                                        |
+| `check-plan.mjs` · `check-horizons.mjs`                           | Month, week and day plans; year, half-year and quarter                                                         |
+| `check-reshuffle.mjs` · `check-resume.mjs`                        | Missed blocks, never miss twice, busy week, fit-it-in, stop and continue                                       |
+| `check-chat.mjs`                                                  | Pet chat, "I'm stuck", "teach me", citations, deleted memories staying hidden                                  |
+| `check-voice.mjs`                                                 | A spoken ramble split into ideas (speaks a sample with Windows' voice)                                         |
+| `check-next.mjs` · `check-shutdown.mjs` · `check-quiz.mjs`        | What's next, the daily shutdown, flashcards and quizzes                                                        |
+| `check-memories.mjs` · `check-digest.mjs`                         | What your pet knows, honest deletes, the daily digest and cost rules                                           |
+| `check-pet.mjs` · `check-saving.mjs` · `list-saves.mjs`           | The pet's moods and feeding; undo and the reference switch; your latest saves                                  |
+| `check-reminders.mjs` · `check-calendar.mjs`                      | Reminders due now and why any are held; busy times, clashes, your feed                                         |
+| `check-journal.mjs` · `check-digest-week.mjs`                     | Check-ins and feeding by depth, flashcards from the journal; pomodoro and the weekly digest                    |
+| `check-onboarding.mjs`                                            | User types, rhythm in plain words, rest mode, experiments                                                      |
+| `check-collections.mjs` · `check-imports.mjs` · `check-arena.mjs` | No duplicates, collections linked to goals, imports and their memory, Connections and Are.na                   |
+| `check-payments.mjs` · `check-migrations.mjs`                     | Prices, test funds, buying on Sui, MPP (`--mpp` shows the 402, `--pro` pays one); which migrations are applied |
 
 ## Docs
 
-| Doc | What it covers |
-| --- | --- |
-| [Project Breakdown.md](Project%20Breakdown.md) | The full concept, principles, features, architecture, data model, API, cost rules and build order |
-| [design-prd.md](design-prd.md) | The design brief: every process, its screens, states, copy and the data each screen gets |
-| [user-stories.md](user-stories.md) | 121 user stories with acceptance criteria and their status |
-| [pricing.md](pricing.md) | Free to use with credits only for AI, prices by country, the path to $1M |
-| [needs-input.md](needs-input.md) | Keys, decisions and steps only the owner can do |
-| [todolist.md](todolist.md) | The build checklist by phase, with what was verified and when |
-| [pet-state-machine.md](pet-state-machine.md) | The pet's states, activities and reactions, for building the 3D model |
-| [workflow.md](workflow.md) | How the docs fit together and how features are built |
+| Doc                                          | What it covers                                                                                                                                             |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [docs/architecture.md](docs/architecture.md) | How it's put together: layers, a request start to finish, the item's life, memory, AI and credits, payments, data model, background jobs, how to extend it |
+| [docs/ui-guide.md](docs/ui-guide.md)         | Building the screens: talking to the API, errors, the rules every screen follows, and each screen's endpoints                                              |
+| [docs/api.md](docs/api.md)                   | Every endpoint, generated from the routes (`node.exe scripts/api-docs.mjs`)                                                                                |
 
 ## Status
 
 - **Built and verified:** the first table in "What it does" (server side, plus the extension).
-- **Built, waiting for the live check:** the second table; keys and steps it needs are in [needs-input.md](needs-input.md).
+- **Built, waiting for the live check:** the second table; the keys it needs are in [.env.example](.env.example).
 - **Next:** the screens from the design PRD (5 launch themes), the 3D pet, deploying.

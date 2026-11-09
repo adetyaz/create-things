@@ -4,6 +4,7 @@ import { syncGoogleQuietly } from '$lib/server/features/calendar/google';
 import { authReady, makeAuth } from '$lib/server/features/auth/auth';
 import { withDb } from '$lib/server/db';
 import { currentUserId } from '$lib/server/platform/user';
+import { OutOfCreditsError } from '$lib/server/features/credits/service';
 
 /** Better Auth's session cookie (with a __Secure- prefix over https). */
 const hasSessionCookie = (cookies: { name: string }[]) =>
@@ -54,6 +55,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 /** Logs the real cause of unexpected errors; the client still only sees the generic message. */
 export const handleError: HandleServerError = ({ error, event, status, message }) => {
+	// Not a crash: the UI offers credits or tomorrow's free quota.
+	if (error instanceof OutOfCreditsError) {
+		return { message: error.message, code: 'out_of_credits', cost: error.cost };
+	}
 	console.error(`[${status}] ${event.request.method} ${event.url.pathname}:`, error);
 	return { message };
 };

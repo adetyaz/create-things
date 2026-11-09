@@ -4,7 +4,7 @@
 //   node.exe scripts/check-arena.mjs --bring <id> "<title>" [reference|triage|shortlist]
 //   node.exe scripts/check-arena.mjs --weekly        your weekly "what you're drawn to" memory
 // To connect Are.na: set SOURCE_TOKEN_KEY, ARENA_CLIENT_ID and ARENA_CLIENT_SECRET in .env
-// (needs-input.md), restart, then open http://localhost:5173/api/sources/arena/connect
+// (.env.example), restart, then open http://localhost:5173/api/sources/arena/connect
 // in your browser and say yes.
 // Cost: no AI, no credits. --bring: one `expansion` memory (Walrus remember, 5 points) if blocks
 // came in. --weekly: one `expansion` memory if you saved anything into collections this week.
@@ -45,7 +45,7 @@ if (flag === '--channels') {
 	const { data } = await call('GET', '/api/sources');
 	for (const a of data.accounts) {
 		console.log(
-			`${a.label}: ${a.connected ? `connected${a.lastSyncAt ? `, last sync ${a.lastSyncAt}` : ''}` : a.available ? 'not connected (ready to connect)' : 'keys missing (needs-input.md)'}`
+			`${a.label}: ${a.connected ? `connected${a.lastSyncAt ? `, last sync ${a.lastSyncAt}` : ''}` : a.available ? 'not connected (ready to connect)' : 'keys missing (.env.example)'}`
 		);
 		console.log(`  brings: ${a.brings}\n  sends: ${a.sends}`);
 	}
