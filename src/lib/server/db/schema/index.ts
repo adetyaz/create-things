@@ -20,3 +20,4 @@ export * from './reminders';
 export * from './sources';
 export * from './experiments';
 export * from './auth';
+export * from './wallets';
