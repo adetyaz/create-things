@@ -17,7 +17,7 @@ export function redirectUri(origin: string, source: string): string {
 	return `${origin}/api/sources/${source}/callback`;
 }
 
-/** Whether a source's client id and secret are set (needs-input.md). */
+/** Whether a source's client id and secret are set (.env.example). */
 export function configured(source: OAuthSource): boolean {
 	return (
 		!!optionalEnv(source.clientIdEnv) &&

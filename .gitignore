@@ -30,3 +30,6 @@ test-results
 
 # Local test audio and files made by check scripts
 scripts/fixtures/
+
+# Planning, discussion and hackathon notes (kept locally, not on GitHub)
+/project-docs/

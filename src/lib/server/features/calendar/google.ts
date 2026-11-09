@@ -1,5 +1,5 @@
 /**
- * Google Calendar (needs-input.md): busy times from free/busy, and planned blocks written as
+ * Google Calendar (.env.example): busy times from free/busy, and planned blocks written as
  * real events with a 10-minute alert, so the phone's own calendar reminds them. Event ids come
  * from the block ids, so writing again updates instead of duplicating; unplanned blocks are removed.
  */

@@ -8,7 +8,7 @@ export const GET: RequestHandler = async (event) => {
 	const source = sourceOf(event.params.source!);
 	if (!source) error(404, 'Unknown account type');
 	if (!configured(source)) {
-		error(503, `${source.label} isn't set up yet: its keys are missing (needs-input.md)`);
+		error(503, `${source.label} isn't set up yet: its keys are missing (.env.example)`);
 	}
 	const { url, cookie } = await startConnect(source, currentUserId(event), event.url.origin);
 	event.cookies.set(OAUTH_COOKIE, cookie, {

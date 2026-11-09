@@ -1,6 +1,6 @@
 /**
  * Accounts that connect with OAuth (Breakdown §2c). Adding one is an entry here plus its client
- * module. Client ids and secrets come from env (needs-input.md).
+ * module. Client ids and secrets come from env (.env.example).
  */
 
 export interface OAuthSource {

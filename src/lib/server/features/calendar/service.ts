@@ -1,7 +1,7 @@
 /**
  * The user's calendar: busy times read from an ICS link (refreshed at most hourly, when needed),
  * clashes flagged on planned blocks, and a private ICS feed of their blocks to subscribe to.
- * Google Calendar events with real alerts come with sign-in (needs-input.md).
+ * Google Calendar events with real alerts come with sign-in (.env.example).
  */
 import { and, eq, gte, gt, lt, ne } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
