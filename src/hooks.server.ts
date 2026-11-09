@@ -19,9 +19,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 		return withDb(event.platform, (db) => makeAuth(db, event.url.origin).handler(event.request));
 	}
 
+	// MPP clients put their payment in Authorization, so they send the token as x-createthings-token.
 	const header = event.request.headers.get('authorization');
-	if (header?.startsWith('Bearer ') && event.url.pathname.startsWith('/api/')) {
-		const userId = await userForToken(event.platform, header.slice(7).trim());
+	const token = header?.startsWith('Bearer ')
+		? header.slice(7).trim()
+		: event.request.headers.get('x-createthings-token')?.trim();
+	if (token && event.url.pathname.startsWith('/api/')) {
+		const userId = await userForToken(event.platform, token);
 		if (!userId)
 			return json({ message: 'This connection token is unknown or revoked' }, { status: 401 });
 		event.locals.userId = userId;

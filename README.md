@@ -58,7 +58,7 @@ Built on 8 Nov 2026 with type checks, 100 unit tests and builds passing; each ha
 | **A/B experiments** | Defaults tested, not guessed; stable placement; outcomes in our own database | — |
 | **Collections, copies, imports** | X bookmarks and Pinterest saves copied as you go ("Do this · Keep as reference · Fit into a goal · Later"); X bookmarks and Pinterest boards imported; nothing duplicated; analysed only when used | One `expansion` per import; a weekly "what you're drawn to" |
 | **Are.na** | Connect (OAuth + PKCE), bring channels in as to-dos, curated or references, daily sync, link to a goal, share back with your OK | `expansion` |
-| **Payments** | Credit packs and Pro answers in USDC or SUI, confirmed on Sui through Tatum | — |
+| **Payments** | No wallet: each user has an app-made Sui account and the app pays the gas. Credit packs, and Pro answers paid per request over MPP (the Machine Payments Protocol), confirmed through Tatum | — |
 | **Sign-in** | Google or an email link; the extension signs in without copying a token | — |
 
 ## How Walrus Memory is used
@@ -78,7 +78,8 @@ The pet is an agent whose memory **visibly changes the product**: picks, roadmap
 - **Sui gRPC through Tatum:** Tatum's Sui JSON-RPC endpoint is gone, and its gRPC gateway speaks native gRPC, which the Sui SDK can't use from Workers. [`TatumGrpcTransport`](src/lib/server/integrations/tatum/transport.ts) sends unary gRPC over `fetch` and plugs into the official `SuiGrpcClient`, verified on mainnet and testnet from the Workers runtime.
 - **Data API:** live SUI/USD rate (`/v4/data/rate/symbol`) for paying with SUI.
 - **Memory receipts:** the Walrus Memory account object read from Sui through Tatum (its last change and Suiscan links) and the latest memory's blob with a Walruscan link (`GET /api/memories/receipts`).
-- **Payments:** credit packs and one-off Pro answers paid in USDC (or SUI at Tatum's rate) to the app's address; the transaction is read through Tatum's Sui gRPC and checked (succeeded, recent, enough to the right address) before credits arrive; each transaction counts once (`/api/payments`). USDC transfers on Sui need no gas.
+- **Payments, no wallet:** each user gets an app-made Sui account (key encrypted, never leaves the server); the app sponsors the gas. Credit packs are paid from it (`/api/payments/buy`); the transaction is read back through Tatum's Sui gRPC (succeeded, enough to the app's account) before credits arrive, and each counts once. Testnet by default; `SUI_NETWORK=mainnet` switches.
+- **Agent payments over MPP:** `POST /api/mpp/pro-answer` speaks the [Machine Payments Protocol](https://mpp.dev) with suimpp's `sui/charge` method: it answers 402 with a price, any MPP client pays on Sui and retries with a signed proof, Tatum confirms the transaction, and the Pro answer comes back with a `Payment-Receipt`. The app's own Pro answer button (`/api/payments/pro-answer`) is such a client, paying from the user's account. Callers send their token as `x-createthings-token`, because `Authorization` carries the payment.
 
 ## Architecture
 
@@ -133,7 +134,7 @@ npm test        # unit tests (server + client)
 | `check-journal.mjs` · `check-digest-week.mjs` | Check-ins and feeding by depth, flashcards from the journal; pomodoro and the weekly digest |
 | `check-onboarding.mjs` | User types, rhythm in plain words, rest mode, experiments |
 | `check-collections.mjs` · `check-imports.mjs` · `check-arena.mjs` | No duplicates, collections linked to goals, imports and their memory, Connections and Are.na |
-| `check-payments.mjs` · `check-migrations.mjs` | Prices and confirming a payment on Sui; which migrations are applied |
+| `check-payments.mjs` · `check-migrations.mjs` | Prices, test funds, buying on Sui, MPP (`--mpp` shows the 402, `--pro` pays one); which migrations are applied |
 
 ## Docs
 

@@ -16,7 +16,8 @@
    - `node.exe scripts/check-journal.mjs` (1 credit)
    - `node.exe scripts/check-reminders.mjs`
    - `node.exe scripts/check-imports.mjs` (writes the 14th memory type)
-   - `node.exe scripts/check-payments.mjs --fund`, then `--buy pro_answer` (no wallet: the app made your account and pays the gas)
+   - `node.exe scripts/check-payments.mjs --fund`, then `--buy small` (no wallet: the app made your account and pays the gas)
+   - `node.exe scripts/check-payments.mjs --mpp` (free: shows the MPP 402 price), then `--pro "what should I do first?"` (pays one Pro answer over MPP in test SUI; 1 AI call)
 4. **Open the Walruscan link** from `GET /api/memories/receipts` and confirm it loads
 5. **Push `main` and make the GitHub repo public**
 6. **Record the video** ([demo-script.md](demo-script.md)), **publish the blog post** ([blog-post.md](blog-post.md)) and the X / LinkedIn posts

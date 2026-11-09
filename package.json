@@ -65,6 +65,7 @@
 		"@notionhq/client": "^5.14.0",
 		"@protobuf-ts/runtime": "^2.11.1",
 		"@protobuf-ts/runtime-rpc": "^2.11.1",
+		"@suimpp/mpp": "^0.9.0",
 		"better-auth": "^1.7.18",
 		"drizzle-orm": "^0.45.4",
 		"fast-png": "^8.0.0",
@@ -75,6 +76,7 @@
 		"metascraper-image": "^5.50.0",
 		"metascraper-title": "^5.50.0",
 		"metascraper-url": "^5.50.0",
+		"mppx-sui": "npm:mppx@^0.4.12",
 		"pg": "^8.23.1",
 		"zod": "^4.6.7"
 	}

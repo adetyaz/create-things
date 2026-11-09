@@ -4,9 +4,14 @@
 //   node.exe scripts/check-payments.mjs --fund         testnet: free test SUI into your account
 //   node.exe scripts/check-payments.mjs --buy <pack>   pay from your account: small, medium,
 //                                                      large or pro_answer
+//   node.exe scripts/check-payments.mjs --mpp          MPP: ask for a Pro answer without paying
+//                                                      → the 402 price challenge (free)
+//   node.exe scripts/check-payments.mjs --pro "question"  MPP: the app pays the 402 from your
+//                                                      account, Tatum confirms, the answer comes
+//                                                      back (1 Pro answer of test SUI; 1 AI call)
 // Your account is made by the app (no wallet); the app pays the gas; Tatum confirms each payment.
 // Cost: test SUI only on testnet (free); 1 Tatum rate call + a few Tatum reads per purchase.
-// No AI, no Walrus. Switch to real money with SUI_NETWORK=mainnet (and SUI_AGENT_KEY_MAINNET).
+// No AI (except --pro), no Walrus. Switch to real money with SUI_NETWORK=mainnet (and SUI_AGENT_KEY_MAINNET).
 const BASE = 'http://localhost:5173';
 async function call(method, path, body) {
 	const res = await fetch(BASE + path, {
@@ -25,6 +30,30 @@ if (flag === '--fund') {
 			? 'Asked the faucet: test SUI arrives in a few seconds.'
 			: `${status}: ${data?.message}`
 	);
+} else if (flag === '--mpp') {
+	const res = await fetch(BASE + '/api/mpp/pro-answer', {
+		method: 'POST',
+		headers: { 'content-type': 'application/json' },
+		body: JSON.stringify({ messages: [{ role: 'user', text: 'What should I do first today?' }] })
+	});
+	console.log(`${res.status} ${res.statusText}`);
+	const challenge = res.headers.get('www-authenticate');
+	if (challenge) {
+		console.log(`WWW-Authenticate: ${challenge}`);
+		const request = /request="([^"]+)"/.exec(challenge)?.[1];
+		if (request) console.log('Price:', Buffer.from(request, 'base64url').toString());
+	} else console.log(await res.text());
+} else if (flag === '--pro') {
+	const text = pack ?? 'What should I do first today?';
+	const { status, data } = await call('POST', '/api/payments/pro-answer', {
+		messages: [{ role: 'user', text }]
+	});
+	if (status === 200) {
+		const p = data.payment;
+		console.log(`Paid over ${p.protocol}: ${p.amount} ${p.coin}, confirmed by ${p.confirmedBy}`);
+		console.log(`  ${p.explorerUrl}`);
+		console.log(`Answer: ${JSON.stringify(data.answer).slice(0, 400)}`);
+	} else console.log(`${status}: ${data?.message ?? JSON.stringify(data)}`);
 } else if (flag === '--buy') {
 	const { status, data } = await call('POST', '/api/payments/buy', { pack });
 	console.log(
