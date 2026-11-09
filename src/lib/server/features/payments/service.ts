@@ -105,7 +105,7 @@ export async function buy(
 }
 
 /** Builds, signs with both accounts, and sends; Tatum's gateway first, Sui's public node if needed. */
-async function execute(
+export async function execute(
 	tx: Transaction,
 	user: Awaited<ReturnType<typeof keypairFor>>,
 	agent: NonNullable<ReturnType<typeof agentKeypair>>
