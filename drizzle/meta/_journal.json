@@ -120,6 +120,13 @@
       "when": 1794139789690,
       "tag": "0016_sign_in",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794236049035,
+      "tag": "0017_sui_accounts",
+      "breakpoints": true
     }
   ]
 }
