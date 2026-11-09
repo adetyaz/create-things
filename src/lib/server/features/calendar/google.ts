@@ -1,5 +1,5 @@
 /**
- * Google Calendar (needs-input.md K1): busy times from free/busy, and planned blocks written as
+ * Google Calendar (needs-input.md): busy times from free/busy, and planned blocks written as
  * real events with a 10-minute alert, so the phone's own calendar reminds them. Event ids come
  * from the block ids, so writing again updates instead of duplicating; unplanned blocks are removed.
  */
@@ -65,16 +65,14 @@ export async function refreshGoogleBusy(platform: Platform, userId: string): Pro
 				.delete(busyTimes)
 				.where(and(eq(busyTimes.userId, userId), eq(busyTimes.source, 'google')));
 			if (busy.length) {
-				await tx
-					.insert(busyTimes)
-					.values(
-						busy.map((b) => ({
-							userId,
-							source: 'google',
-							startsAt: new Date(b.start),
-							endsAt: new Date(b.end)
-						}))
-					);
+				await tx.insert(busyTimes).values(
+					busy.map((b) => ({
+						userId,
+						source: 'google',
+						startsAt: new Date(b.start),
+						endsAt: new Date(b.end)
+					}))
+				);
 			}
 		})
 	);

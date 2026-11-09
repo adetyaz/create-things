@@ -17,7 +17,7 @@ export function redirectUri(origin: string, source: string): string {
 	return `${origin}/api/sources/${source}/callback`;
 }
 
-/** Whether a source's client id and secret are set (needs-input.md K1–K3). */
+/** Whether a source's client id and secret are set (needs-input.md). */
 export function configured(source: OAuthSource): boolean {
 	return (
 		!!optionalEnv(source.clientIdEnv) &&
@@ -34,7 +34,7 @@ export async function startConnect(source: OAuthSource, userId: string, origin: 
 		response_type: 'code',
 		client_id: requiredEnv(source.clientIdEnv),
 		redirect_uri: redirectUri(origin, source.id),
-		scope: source.scopes.join(source.id === 'pinterest' ? ',' : ' '),
+		scope: source.scopes.join(' '),
 		state,
 		code_challenge: await challengeOf(verifier),
 		code_challenge_method: 'S256',
@@ -63,9 +63,7 @@ async function tokenRequest(
 		method: 'POST',
 		headers: {
 			'content-type': 'application/x-www-form-urlencoded',
-			accept: 'application/json',
-			// Pinterest wants the client in Basic auth; the others accept it in the body too.
-			authorization: `Basic ${btoa(`${id}:${secret}`)}`
+			accept: 'application/json'
 		},
 		body: new URLSearchParams({ client_id: id, client_secret: secret, ...body })
 	});

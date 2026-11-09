@@ -1,4 +1,4 @@
-// Payments in USDC/SUI on Sui (npm run dev running; SUI_PAYMENT_ADDRESS set, needs-input.md K6):
+// Payments in USDC/SUI on Sui (npm run dev running; SUI_PAYMENT_ADDRESS set, needs-input.md):
 //   node.exe scripts/check-payments.mjs                       prices and where to pay
 //   node.exe scripts/check-payments.mjs <txDigest> <pack>     confirm a payment you sent
 // Packs: small, medium, large, pro_answer. Send the shown USDC (or SUI) to the address from your

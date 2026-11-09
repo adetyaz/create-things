@@ -1,10 +1,10 @@
 /**
  * Accounts that connect with OAuth (Breakdown §2c). Adding one is an entry here plus its client
- * module. Client ids and secrets come from env (needs-input.md K1–K3).
+ * module. Client ids and secrets come from env (needs-input.md).
  */
 
 export interface OAuthSource {
-	id: 'arena' | 'pinterest' | 'google_calendar';
+	id: 'arena' | 'google_calendar';
 	label: string;
 	authorizeUrl: string;
 	tokenUrl: string;
@@ -31,17 +31,6 @@ export const SOURCES: OAuthSource[] = [
 		clientSecretEnv: 'ARENA_CLIENT_SECRET',
 		brings: 'Channels you choose, as collections; synced daily',
 		sends: 'A "made with createthings" block when you finish something, only with your OK'
-	},
-	{
-		id: 'pinterest',
-		label: 'Pinterest',
-		authorizeUrl: 'https://www.pinterest.com/oauth/',
-		tokenUrl: 'https://api.pinterest.com/v5/oauth/token',
-		scopes: ['boards:read', 'pins:read'],
-		clientIdEnv: 'PINTEREST_CLIENT_ID',
-		clientSecretEnv: 'PINTEREST_CLIENT_SECRET',
-		brings: 'Boards you choose, as collections; synced daily',
-		sends: 'Nothing'
 	},
 	{
 		id: 'google_calendar',

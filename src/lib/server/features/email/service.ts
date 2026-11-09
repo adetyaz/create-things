@@ -1,5 +1,5 @@
 /**
- * Email (needs-input.md K4): reminders and the weekly digest, in the pet's voice, through Resend.
+ * Email (needs-input.md): reminders and the weekly digest, in the pet's voice, through Resend.
  * Sent by the hourly cron; each reminder goes out once, on whichever channel shows it first.
  * Until sign-in exists, the only address known is OWNER_EMAIL (for the dev user).
  */

@@ -2,7 +2,7 @@
  * Are.na API v3 calls (Breakdown §2). Rate limits per minute: 30 guest, 120 free, 300 premium,
  * 600 supporter; calls are spaced to stay well under the free limit.
  * Endpoints marked "confirm" are from the v3 docs as read on 2 Nov 2026; check them with the first
- * real connection (needs-input.md K2).
+ * real connection (needs-input.md).
  */
 const API = 'https://api.are.na/v3';
 /** Space between calls: ~100 a minute at most. */

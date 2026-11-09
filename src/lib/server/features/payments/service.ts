@@ -52,7 +52,7 @@ export async function paymentOptions() {
 		proAnswer: { ...PRO_ANSWER, price: price(PRO_ANSWER.usd) },
 		how: payTo
 			? 'Send the amount to the address from your Sui wallet (USDC transfers on Sui need no gas), then paste the transaction digest.'
-			: 'Payments are not set up yet (needs-input.md K6).'
+			: 'Payments are not set up yet (needs-input.md).'
 	};
 }
 
