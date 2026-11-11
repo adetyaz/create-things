@@ -85,6 +85,10 @@ export async function requestRoadmap(
 			.where(and(eq(items.id, itemId), eq(items.userId, userId)))
 	);
 	if (!item) return null;
+	// A new attempt: the last failure no longer applies (the job sets it again if this one fails).
+	await withDb(platform, (db) =>
+		db.update(items).set({ planError: null }).where(eq(items.id, itemId))
+	);
 	return enqueue(platform, 'roadmap', { itemId, mode: 'generate' });
 }
 

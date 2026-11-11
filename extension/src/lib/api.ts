@@ -3,7 +3,10 @@
  * settings, until sign-in exists), stored in extension storage.
  */
 
-export const DEFAULT_API = 'http://localhost:5173';
+/** The app the extension talks to: set at build time for the store (VITE_API_BASE), else local dev. */
+export const DEFAULT_API =
+	(import.meta as unknown as { env?: Record<string, string | undefined> }).env?.VITE_API_BASE ??
+	'http://localhost:5173';
 
 export interface Settings {
 	apiBase: string;

@@ -71,7 +71,7 @@
 	],
 	"host_permissions": ["<all_urls>"],
 	"externally_connectable": {
-		"matches": ["http://localhost:5173/*", "https://*.workers.dev/*"]
+		"matches": ["http://localhost:5173/*", "https://*.workers.dev/*", "https://*.vercel.app/*"]
 	},
 	"content_security_policy": {
 		"extension_pages": "script-src 'self'; object-src 'self'"

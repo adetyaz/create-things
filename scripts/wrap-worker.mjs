@@ -2,6 +2,11 @@
 // so the deployed worker handles queue messages as well as requests. Wrangler's `main` stays the same.
 import { copyFileSync, existsSync, readFileSync, renameSync } from 'node:fs';
 
+if (process.env.VERCEL) {
+	console.log('Vercel build: no worker to wrap');
+	process.exit(0);
+}
+
 const dir = '.svelte-kit/cloudflare';
 const worker = `${dir}/_worker.js`;
 const inner = `${dir}/_sveltekit_worker.js`;

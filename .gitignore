@@ -33,3 +33,18 @@ scripts/fixtures/
 
 # Planning, discussion and hackathon notes (kept locally, not on GitHub)
 /project-docs/
+
+# Design system and art direction (local reference only)
+/Design system and art direction/
+
+# Chrome Web Store upload (made by extension/scripts/zip.mjs)
+createthings-extension.zip
+
+# Editor settings (personal)
+/.vscode/
+
+# Extension build output (made by `npm run build` in extension/)
+/extension/build/
+
+# Demo video recorder (local only)
+scripts/record-demo.mjs

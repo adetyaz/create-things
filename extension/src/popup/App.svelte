@@ -7,35 +7,26 @@
 		getSettings,
 		isSavableUrl,
 		NotConnected,
-		actOnReminder,
-		adoptPet,
 		checkIn,
 		COPY_SITES,
 		saveSiteChoice,
 		siteChoices,
 		type SiteChoice,
-		completeStep,
 		endFocus,
 		startFocus,
 		todayStep,
 		waitingSaves,
 		type FocusSession,
 		type TodayStep,
-		checkReminders,
 		dueReviews,
 		getPet,
-		MOOD_COLOR,
-		petSpecies,
 		rateReview,
 		recentSaves,
 		saveSettings,
 		splitDataUrl,
 		undoSave,
 		type PetView,
-		type Reminder,
-		type ReminderAction,
 		type Rating,
-		type SpeciesOption,
 		type RecentSave,
 		type ReviewCard
 	} from '../lib/api';
@@ -74,7 +65,6 @@
 
 	/** The pet: its mood is the badge colour. Undefined while loading, null before adopting. */
 	let pet = $state<PetView | null | undefined>(undefined);
-	let showMeals = $state(false);
 	let checkInText = $state('');
 	let checkInResult = $state<string | null>(null);
 
@@ -100,47 +90,16 @@
 			checkInResult = e instanceof Error ? e.message : String(e);
 		}
 	}
-	let species = $state<SpeciesOption[]>([]);
-	let choice = $state('');
-	let petName = $state('');
 
-	const MOOD_WORD: Record<PetView['mood'], string> = {
-		happy: 'happy',
-		peckish: 'peckish',
-		hungry: 'hungry',
-		starving: 'starving',
-		ran_away: 'away',
-		dead: 'gone',
-		resting: 'resting'
-	};
-	const breedChoices = $derived(
-		species.flatMap((s) =>
-			s.breeds.map((b) => ({ value: `${s.id}/${b.id}`, label: `${b.label} (${s.label})`, b }))
-		)
-	);
-	const chosen = $derived(breedChoices.find((c) => c.value === choice));
 
 	async function loadPet() {
 		try {
 			pet = await getPet();
-			if (!pet && !species.length) {
-				species = await petSpecies();
-				choice = breedChoices[0]?.value ?? '';
-			}
 		} catch {
 			pet = undefined;
 		}
 	}
 
-	async function adopt() {
-		const [speciesId, breedId] = choice.split('/');
-		try {
-			pet = await adoptPet(speciesId, breedId, petName.trim());
-			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
-		} catch (e) {
-			message = { ok: false, text: e instanceof Error ? e.message : String(e) };
-		}
-	}
 
 	/** Today's #1, a running focus session, and saves waiting to be sent. */
 	let next = $state<TodayStep | null>(null);
@@ -179,18 +138,6 @@
 				? ` ${fed.name} is full for today.`
 				: '';
 
-	async function markDone() {
-		if (!next) return;
-		try {
-			const { fed } = await completeStep(next.stepId);
-			nextResult = `Done.${fedText(fed)}`;
-			void loadNext();
-			void loadPet();
-			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
-		} catch (e) {
-			nextResult = e instanceof Error ? e.message : String(e);
-		}
-	}
 
 	async function focus() {
 		if (!next) return;
@@ -221,35 +168,10 @@
 		}
 	}
 
-	/** Today's reminders not acted on, and why none went out if they're held back. */
-	let reminderList = $state<Reminder[]>([]);
-	let held = $state<string | null>(null);
-
-	async function loadReminders() {
-		try {
-			const check = await checkReminders();
-			reminderList = [...check.fresh, ...check.open];
-			held = check.held;
-		} catch {
-			reminderList = [];
-		}
-	}
-
-	async function actOn(reminder: Reminder, action: ReminderAction) {
-		try {
-			await actOnReminder(reminder.id, action);
-			reminderList = reminderList.filter((r) => r.id !== reminder.id);
-			if (action === 'done') void loadPet();
-			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
-		} catch (e) {
-			message = { ok: false, text: e instanceof Error ? e.message : String(e) };
-		}
-	}
 
 	/** Today's reviews: the badge number. */
 	let reviews = $state<ReviewCard[]>([]);
 	let dueTotal = $state(0);
-	let reviewing = $state(false);
 	let showAnswer = $state(false);
 	let reviewedToday = $state(0);
 
@@ -270,7 +192,6 @@
 			reviewedToday += 1;
 			showAnswer = false;
 			if (!reviews.length) {
-				reviewing = false;
 				void loadPet();
 			}
 			void chrome.runtime.sendMessage({ type: 'REFRESH_BADGE' });
@@ -311,6 +232,11 @@
 	}
 
 	onMount(async () => {
+		void Promise.all([
+			import('../lib/ct/ct-weather.js'),
+			import('../lib/ct/ct-kawaii.js'),
+			import('../lib/ct/ct-grime.js')
+		]);
 		const settings = await getSettings();
 		apiBase = settings.apiBase;
 		token = settings.token ?? '';
@@ -320,7 +246,6 @@
 		if (settings.token) {
 			void loadPet();
 			void loadNext();
-			void loadReminders();
 			void loadRecent();
 			void loadReviews();
 		}
@@ -373,6 +298,63 @@
 		busy = false;
 	}
 
+	// Design system 11: the room strip follows the time of day and the pet's mood.
+	const hour = new Date().getHours() + new Date().getMinutes() / 60;
+	let showCheckIn = $state(false);
+	let showWant = $state(false);
+	let petAction = $state('auto');
+	const tod =
+		hour >= 5 && hour < 8.5
+			? 'dawn'
+			: hour >= 8.5 && hour < 17.5
+				? 'day'
+				: hour >= 17.5 && hour < 20.5
+					? 'sunset'
+					: 'night';
+	const dark = tod !== 'day';
+	const floor = { dawn: '#E7DCD2', day: '#ECE6DA', sunset: '#E3D2C3', night: '#2B2D3D' }[tod];
+	const glass = dark
+		? {
+				bg: 'rgba(22,24,38,.42)',
+				ink: '#F6F4EF',
+				meta: '#D9D4CA',
+				ring: 'inset 0 0 0 1px rgba(255,255,255,.14)'
+			}
+		: {
+				bg: 'rgba(255,255,255,.5)',
+				ink: '#1B1A17',
+				meta: '#57534B',
+				ring: 'inset 0 0 0 1px rgba(255,255,255,.65)'
+			};
+	const MOOD_STATE: Record<string, string> = {
+		happy: 'happy',
+		resting: 'happy',
+		peckish: 'peckish',
+		hungry: 'hungry',
+		starving: 'starving',
+		ran_away: 'ran',
+		dead: 'died'
+	};
+	const ROOMS: Record<
+		string,
+		{ dust: number; webs: string; dot: string; short: (n: string) => string }
+	> = {
+		happy: { dust: 0, webs: '', dot: 'oklch(0.6 0.15 145)', short: (n) => `${n} is happy` },
+		peckish: { dust: 0.55, webs: '', dot: 'oklch(0.75 0.12 80)', short: (n) => `${n} is peckish` },
+		hungry: { dust: 0.8, webs: 'tr', dot: 'oklch(0.6 0.15 35)', short: (n) => `${n} is hungry` },
+		starving: {
+			dust: 1,
+			webs: 'tr,tl',
+			dot: 'oklch(0.6 0.15 35)',
+			short: (n) => `${n} is starving`
+		},
+		ran: { dust: 1, webs: 'tr,tl', dot: '#78736A', short: (n) => `${n} ran away` },
+		died: { dust: 0.6, webs: 'tr,tl', dot: '#78736A', short: (n) => `In memory of ${n}` },
+		egg: { dust: 0, webs: '', dot: '#78736A', short: (n) => n }
+	};
+	const petState = $derived(pet ? (MOOD_STATE[pet.mood] ?? 'happy') : 'egg');
+	const room = $derived(ROOMS[petState] ?? ROOMS.happy);
+
 	const savedText = () => (asReference ? 'Kept as a reference' : 'Saved to your inbox');
 
 	function savePage() {
@@ -424,22 +406,21 @@
 	}
 </script>
 
-<main class="flex w-[360px] flex-col gap-4 bg-stone-50 p-4 text-stone-900">
-	<header class="flex items-center justify-between">
-		<h1 class="text-base font-semibold">createthings</h1>
-		{#if view === 'capture'}
-			<span class="flex gap-3">
-				<button class="text-xs text-stone-500 underline" onclick={openSettings}>Settings</button>
-				<button class="text-xs text-stone-500 underline" onclick={() => (view = 'connect')}>
-					Connection
-				</button>
-			</span>
-		{:else if view === 'settings'}
-			<button class="text-xs text-stone-500 underline" onclick={() => (view = 'capture')}
-				>Back</button
-			>
-		{/if}
-	</header>
+<main
+	class={view === 'capture'
+		? 'popup'
+		: 'flex w-[360px] flex-col gap-4 bg-stone-50 p-4 text-stone-900'}
+>
+	{#if view !== 'capture'}
+		<header class="flex items-center justify-between">
+			<h1 class="text-base font-semibold">createthings</h1>
+			{#if view === 'settings'}
+				<button class="text-xs text-stone-500 underline" onclick={() => (view = 'capture')}
+					>Back</button
+				>
+			{/if}
+		</header>
+	{/if}
 
 	{#if view === 'settings'}
 		<section class="flex flex-col gap-3 rounded-lg border border-stone-200 bg-white p-3">
@@ -521,325 +502,204 @@
 			</button>
 		</section>
 	{:else}
-		{#if pet}
-			<section
-				class="flex flex-col gap-1 rounded-lg border-l-4 border-stone-200 bg-white p-3"
-				style="border-left-color: {MOOD_COLOR[pet.mood]}"
+		<!-- Design system 11: extension popup, 360 × 560 -->
+		<div class="room">
+			<div class="fill" data-ct data-hour={hour} data-weather="clear">
+				<ct-weather class="fill"></ct-weather>
+			</div>
+			<div
+				class="floor"
+				style:background="linear-gradient(180deg,rgba(0,0,0,0) 0%,{floor} 75%)"
+			></div>
+			<div
+				class="fill"
+				data-ct
+				data-level={room.dust}
+				data-webs={room.webs}
+				data-fog="0"
+				data-tone={dark ? 'dark' : 'light'}
+				data-seed="22"
+				style="pointer-events:none"
 			>
-				<p class="text-sm">
-					<span class="font-medium">{pet.pet.name}</span> is {MOOD_WORD[pet.mood]}
-					<span class="text-xs text-stone-500">· {pet.pet.personality}</span>
-				</p>
-				<p class="text-xs text-stone-600">{pet.why}</p>
-				{#if pet.next}<p class="text-xs text-stone-500">{pet.next}.</p>{/if}
-				{#if pet.comingHome}
-					<p class="text-xs text-stone-600">
-						Coming home: {pet.comingHome.done} of {pet.comingHome.needed} days of work.
-					</p>
-				{/if}
-				<p class="text-xs text-stone-500">
-					Ate {pet.today.eaten} of {pet.today.limit} today{pet.today.full
-						? ': full, back tomorrow'
-						: ''}.
-					<button class="underline" onclick={() => (showMeals = !showMeals)}>
-						{showMeals ? 'Hide meals' : 'Recent meals'}
-					</button>
-				</p>
-				{#if showMeals}
-					<ul class="text-xs text-stone-600">
-						{#each pet.history.slice(0, 5) as meal (meal.at)}
-							<li class="truncate" title={meal.label}>
-								{meal.size} · {meal.label} · {new Date(meal.at).toLocaleDateString()}
-							</li>
-						{:else}
-							<li>Nothing yet. Finish a step, today's reviews or a quiz.</li>
-						{/each}
-					</ul>
-				{/if}
-				<form
-					class="mt-1 flex gap-1"
-					onsubmit={(e) => {
-						e.preventDefault();
-						void sendCheckIn();
-					}}
+				<ct-grime class="fill"></ct-grime>
+			</div>
+			{#if pet}
+				<div
+					class="room-pet"
+					data-ct
+					data-species={pet.pet.species}
+					data-state={petState}
+					data-action={petAction}
 				>
-					<input
-						class="min-w-0 flex-1 rounded-md border border-stone-300 px-2 py-1 text-xs"
-						bind:value={checkInText}
-						placeholder="Did something? One line feeds {pet.pet.name}"
-						maxlength="500"
-					/>
-					<button
-						class="rounded-md bg-stone-900 px-2 py-1 text-xs text-white disabled:opacity-50"
-						disabled={!checkInText.trim()}
-					>
-						Check in
-					</button>
-				</form>
-				{#if checkInResult}<p class="text-xs text-stone-600">{checkInResult}</p>{/if}
-				<p class="text-[11px] text-stone-400">
-					The button's colour is {pet.pet.name}'s mood; its number is today's reviews.
-				</p>
-			</section>
-		{:else if pet === null && breedChoices.length}
-			<section class="flex flex-col gap-2 rounded-lg border border-stone-200 bg-white p-3">
-				<p class="text-sm font-medium">Adopt your pet</p>
-				<p class="text-xs text-stone-600">
-					It eats when you do real work (steps, reviews, quizzes) and gets hungry when you don't.
-				</p>
-				<select class="rounded-md border border-stone-300 px-2 py-1.5 text-sm" bind:value={choice}>
-					{#each breedChoices as c (c.value)}
-						<option value={c.value}>{c.label}</option>
-					{/each}
-				</select>
-				{#if chosen}
-					<p class="text-xs text-stone-600">
-						{chosen.b.personality}. <em>"{chosen.b.voice.gentle}"</em>
-					</p>
-				{/if}
-				<input
-					class="rounded-md border border-stone-300 px-2 py-1.5 text-sm"
-					bind:value={petName}
-					placeholder="Name it"
-					maxlength="40"
-				/>
-				<button
-					class="self-end rounded-md bg-stone-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
-					disabled={!petName.trim() || !choice}
-					onclick={adopt}
-				>
-					Adopt
-				</button>
-			</section>
-		{/if}
-
-		{#if focusing}
-			<section class="flex flex-col gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-				<p class="text-sm">
-					<span class="font-medium">Focusing:</span>
-					{focusing.stepTitle}
-				</p>
-				<p class="text-2xl font-semibold tabular-nums">
-					{focusLeft > 0 ? mmss(focusLeft) : "Time's up"}
-				</p>
-				<input
-					class="rounded-md border border-stone-300 px-2 py-1 text-xs"
-					bind:value={focusNote}
-					placeholder="What did you do? (goes in your journal)"
-				/>
-				<button
-					class="self-end rounded-md bg-stone-900 px-3 py-1.5 text-xs font-medium text-white"
-					onclick={stopFocus}
-				>
-					{focusLeft > 0 ? 'Stop early' : 'Finish'}
-				</button>
-			</section>
-		{:else if next}
-			<section class="flex flex-col gap-1 rounded-lg border border-stone-200 bg-white p-3">
-				<h2 class="text-xs font-medium text-stone-500">
-					{next.fromPlan ? "Today's #1" : 'Next step'}
-				</h2>
-				<p class="text-sm font-medium">{next.title}</p>
-				<p class="text-xs text-stone-600">{next.line}</p>
-				{#if next.twoMinute}
-					<p class="text-xs text-stone-600">2-minute start: {next.twoMinute}</p>
-				{/if}
-				{#if next.clash}
-					<p class="text-xs text-amber-700">You're busy {next.clash} in your calendar.</p>
-				{/if}
-				<div class="mt-1 flex gap-2">
-					<button
-						class="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-medium text-white"
-						onclick={focus}
-					>
-						Focus {next.minutes} min
-					</button>
-					<button class="rounded-md border border-stone-300 px-3 py-1.5 text-xs" onclick={markDone}>
-						Done
-					</button>
+					<ct-kawaii class="fill"></ct-kawaii>
 				</div>
-			</section>
-		{/if}
-		{#if nextResult}<p class="text-xs text-stone-600">{nextResult}</p>{/if}
-		{#if waitingCount}
-			<p class="text-xs text-amber-700">
-				{waitingCount} save{waitingCount === 1 ? '' : 's'} waiting on this device: {waitingCount ===
-				1
-					? 'it sends'
-					: 'they send'} when createthings can be reached.
-			</p>
-		{/if}
-
-		{#if reminderList.length}
-			<section class="flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
-				<h2 class="text-xs font-medium text-stone-600">Reminders</h2>
-				{#each reminderList as reminder (reminder.id)}
-					<div class="flex flex-col gap-1">
-						<p class="text-sm">{reminder.body}</p>
-						<div class="flex flex-wrap gap-1">
-							{#each reminder.actions.filter((a) => a.action !== 'start') as a (a.action)}
-								<button
-									class="rounded-md border border-stone-300 bg-white px-2 py-1 text-xs"
-									title={a.label}
-									onclick={() => actOn(reminder, a.action)}
-								>
-									{a.action === 'two_minute' ? '2-minute version' : a.label}
-								</button>
-							{/each}
-							<button
-								class="px-1 text-xs text-stone-500 underline"
-								onclick={() => actOn(reminder, 'dismiss')}
-							>
-								Not now
-							</button>
-						</div>
+			{/if}
+			<div
+				class="brand"
+				style:background={glass.bg}
+				style:box-shadow="{glass.ring},0 8px 24px rgba(27,26,23,.12)"
+				style:color={glass.ink}
+			>
+				<span class="seal">ct</span>createthings
+			</div>
+			{#if pet}
+				<div
+					class="mood"
+					style:background={glass.bg}
+					style:box-shadow="{glass.ring},0 8px 24px rgba(27,26,23,.12)"
+				>
+					<div class="mood-head" style:color={glass.ink}>
+						<span class="dot" style:background={room.dot}></span>{room.short(pet.pet.name)}
 					</div>
-				{/each}
-			</section>
-		{:else if held}
-			<p class="text-[11px] text-stone-400">Reminders held: {held}.</p>
-		{/if}
+					<div class="mood-long" style:color={glass.meta}>{pet.why}</div>
+					<button class="btn-xs" onclick={() => (showCheckIn = !showCheckIn)}>Check in</button>
+				</div>
+			{:else if pet === null}
+				<div
+					class="mood"
+					style:background={glass.bg}
+					style:box-shadow="{glass.ring},0 8px 24px rgba(27,26,23,.12)"
+				>
+					<div class="mood-head" style:color={glass.ink}>No pet yet</div>
+					<button class="btn-xs" onclick={() => chrome.tabs.create({ url: `${apiBase}/start` })}
+						>Meet your pet</button
+					>
+				</div>
+			{/if}
+		</div>
 
-		{#if reviews.length || reviewedToday}
-			<section class="flex flex-col gap-2 rounded-lg border border-violet-200 bg-violet-50 p-3">
-				{#if !reviews.length}
-					<p class="text-sm">Reviews done for today ({reviewedToday}). Nice.</p>
-				{:else if !reviewing}
-					<div class="flex items-center justify-between gap-2">
-						<p class="text-sm">
-							<span class="font-medium">{reviews.length} to review today</span>
-							<span class="block text-xs text-stone-600">
-								Quick questions from steps you finished, so they stick{dueTotal > reviews.length
-									? ` (${dueTotal - reviews.length} more wait for another day)`
-									: ''}.
-							</span>
-						</p>
-						<button
-							class="shrink-0 rounded-md bg-violet-700 px-3 py-1.5 text-xs font-medium text-white"
-							onclick={() => (reviewing = true)}
-						>
-							Start
-						</button>
-					</div>
-				{:else}
+		<div class="body">
+			{#if showCheckIn}
+				<!-- 04: check-in input -->
+				<div class="checkin">
+					<input
+						bind:value={checkInText}
+						placeholder="did 5 minutes on the chords"
+						onkeydown={(e) => e.key === 'Enter' && sendCheckIn()}
+					/>
+					<button class="btn-xs" onclick={sendCheckIn}>Check in</button>
+				</div>
+				{#if checkInResult}<div class="note">{checkInResult}</div>{/if}
+			{/if}
+
+			<!-- Reviews -->
+			<div class="card reviews">
+				<div class="row">
+					<span class="strong"
+						>{reviews.length
+							? `Review ${reviewedToday + 1} of ${reviewedToday + reviews.length}`
+							: dueTotal || reviewedToday
+								? 'Reviews done'
+								: 'No reviews due'}</span
+					><span class="meta">{reviews.length} left</span>
+				</div>
+				{#if reviews[0]}
 					{@const card = reviews[0]}
-					<p class="text-xs text-stone-500">
-						{reviews.length} left{card.itemTitle ? ` · ${card.itemTitle}` : ''}
-					</p>
-					<p class="text-sm font-medium">{card.prompt}</p>
+					<div class="q">{card.prompt}</div>
 					{#if showAnswer}
-						<p class="rounded-md bg-white p-2 text-sm">{card.answer}</p>
-						<div class="grid grid-cols-3 gap-2">
-							<button
-								class="rounded-md border border-stone-300 bg-white px-2 py-1.5 text-xs"
-								onclick={() => rate(card, 'forgot')}>Forgot</button
-							>
-							<button
-								class="rounded-md border border-stone-300 bg-white px-2 py-1.5 text-xs"
-								onclick={() => rate(card, 'shaky')}>Shaky</button
-							>
-							<button
-								class="rounded-md bg-violet-700 px-2 py-1.5 text-xs font-medium text-white"
-								onclick={() => rate(card, 'got_it')}>Got it</button
-							>
+						<div class="a">{card.answer}</div>
+						<div class="grades">
+							<button class="grade" onclick={() => rate(card, 'forgot')}>Forgot</button>
+							<button class="grade" onclick={() => rate(card, 'shaky')}>Shaky</button>
+							<button class="grade ink" onclick={() => rate(card, 'got_it')}>Got it</button>
 						</div>
 					{:else}
-						<button
-							class="self-start rounded-md border border-violet-300 bg-white px-3 py-1.5 text-xs"
-							onclick={() => (showAnswer = true)}
+						<button class="btn-xs self-start" onclick={() => (showAnswer = true)}
+							>Show answer</button
 						>
-							Show answer
-						</button>
 					{/if}
+				{:else if reviewedToday && pet}
+					<div class="done-line">All done. + snack for {pet.pet.name}</div>
 				{/if}
-			</section>
-		{/if}
-
-		<section class="flex flex-col gap-2 rounded-lg border border-stone-200 bg-white p-3">
-			<p class="truncate text-sm font-medium" title={tab.title}>{tab.title || 'This page'}</p>
-			<textarea
-				class="min-h-14 rounded-md border border-stone-300 px-2 py-1.5 text-sm"
-				bind:value={note}
-				placeholder="Add a note (optional)"
-			></textarea>
-			<label class="flex items-center gap-2 text-xs text-stone-600">
-				<input type="checkbox" bind:checked={asReference} />
-				Keep as a reference (not something to do)
-			</label>
-			<div class="grid grid-cols-3 gap-2">
-				<button
-					class="rounded-md bg-stone-900 px-2 py-2 text-xs font-medium text-white disabled:opacity-50"
-					disabled={busy || !canSavePage}
-					onclick={savePage}
-					title={canSavePage ? 'Save this page' : "This page can't be saved as a link"}
-				>
-					Save page
-				</button>
-				<button
-					class="rounded-md border border-stone-300 px-2 py-2 text-xs font-medium disabled:opacity-50"
-					disabled={busy}
-					onclick={saveScreen}
-				>
-					Screenshot
-				</button>
-				<button
-					class="rounded-md border border-stone-300 px-2 py-2 text-xs font-medium disabled:opacity-50"
-					disabled={busy}
-					onclick={pickArea}
-				>
-					Pick area
-				</button>
 			</div>
-		</section>
 
-		<section class="flex flex-col gap-2 rounded-lg border border-stone-200 bg-white p-3">
-			<label class="flex flex-col gap-1 text-xs font-medium">
-				I want to…
-				<input
-					class="rounded-md border border-stone-300 px-2 py-1.5 text-sm"
-					bind:value={want}
-					placeholder="learn to make lo-fi beats"
-					onkeydown={(e) => e.key === 'Enter' && want.trim() && saveWant()}
-				/>
-			</label>
-			<button
-				class="self-end rounded-md border border-stone-300 px-3 py-1.5 text-xs font-medium disabled:opacity-50"
-				disabled={busy || !want.trim()}
-				onclick={saveWant}
-			>
-				Save
-			</button>
-		</section>
+			<!-- Today's #1 -->
+			{#if focusing}
+				<div class="card one">
+					<div class="one-text">
+						<div class="one-label">FOCUS · {mmss(focusLeft)}</div>
+						<input class="one-note" bind:value={focusNote} placeholder="What did you do?" />
+					</div>
+					<button class="btn-xs" onclick={stopFocus}>End</button>
+				</div>
+			{:else if next}
+				<div class="card one">
+					<div class="one-text">
+						<div class="one-label">TODAY'S #1 · {next.twoMinute ? 2 : next.minutes} MIN</div>
+						<div class="one-title">{next.twoMinute ?? next.title}</div>
+					</div>
+					<button class="btn-xs" onclick={focus}>Start</button>
+				</div>
+			{/if}
+			{#if nextResult}<div class="note">{nextResult}</div>{/if}
 
-		{#if recent.length}
-			<section class="flex flex-col gap-1 rounded-lg border border-stone-200 bg-white p-3">
-				<h2 class="text-xs font-medium text-stone-500">Recent saves</h2>
-				<ul class="flex flex-col divide-y divide-stone-100">
-					{#each recent as save (save.id)}
-						<li class="flex items-center gap-2 py-1.5">
-							<div class="min-w-0 flex-1">
-								<p class="truncate text-sm" title={save.note ?? save.title}>{save.title}</p>
-								<p class="text-xs text-stone-500">
-									{stateOf(save)}{save.platform ? ` · ${save.platform}` : ''}
-								</p>
-							</div>
-							{#if UNDOABLE.includes(save.status)}
-								<button
-									class="text-xs text-stone-500 underline"
-									aria-label="Undo saving {save.title}"
-									onclick={() => undo(save)}
-								>
-									Undo
-								</button>
-							{/if}
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/if}
+			<!-- Save -->
+			<div class="saves">
+				<button class="save-page" disabled={busy || !canSavePage} onclick={savePage}
+					><span>Save this page</span><span class="kbd">⌥⇧S</span></button
+				>
+				<div class="save-row">
+					<button class="save-small" disabled={busy} onclick={saveScreen}>Screenshot</button>
+					<button class="save-small" onclick={pickArea}
+						>Pick area <span class="kbd2">⌥⇧A</span></button
+					>
+					<button class="save-small" onclick={() => (showWant = !showWant)}>I want to…</button>
+				</div>
+				{#if showWant}
+					<div class="checkin">
+						<input
+							bind:value={want}
+							placeholder="learn jazz piano chords"
+							onkeydown={(e) => e.key === 'Enter' && want.trim() && saveWant()}
+						/>
+						<button class="btn-xs" disabled={!want.trim() || busy} onclick={saveWant}>Save</button>
+					</div>
+				{/if}
+				{#if message}<div class="note" class:bad={!message.ok} role="status">
+						{message.text}
+					</div>{/if}
+				{#if waitingCount}<div class="note">
+						{waitingCount} saved on this device, waiting to send.
+					</div>{/if}
+			</div>
+
+			<!-- Recent saves -->
+			<div class="recent-head">
+				<span>Recent saves</span><button
+					class="see-all"
+					onclick={() => chrome.tabs.create({ url: `${apiBase}/app` })}
+					>See all {recent.length}</button
+				>
+			</div>
+			<div class="card list">
+				{#each recent.slice(0, 3) as save, i (save.id)}
+					<div class="save" class:line={i < Math.min(recent.length, 3) - 1}>
+						{#if save.captureType === 'url'}
+							<div class="thumb link">Link</div>
+						{:else}
+							<div class="thumb"></div>
+						{/if}
+						<div class="save-text">
+							<span class="save-title">{save.title}</span><span class="meta">{stateOf(save)}</span>
+						</div>
+						{#if UNDOABLE.includes(save.status)}<button class="undo" onclick={() => undo(save)}
+								>Undo</button
+							>{/if}
+					</div>
+				{:else}
+					<div class="save"><span class="meta">Nothing saved yet.</span></div>
+				{/each}
+			</div>
+			<div class="foot">
+				<button class="see-all" onclick={openSettings}>Settings</button><button
+					class="see-all"
+					onclick={() => (view = 'connect')}>Connection</button
+				>
+			</div>
+		</div>
 	{/if}
 
-	{#if message}
+	{#if message && view !== 'capture'}
 		<p class="text-sm {message.ok ? 'text-green-700' : 'text-red-700'}" role="status">
 			{message.text}
 		</p>
@@ -852,3 +712,364 @@
 		{/if}
 	{/if}
 </main>
+
+<style>
+	/* Design system 11: extension popup, 360 × 560. */
+	.popup {
+		position: relative;
+		width: 360px;
+		height: 560px;
+		overflow: hidden;
+		background: #f6f4ef;
+		display: flex;
+		flex-direction: column;
+		font-family: 'Geist', sans-serif;
+		color: #1b1a17;
+	}
+	.fill {
+		position: absolute;
+		inset: 0;
+	}
+	.room {
+		position: relative;
+		height: 112px;
+		flex: none;
+		overflow: hidden;
+		background: #b9c8d8;
+	}
+	.floor {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 46px;
+	}
+	.room-pet {
+		position: absolute;
+		left: 4px;
+		bottom: -14px;
+		width: 120px;
+		height: 120px;
+	}
+	.brand {
+		position: absolute;
+		left: 10px;
+		top: 10px;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		height: 28px;
+		padding: 0 10px 0 6px;
+		border-radius: 999px;
+		backdrop-filter: blur(18px) saturate(1.4);
+		-webkit-backdrop-filter: blur(18px) saturate(1.4);
+		font-size: 12px;
+		font-weight: 600;
+	}
+	.seal {
+		width: 18px;
+		height: 18px;
+		border: 1.5px solid oklch(0.6 0.15 35);
+		border-radius: 3px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: 'Instrument Serif', serif;
+		font-weight: 400;
+		font-size: 11px;
+		color: oklch(0.5 0.15 35);
+		transform: rotate(-4deg);
+	}
+	.mood {
+		position: absolute;
+		right: 10px;
+		bottom: 10px;
+		width: 204px;
+		padding: 10px 12px;
+		border-radius: 14px;
+		backdrop-filter: blur(18px) saturate(1.4);
+		-webkit-backdrop-filter: blur(18px) saturate(1.4);
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+	.mood-head {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 12px;
+		font-weight: 600;
+	}
+	.dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+	}
+	.mood-long {
+		font-size: 11px;
+		line-height: 1.35;
+	}
+	.btn-xs {
+		align-self: flex-start;
+		height: 24px;
+		padding: 0 10px;
+		border-radius: 999px;
+		background: #1b1a17;
+		color: #fff;
+		font-size: 11px;
+		font-weight: 500;
+		flex: none;
+	}
+	.body {
+		flex: 1;
+		overflow-y: auto;
+		padding: 10px 12px;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+	.card {
+		background: #fff;
+		border-radius: 14px;
+		box-shadow: 0 1px 2px rgba(27, 26, 23, 0.05);
+	}
+	.reviews {
+		padding: 12px 14px;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+	.row {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+	}
+	.strong {
+		font-size: 12px;
+		font-weight: 600;
+	}
+	.meta {
+		font-size: 11px;
+		color: #5f5a52;
+	}
+	.q {
+		font-family: 'Instrument Serif', serif;
+		font-size: 18px;
+		line-height: 1.2;
+	}
+	.a {
+		font-size: 13px;
+		color: #57534b;
+	}
+	.grades {
+		display: flex;
+		gap: 6px;
+	}
+	.grade {
+		flex: 1;
+		height: 26px;
+		border-radius: 999px;
+		background: #efece5;
+		font-size: 12px;
+		font-weight: 500;
+		color: #1b1a17;
+	}
+	.grade.ink {
+		background: #1b1a17;
+		color: #fff;
+	}
+	.done-line {
+		font-size: 13px;
+		color: oklch(0.4 0.1 145);
+	}
+	.one {
+		padding: 10px 12px 10px 14px;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		box-shadow: 0 0 0 1.5px oklch(0.6 0.15 35);
+	}
+	.one-text {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+	.one-label {
+		font-size: 10px;
+		font-weight: 600;
+		color: oklch(0.48 0.14 35);
+		letter-spacing: 0.02em;
+	}
+	.one-title {
+		font-size: 13px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.one-note {
+		font-size: 13px;
+		background: transparent;
+		outline: none;
+	}
+	.one .btn-xs {
+		height: 26px;
+		padding: 0 12px;
+		font-size: 12px;
+		align-self: center;
+	}
+	.saves {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+	.save-page {
+		height: 34px;
+		border-radius: 12px;
+		background: #1b1a17;
+		color: #fff;
+		font-size: 13px;
+		font-weight: 500;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 14px;
+	}
+	.kbd {
+		font-family: 'Geist Mono', monospace;
+		font-size: 11px;
+		color: #b8b2a6;
+	}
+	.save-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 6px;
+	}
+	.save-small {
+		height: 30px;
+		border-radius: 10px;
+		background: #fff;
+		box-shadow: 0 0 0 1px #e4e0d7;
+		font-size: 12px;
+		font-weight: 500;
+		color: #1b1a17;
+	}
+	.kbd2 {
+		font-family: 'Geist Mono', monospace;
+		font-size: 10px;
+		color: #5f5a52;
+	}
+	.checkin {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		height: 40px;
+		padding: 0 6px 0 14px;
+		background: #efece5;
+		border-radius: 14px;
+	}
+	.checkin:focus-within {
+		box-shadow: 0 0 0 2px #1b1a17;
+	}
+	.checkin input {
+		flex: 1;
+		min-width: 0;
+		background: transparent;
+		outline: none;
+		font-size: 13px;
+	}
+	.checkin .btn-xs {
+		align-self: center;
+		height: 28px;
+		padding: 0 12px;
+		font-size: 12px;
+	}
+	.note {
+		font-size: 11px;
+		line-height: 1.4;
+		color: #57534b;
+	}
+	.note.bad {
+		color: oklch(0.5 0.15 35);
+	}
+	.recent-head {
+		display: flex;
+		justify-content: space-between;
+		font-size: 11px;
+		color: #5f5a52;
+		padding: 2px 2px 0;
+	}
+	.see-all {
+		font-size: 11px;
+		color: #5f5a52;
+	}
+	.list {
+		display: flex;
+		flex-direction: column;
+	}
+	.save {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 8px 12px;
+	}
+	.save.line {
+		border-bottom: 1px solid #efece5;
+	}
+	.thumb {
+		width: 32px;
+		height: 32px;
+		flex: none;
+		border-radius: 8px;
+		background: repeating-linear-gradient(135deg, #ece8e0 0 4px, #f3f0ea 4px 8px);
+	}
+	.thumb.link {
+		background: #efece5;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 9px;
+		color: #57534b;
+	}
+	.save-text {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+	}
+	.save-title {
+		font-size: 12px;
+		font-weight: 500;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.undo {
+		font-size: 11px;
+		color: #57534b;
+	}
+	.foot {
+		display: flex;
+		justify-content: flex-end;
+		gap: 12px;
+		padding: 2px;
+	}
+	button {
+		cursor: pointer;
+		transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+	}
+	button:active {
+		transform: scale(0.97);
+	}
+	button:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+	button:focus-visible,
+	input:focus-visible {
+		outline: 2px solid #1b1a17;
+		outline-offset: 2px;
+	}
+</style>

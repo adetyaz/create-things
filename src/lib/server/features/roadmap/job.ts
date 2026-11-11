@@ -15,6 +15,7 @@ import { intentOf } from '$lib/server/features/intents/registry';
 import { shortTitle } from '$lib/server/features/items/title';
 import { unitsOf } from '$lib/server/features/courses/service';
 import { alignToUnits, normalizeRoadmap, type PlannedMilestone } from './normalize';
+import { ABOUT_MARK, aboutOf } from '$lib/server/features/items/about';
 import { isTasters, ROADMAP_SYSTEM, replanPrompt, roadmapPrompt } from './prompt';
 
 type Platform = App.Platform | undefined;
@@ -111,7 +112,8 @@ async function generate(
 					goalChosen: Boolean(chosenGoal),
 					targetDate: item.targetDate,
 					courseUnits,
-					summary: analysis?.summary ?? item.note,
+					summary: analysis?.summary ?? item.note?.split(ABOUT_MARK)[0].trim() ?? null,
+					userDetails: aboutOf(item.note),
 					brief: analysis?.brief ?? null,
 					skills: analysis?.skills ?? [],
 					size: item.size,

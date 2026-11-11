@@ -76,6 +76,8 @@ export interface RoadmapContext {
 	size: string | null;
 	difficulty: string | null;
 	memories: RecalledMemory[];
+	/** What the user told us about it before planning (their level, hours, deadline, purpose…). */
+	userDetails?: string | null;
 }
 
 export function roadmapPrompt(c: RoadmapContext): string {
@@ -96,6 +98,8 @@ export function roadmapPrompt(c: RoadmapContext): string {
 		provingGroundRules(c),
 		c.targetDate && `Target date: ${c.targetDate}. Size the plan to fit before it.`,
 		...courseLines(c.courseUnits),
+		c.userDetails &&
+			`What they told you (follow it: their level, time per week, purpose and deadline shape the steps): ${c.userDetails}`,
 		c.summary && `What it is: ${c.summary}`,
 		c.brief && `Starting brief: ${c.brief}`,
 		c.skills.length > 0 && `Skills it needs: ${c.skills.join(', ')}`,

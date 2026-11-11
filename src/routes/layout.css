@@ -1,21 +1,157 @@
 @import 'tailwindcss';
 
+/*
+ * createthings design tokens (Design system and art direction, sections 01–03 and 15).
+ * Each launch theme sets the same variables; switching theme is one attribute on <html>:
+ * <html data-theme="night">. Warm paper is the default. Tailwind classes read the variables,
+ * e.g. bg-paper, text-ink, text-ink-3, bg-card, text-seal, font-serif, font-ui, font-mono.
+ */
+/* Motion (design system 03): 240ms ease-out for UI; transform and opacity only. */
+:root {
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+	--dur-press: 160ms;
+	--dur-ui: 240ms;
+}
+
+:root,
+:root[data-theme='paper'] {
+	--ct-paper: #f6f4ef;
+	--ct-paper-sunk: #efece5;
+	--ct-card: #ffffff;
+	--ct-line: #e4e0d7;
+	--ct-ink: #1b1a17;
+	--ct-ink-2: #57534b;
+	--ct-ink-3: #5f5a52;
+	--ct-on-ink: #ffffff;
+	--ct-seal: oklch(0.5 0.15 35);
+	--ct-seal-soft: oklch(0.6 0.15 35);
+	--ct-shadow: 0 1px 2px rgba(27, 26, 23, 0.04), 0 8px 24px rgba(27, 26, 23, 0.06);
+}
+/* The other four launch themes. Seal colours follow ct-themes.js (hue, lightness, chroma shifts). */
+:root[data-theme='night'] {
+	--ct-paper: #1d1a16;
+	--ct-paper-sunk: #17140f;
+	--ct-card: #29251f;
+	--ct-line: #3a342b;
+	--ct-ink: #f1e8d8;
+	--ct-ink-2: #c4b9a6;
+	--ct-ink-3: #a69c8b;
+	--ct-on-ink: #1d1a16;
+	--ct-seal: oklch(0.62 0.14 62);
+	--ct-seal-soft: oklch(0.72 0.14 62);
+	--ct-shadow: 0 1px 2px rgba(0, 0, 0, 0.14), 0 8px 24px rgba(0, 0, 0, 0.21);
+}
+:root[data-theme='snow'] {
+	--ct-paper: #f1f4f5;
+	--ct-paper-sunk: #e7ecee;
+	--ct-card: #ffffff;
+	--ct-line: #dce3e5;
+	--ct-ink: #15221f;
+	--ct-ink-2: #4b5a56;
+	--ct-ink-3: #5f6e6a;
+	--ct-on-ink: #ffffff;
+	--ct-seal: oklch(0.46 0.16 22);
+	--ct-seal-soft: oklch(0.56 0.16 22);
+	--ct-shadow: 0 1px 2px rgba(20, 40, 50, 0.04), 0 8px 24px rgba(20, 40, 50, 0.06);
+}
+:root[data-theme='seaside'] {
+	--ct-paper: #f2eee6;
+	--ct-paper-sunk: #e9e3d8;
+	--ct-card: #fbfaf6;
+	--ct-line: #e0dacd;
+	--ct-ink: #13263a;
+	--ct-ink-2: #4a5968;
+	--ct-ink-3: #5b6a78;
+	--ct-on-ink: #fbfaf6;
+	--ct-seal: oklch(0.45 0.135 245);
+	--ct-seal-soft: oklch(0.55 0.135 245);
+	--ct-shadow: 0 1px 2px rgba(19, 38, 58, 0.04), 0 8px 24px rgba(19, 38, 58, 0.06);
+}
+:root[data-theme='botanical'] {
+	--ct-paper: #efefe6;
+	--ct-paper-sunk: #e4e6da;
+	--ct-card: #fafaf4;
+	--ct-line: #dcdfd0;
+	--ct-ink: #1e2a21;
+	--ct-ink-2: #546050;
+	--ct-ink-3: #647060;
+	--ct-on-ink: #fafaf4;
+	--ct-seal: oklch(0.48 0.13 12);
+	--ct-seal-soft: oklch(0.58 0.13 12);
+	--ct-shadow: 0 1px 2px rgba(30, 42, 33, 0.04), 0 8px 24px rgba(30, 42, 33, 0.06);
+}
+
+@theme inline {
+	--color-paper: var(--ct-paper);
+	--color-paper-sunk: var(--ct-paper-sunk);
+	--color-card: var(--ct-card);
+	--color-line: var(--ct-line);
+	--color-ink: var(--ct-ink);
+	--color-ink-2: var(--ct-ink-2);
+	--color-ink-3: var(--ct-ink-3);
+	--color-on-ink: var(--ct-on-ink);
+	--color-seal: var(--ct-seal);
+	--color-seal-soft: var(--ct-seal-soft);
+	--shadow-card: var(--ct-shadow);
+
+	--font-serif: 'Instrument Serif', Georgia, serif;
+	--font-ui: 'Geist', system-ui, sans-serif;
+	--font-mono: 'Geist Mono', ui-monospace, monospace;
+}
+
 @theme {
-	/* Zine palette */
+	/* Old v1 Zine palette: still used by /signin and /privacy until they are redesigned. */
 	--color-zine-yellow: #ffe600;
 	--color-zine-black: #0d0d0d;
 	--color-zine-off-white: #f7f7f4;
 	--color-zine-green: #00fc40;
 	--color-zine-purple: #9400ca;
-
-	/* Fonts */
 	--font-display: 'Space Grotesk', sans-serif;
 	--font-body: 'Inter', sans-serif;
 }
 
 @layer base {
 	body {
-		font-family: var(--font-body);
+		font-family: var(--font-ui);
+		background: var(--ct-paper);
+		color: var(--ct-ink);
 		-webkit-font-smoothing: antialiased;
+	}
+}
+
+/*
+ * Working: a button that's disabled because its request is running gets aria-busy (set by the app
+ * layout) and shows a small spinner before its label, so every click says something is happening.
+ */
+button[aria-busy='true'] {
+	cursor: progress;
+}
+button[aria-busy='true']::before {
+	content: '';
+	display: inline-block;
+	flex: none;
+	width: 12px;
+	height: 12px;
+	margin-inline-end: 8px;
+	border-radius: 50%;
+	border: 1.5px solid currentColor;
+	border-right-color: transparent;
+	vertical-align: -1px;
+	animation: ct-spin 0.7s linear infinite;
+}
+@keyframes ct-spin {
+	to {
+		transform: rotate(1turn);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	button[aria-busy='true']::before {
+		animation: ct-pulse 1.4s ease-in-out infinite;
+	}
+}
+@keyframes ct-pulse {
+	50% {
+		opacity: 0.35;
 	}
 }

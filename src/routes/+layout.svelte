@@ -11,7 +11,7 @@
 	<title>createthings</title>
 </svelte:head>
 
-<div class="min-h-screen text-zine-black">
+<div class="min-h-screen">
 	{@render children()}
 </div>
 <Toast />

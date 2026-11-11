@@ -504,7 +504,10 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
 		const origin = sender.origin ?? (sender.url ? new URL(sender.url).origin : '');
 		if (
 			origin !== message.apiBase ||
-			(origin !== apiBase && origin !== DEFAULT_API && !origin.endsWith('.workers.dev'))
+			(origin !== apiBase &&
+				origin !== DEFAULT_API &&
+				!origin.endsWith('.workers.dev') &&
+				!origin.endsWith('.vercel.app'))
 		) {
 			return sendResponse({ success: false, error: 'Unknown app address' });
 		}
