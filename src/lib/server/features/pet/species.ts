@@ -69,6 +69,56 @@ export const SPECIES: Species[] = [
 		]
 	},
 	{
+		id: 'rabbit',
+		label: 'Rabbit',
+		food: 'carrots',
+		breeds: [
+			{
+				id: 'lop',
+				label: 'Lop',
+				personality: 'Shy and sweet, notices every little step',
+				voice: {
+					gentle: 'Maybe just five minutes? I saved you a carrot.',
+					savage: 'Five minutes. I have been sitting here very patiently.'
+				}
+			},
+			{
+				id: 'dutch',
+				label: 'Dutch',
+				personality: 'Quick and bouncy, hates sitting still',
+				voice: {
+					gentle: 'Hop to it? Five minutes, then a break!',
+					savage: 'Five minutes. Go go go, before I eat your notes.'
+				}
+			}
+		]
+	},
+	{
+		id: 'bird',
+		label: 'Bird',
+		food: 'seeds',
+		breeds: [
+			{
+				id: 'bluebird',
+				label: 'Bluebird',
+				personality: 'Cheerful, sings about every start',
+				voice: {
+					gentle: 'Tweet! Five minutes and I sing for you.',
+					savage: 'Five minutes. I will chirp until you start.'
+				}
+			},
+			{
+				id: 'owl',
+				label: 'Owl',
+				personality: 'Wise and dry, asks the good question',
+				voice: {
+					gentle: 'What would five minutes look like? Try it.',
+					savage: 'Five minutes. Wisdom is mostly showing up.'
+				}
+			}
+		]
+	},
+	{
 		id: 'monster',
 		label: 'Fluffy monster',
 		food: 'cookies',

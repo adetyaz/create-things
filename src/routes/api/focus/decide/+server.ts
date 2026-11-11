@@ -9,6 +9,7 @@ export const POST: RequestHandler = async (event) => {
 	const { itemId, decision } = validate(decideInput, await event.request.json().catch(() => ({})));
 	const result = await decide(event.platform, currentUserId(event), itemId, decision);
 	if (result.status === 'not_found') error(404, 'No shortlisted item with that id');
-	// At the Focus limit: say so, with what's in focus, so the user can pause or finish one.
-	return json(result, { status: result.status === 'at_limit' ? 409 : 200 });
+	// At the Focus limit: say so (status 'at_limit'), with what's in focus, so the user can pause
+	// one or allow one more. Sent as 200 so the screen gets the list instead of an error.
+	return json(result);
 };

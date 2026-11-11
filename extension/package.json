@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "vite build --watch",
 		"build": "vite build",
-		"zip": "vite build && cd build && zip -r ../createthings-extension.zip . && cd .."
+		"zip": "vite build && node scripts/zip.mjs"
 	},
 	"devDependencies": {
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
@@ -16,5 +16,8 @@
 		"tailwindcss": "^4.1.4",
 		"typescript": "^5.8.3",
 		"vite": "^6.3.3"
+	},
+	"dependencies": {
+		"three": "^0.160.0"
 	}
 }

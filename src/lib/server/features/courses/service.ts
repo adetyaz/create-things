@@ -2,7 +2,7 @@
  * Follow a course: a syllabus (PDF or photos) is read once and becomes a course item with its units
  * in order. The roadmap then follows those units (roadmap/job.ts reads `course_units`).
  */
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq } from 'drizzle-orm';
 import { withDb } from '$lib/server/db';
 import { analyses, courseUnits, items } from '$lib/server/db/schema';
 import { generateJson } from '$lib/server/ai';
@@ -11,6 +11,7 @@ import { remember } from '$lib/server/features/memory/service';
 import { timezoneOf } from '$lib/server/features/plan/context';
 import { today } from '$lib/server/features/plan/dates';
 import type { CourseInput } from './input';
+import { ABOUT_MARK } from '$lib/server/features/items/about';
 import { normalizeCourse, type CourseUnit } from './normalize';
 import { COURSE_SYSTEM, coursePrompt } from './prompt';
 
@@ -65,6 +66,36 @@ export async function importCourse(
 	const title = input.title ?? (course.title || 'Course');
 	const item = await withDb(platform, (db) =>
 		db.transaction(async (tx) => {
+			if (input.itemId) {
+				// Fill in the thing the user already saved.
+				const [existing] = await tx
+					.update(items)
+					.set({
+						status: 'ready',
+						intent: 'course',
+						practiceKind: course.practiceKind,
+						goal: course.goal,
+						targetDate: course.examDate,
+						author: course.provider,
+						note: `${ABOUT_MARK} Syllabus uploaded: ${course.units.length} units${course.examDate ? `, exam on ${course.examDate}` : ''}${input.note ? `. ${input.note}` : ''}`,
+						intentConfirmedAt: new Date()
+					})
+					.where(and(eq(items.id, input.itemId), eq(items.userId, userId)))
+					.returning();
+				if (existing) {
+					await tx.delete(courseUnits).where(eq(courseUnits.itemId, existing.id));
+					await tx.insert(courseUnits).values(
+						course.units.map((u, i) => ({
+							itemId: existing.id,
+							position: i,
+							title: u.title,
+							topics: u.topics,
+							unitDate: u.date
+						}))
+					);
+					return existing;
+				}
+			}
 			const [item] = await tx
 				.insert(items)
 				.values({

@@ -6,6 +6,13 @@ createthings is an **active partner for scattered people**: people with a long l
 
 Built for the **Tatum × Walrus "Total Recall" hackathon, Track 02: Smart Agents for Real Life**.
 
+## Demo video
+
+There are two versions:
+
+- **Short (about 3 minutes):** the whole flow, without the waits. [Watch it](SHORT_VIDEO_LINK)
+- **Long (14 minutes):** the version submitted to the hackathon. It's one unedited run, so you see each AI step happen in real time, from reading a saved idea to planning a week. [Watch it](LONG_VIDEO_LINK)
+
 ---
 
 ## The problem

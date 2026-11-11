@@ -12,6 +12,8 @@ const file = z.object({
 /** Body of POST /api/courses: a syllabus as a PDF or up to 10 photos/screenshots. */
 export const courseInput = z.object({
 	files: z.array(file).min(1).max(10),
+	/** Fill in this saved thing (one the pet read as a course) instead of making a new one. */
+	itemId: z.uuid().optional(),
 	/** Optional: the course name, if the user wants to give it. */
 	title: z.string().trim().min(1).max(200).optional(),
 	note: z.string().trim().max(2000).optional()

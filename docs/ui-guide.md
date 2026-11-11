@@ -12,15 +12,26 @@ in [api.md](api.md); how the server works is in [architecture.md](architecture.m
 | Browser extension | `extension/src/` (MV3, Svelte 5)                                  | Popup (pet, today's #1 with Focus timer, reminders, reviews, settings), save toasts, import bars on X and Pinterest |
 | Shared            | `src/lib/components/` (`Toast.svelte`), `src/lib/toast.svelte.ts` | `addToast(message, type)`                                                                                           |
 
-Styles: [`src/routes/layout.css`](../src/routes/layout.css) holds the Tailwind `@theme` tokens,
-still the old v1 Zine palette. For the launch themes, define each theme's colours as CSS variables
-under a selector (`:root[data-theme="…"]`) and point the Tailwind tokens at those variables, so a
-theme switch is one attribute on `<html>`. The extension has its own
-[`app.css`](../extension/src/popup/app.css) and should read the same token names.
+Styles: [`src/routes/layout.css`](../src/routes/layout.css) holds the design system's tokens for
+the 5 launch themes as CSS variables. Use the classes (`bg-paper`, `bg-card`, `text-ink`,
+`text-ink-2`, `text-ink-3`, `text-seal`, `shadow-card`, `font-serif`, `font-ui`, `font-mono`);
+a theme switch is one attribute: `<html data-theme="night">` (paper, night, snow, seaside,
+botanical). The `zine-*` classes are the old look, left only on `/privacy`. The extension has its
+own [`app.css`](../extension/src/popup/app.css) and should read the same token names.
+
+The sky and the pet are web components in [`src/lib/ct/`](../src/lib/ct/), copied from the design
+handoff. Import them in `onMount` (they need the browser), then use `<ct-weather>` and
+`<ct-kawaii>` inside a positioned element carrying `data-ct` and `data-hour`, `data-species`,
+`data-state`, `data-action`.
+
+Built so far: the home page (`/`), onboarding (`/start`: what you're into → pet → what's on
+your mind) and capture with your saved things (`/app`).
 
 ## Talking to the server
 
-- **Same origin, JSON.** `fetch('/api/…')` from pages; send `content-type: application/json`.
+- **Same origin, JSON, through one helper.** `api<T>(path, method?, body?)` from
+  [`$lib/api`](../src/lib/api.ts). It throws `ApiError` with the server's `message`, `status`,
+  `code` and `cost`, and `needsSignIn` for a 401.
 - **Who you are:** nothing to do while building. Without `REQUIRE_SIGN_IN=true` every request is
   the dev user, so screens work without signing in. Once sign-in is on, the Better Auth cookie
   rides along automatically (sign-in UI: `/signin`, Better Auth at `/api/auth/*`).
